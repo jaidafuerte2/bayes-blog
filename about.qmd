@@ -1,0 +1,46 @@
+---
+title: "Sobre el autor"
+---
+
+![](images/mi-foto.jpg){fig-alt="Portada de la práctica del borrador del análisis de la tabla obesity latin" width="20%"}
+
+Hola.
+
+Soy David Villafuerte.
+
+Este blog nace con el objetivo de compartir proyectos reales de Business Analytics desarrollados con R y modelos bayesianos para mostrar cómo el análisis de datos puede apoyar mejores decisiones bajo incertidumbre.
+
+---
+
+## Mi recorrido
+
+Mi formación comenzó en el área de la salud y posteriormente evolucionó hacia la gestión, la programación y la ciencia de datos.
+
+Con el tiempo descubrí que los modelos bayesianos ofrecen una forma especialmente intuitiva de comunicar incertidumbre y apoyar la toma de decisiones, razón por la cual este blog está dedicado a esa temática.
+
+---
+
+## Qué encontrarás aquí
+
+- proyectos completos de análisis;
+- visualizaciones orientadas al negocio;
+- modelos bayesianos desarrollados con R;
+- interpretación de resultados;
+- recomendaciones para la toma de decisiones.
+
+El objetivo no es enseñar programación ni estadística avanzada.
+
+El objetivo es mostrar cómo un analista aborda problemas reales utilizando evidencia y razonamiento probabilístico.
+
+---
+
+## Contacto
+
+- [LinkedIn:](https://www.linkedin.com/in/jaimedavidvillafuerte/)
+- [GitHub:](https://github.com/jaidafuerte2)
+- [X (Twitter):](https://x.com/jvillafuertemd)
+
+---
+
+> *Los modelos no eliminan la incertidumbre. Nos ayudan a comprenderla y a tomar decisiones más informadas.*
+

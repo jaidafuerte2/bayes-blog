@@ -1,0 +1,22 @@
+---
+title: "Inicio"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: default
+  categories: true
+  feed: true
+---
+
+# Business Analytics Bayesiano
+
+Bienvenido.
+
+Este blog reúne proyectos reales desarrollados con **R** para mostrar cómo los modelos bayesianos pueden ayudar a comprender problemas de negocio y apoyar la toma de decisiones bajo incertidumbre.
+
+Cada publicación parte de una pregunta empresarial concreta y recorre todo el proceso analítico: exploración de los datos, construcción del modelo, interpretación de resultados y recomendaciones para la toma de decisiones.
+
+Las publicaciones aparecerán a continuación conforme vayan siendo publicadas.
+
+---
+

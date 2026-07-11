@@ -1,0 +1,13 @@
+.Rhistory
+.RData
+.Ruserdata
+
+.Rproj.user/
+
+.quarto/
+
+_site/
+
+*.html
+
+.DS_Store

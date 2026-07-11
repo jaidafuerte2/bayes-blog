@@ -1,0 +1,44 @@
+---
+title: "Cómo está organizado este blog"
+author: "David Villafuerte"
+date: "2026-07-06"
+
+categories:
+  - Editorial
+
+description: >
+  Una guía rápida para recorrer las distintas colecciones del blog.
+
+draft: false
+---
+
+## Introducción
+
+Las publicaciones de este blog están organizadas en colecciones temáticas.
+
+El objetivo es que puedas seguir un tema completo sin depender del orden cronológico en que fueron publicados los artículos.
+
+Actualmente el blog se organiza alrededor de las siguientes colecciones:
+
+## Business Analytics Fundamental
+
+Conceptos y herramientas que sirven como base para comprender el resto de los proyectos.
+
+## Retail Analytics
+
+Proyectos relacionados con ventas, demanda, pronósticos y análisis comercial.
+
+## Decisiones bajo Incertidumbre
+
+Artículos dedicados a mostrar cómo los modelos bayesianos ayudan a razonar cuando la información es incompleta.
+
+## Healthcare Analytics
+
+Aplicaciones del análisis bayesiano en problemas relacionados con la salud.
+
+## Recursos
+
+Material complementario, enlaces, datasets y herramientas utilizadas durante los proyectos.
+
+Conforme el blog crezca, esta organización facilitará recorrer cada colección como si fuera un pequeño libro.
+

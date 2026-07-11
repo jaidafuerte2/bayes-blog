@@ -1,0 +1,29 @@
+---
+title: "Bienvenido a Business Analytics Bayesiano"
+author: "David Villafuerte"
+date: "2026-07-05"
+
+categories:
+  - Editorial
+
+description: >
+  Presentación del blog y de la filosofía que guiará todas las
+  publicaciones.
+
+draft: false
+---
+
+# Bienvenido
+
+Gracias por visitar **Business Analytics Bayesiano**.
+
+Este blog nace con un objetivo muy sencillo: mostrar cómo los modelos bayesianos pueden ayudar a comprender problemas reales de negocio y apoyar mejores decisiones bajo incertidumbre.
+
+Aquí no encontrarás largas demostraciones matemáticas ni tutoriales centrados exclusivamente en programación.
+
+Cada publicación partirá de una pregunta empresarial concreta y recorrerá todo el proceso analítico: comprender el problema, explorar los datos, construir un modelo, interpretar la incertidumbre y traducir los resultados en recomendaciones para la toma de decisiones.
+
+Si disfrutas aprendiendo a partir de proyectos reales, espero que este blog te resulte útil.
+
+¡Bienvenido!
+

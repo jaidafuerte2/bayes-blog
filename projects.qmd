@@ -1,0 +1,96 @@
+---
+title: "Proyectos"
+---
+
+Este blog está organizado alrededor de proyectos completos de Business Analytics. Cada proyecto aborda una pregunta de negocio real y muestra cómo utilizar modelos bayesianos para comprender mejor la incertidumbre y apoyar decisiones.
+
+---
+
+## Índice de proyectos completos 
+
+### Colección I: Entender el negocio
+
+#### Objetivo de la colección
+
+Antes de construir modelos bayesianos, un analista debe comprender el contexto del problema. Esta colección enseña a explorar un negocio desde la perspectiva de la toma de decisiones, utilizando los datos para identificar patrones, formular preguntas relevantes y reconocer oportunidades de análisis.
+
+---
+
+### Colección II — Explicar con modelos
+
+#### Objetivo de la colección
+
+La primera colección respondió una pregunta fundamental:
+
+**¿Qué está ocurriendo en el negocio?**
+
+Ahora damos el siguiente paso.
+La pregunta cambia a:
+
+**¿Qué factores parecen explicar lo que estamos observando?**
+
+---
+
+### Colección III — Anticipar el futuro
+
+#### Objetivo de la colección
+
+Las dos primeras colecciones respondieron preguntas sobre el presente y el pasado:
+
+-	¿Qué está ocurriendo? 
+-	¿Qué parece explicarlo? 
+
+Ahora damos el siguiente paso natural:
+
+**¿Qué podría ocurrir en el futuro?**
+
+Aquí el protagonista deja de ser la explicación y pasa a ser la 
+
+**predicción probabilística**.
+
+Pero, siguiendo la filosofía del blog, nunca intentaremos adivinar el futuro.
+Intentaremos **reducir la incertidumbre sobre los escenarios futuros**.
+
+---
+
+### Colección IV — Priorizar decisiones
+
+##### Objetivo de la colección
+
+Los modelos producen información.
+Pero las empresas tienen un problema adicional:
+
+**No pueden actuar sobre todo al mismo tiempo.**
+
+Hay presupuesto limitado.
+Hay vendedores limitados.
+Hay tiempo limitado.
+Hay recursos limitados.
+Por eso, una de las funciones más importantes de un analista consiste en responder preguntas como:
+
+**¿Dónde deberíamos actuar primero?**
+
+Esta colección gira alrededor de esa idea.
+
+
+---
+
+### Colección V — Evaluar estrategias
+
+#### Objetivo de la colección
+
+Hasta ahora el recorrido ha sido:
+
+-	Entender el negocio. 
+-	Explicar qué parece estar ocurriendo. 
+-	Anticipar escenarios futuros. 
+-	Priorizar dónde actuar. 
+
+Ahora llegamos a una pregunta que toda empresa debería hacerse:
+
+**¿Las decisiones que estamos tomando realmente están funcionando?**
+
+Esta colección gira alrededor de la **evaluación de estrategias**.
+No buscamos únicamente describir resultados.
+Queremos generar evidencia que ayude a decidir si una estrategia merece mantenerse, modificarse o abandonarse.
+

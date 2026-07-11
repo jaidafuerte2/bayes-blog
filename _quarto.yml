@@ -1,0 +1,98 @@
+project:
+  type: website
+
+# ============================================================
+# CONFIGURACIÓN GENERAL DEL SITIO
+# ============================================================
+
+website:
+  title: "Business Analytics Bayesiano"
+  
+  # Completar cuando el sitio sea publicado
+  # site-url: https://...
+  
+  description: >
+    Proyectos reales de Business Analytics Bayesiano con R.
+    Modelos probabilísticos para comprender la incertidumbre
+    y apoyar la toma de decisiones.
+    
+  favicon: images/favicon.ico
+  
+  reader-mode: true # OjO con esto en el renderizado 
+  
+  search:
+    location: navbar
+    type: textbox
+  
+  navbar:
+    left:
+      - href: index.qmd
+        text: Inicio
+
+      - href: projects.qmd
+        text: Proyectos
+
+      - href: about.qmd
+        text: Sobre el Autor
+    right:
+      - icon: linkedin
+        href: https://linkedin.com/in/jaimedavidvillafuerte/
+
+      - icon: github
+        href: https://github.com/jaidafuerte2
+
+      - icon: twitter-x
+        href: https://x.com/jvillafuertemd
+        
+    page-footer:
+
+      left: |
+        **Business Analytics Bayesiano**
+
+        David Villafuerte
+
+      right:
+
+        - icon: linkedin
+          href: https://linkedin.com/in/jaimedavidvillafuerte/
+
+        - icon: github
+          href: https://github.com/jaidafuerte2
+          
+        - icon: twitter-x
+          href: https://x.com/jvillafuertemd
+
+# ============================================================
+# FORMATO HTML
+# ============================================================
+
+format:
+  html:
+  
+    theme: lux
+    
+    css: styles.css
+    
+    toc: true
+    toc-depth: 3
+    
+    number-sections: false
+    
+    code-copy: true
+    
+    code-overflow: wrap
+
+    smooth-scroll: true
+
+    anchor-sections: true
+
+    highlight-style: github
+    
+# ============================================================
+# EDITOR
+# ============================================================
+
+editor: source
+
+
+
