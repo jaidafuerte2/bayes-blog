@@ -1,0 +1,324 @@
+[
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Proyectos",
+    "section": "",
+    "text": "Este blog está organizado alrededor de proyectos completos de Business Analytics. Cada proyecto aborda una pregunta de negocio real y muestra cómo utilizar modelos bayesianos para comprender mejor la incertidumbre y apoyar decisiones."
+  },
+  {
+    "objectID": "projects.html#índice-de-proyectos-completos",
+    "href": "projects.html#índice-de-proyectos-completos",
+    "title": "Proyectos",
+    "section": "Índice de proyectos completos",
+    "text": "Índice de proyectos completos\n\nColección I: Entender el negocio\n\nObjetivo de la colección\nAntes de construir modelos bayesianos, un analista debe comprender el contexto del problema. Esta colección enseña a explorar un negocio desde la perspectiva de la toma de decisiones, utilizando los datos para identificar patrones, formular preguntas relevantes y reconocer oportunidades de análisis.\n\n\n\n\nColección II — Explicar con modelos\n\nObjetivo de la colección\nLa primera colección respondió una pregunta fundamental:\n¿Qué está ocurriendo en el negocio?\nAhora damos el siguiente paso. La pregunta cambia a:\n¿Qué factores parecen explicar lo que estamos observando?\n\n\n\n\nColección III — Anticipar el futuro\n\nObjetivo de la colección\nLas dos primeras colecciones respondieron preguntas sobre el presente y el pasado:\n\n¿Qué está ocurriendo?\n¿Qué parece explicarlo?\n\nAhora damos el siguiente paso natural:\n¿Qué podría ocurrir en el futuro?\nAquí el protagonista deja de ser la explicación y pasa a ser la\npredicción probabilística.\nPero, siguiendo la filosofía del blog, nunca intentaremos adivinar el futuro. Intentaremos reducir la incertidumbre sobre los escenarios futuros.\n\n\n\n\nColección IV — Priorizar decisiones\n\nObjetivo de la colección\nLos modelos producen información. Pero las empresas tienen un problema adicional:\nNo pueden actuar sobre todo al mismo tiempo.\nHay presupuesto limitado. Hay vendedores limitados. Hay tiempo limitado. Hay recursos limitados. Por eso, una de las funciones más importantes de un analista consiste en responder preguntas como:\n¿Dónde deberíamos actuar primero?\nEsta colección gira alrededor de esa idea.\n\n\n\n\nColección V — Evaluar estrategias\n\nObjetivo de la colección\nHasta ahora el recorrido ha sido:\n\nEntender el negocio.\nExplicar qué parece estar ocurriendo.\nAnticipar escenarios futuros.\nPriorizar dónde actuar.\n\nAhora llegamos a una pregunta que toda empresa debería hacerse:\n¿Las decisiones que estamos tomando realmente están funcionando?\nEsta colección gira alrededor de la evaluación de estrategias. No buscamos únicamente describir resultados. Queremos generar evidencia que ayude a decidir si una estrategia merece mantenerse, modificarse o abandonarse."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Inicio",
+    "section": "",
+    "text": "Business Analytics Bayesiano\nBienvenido.\nEste blog reúne proyectos reales desarrollados con R para mostrar cómo los modelos bayesianos pueden ayudar a comprender problemas de negocio y apoyar la toma de decisiones bajo incertidumbre.\nCada publicación parte de una pregunta empresarial concreta y recorre todo el proceso analítico: exploración de los datos, construcción del modelo, interpretación de resultados y recomendaciones para la toma de decisiones.\nLas publicaciones aparecerán a continuación conforme vayan siendo publicadas.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n¿Dónde genera realmente dinero la empresa?\n\n\n\nRetail\n\nVisualización\n\n\n\nDescubra por qué vender más no siempre significa ganar más y cómo identificar las áreas que realmente crean valor utilizando datos de Superstore.\n\n\n\n\n\nJul 10, 2026\n\n\nDavid Villafuerte\n\n\n\n\n\n\n\n\n\n\n\n\n¿Qué indicadores describen mejor el desempeño de una empresa?\n\n\n\nRetail\n\nVisualización\n\n\n\nDescubra qué métricas merece la pena revisar antes de tomar decisiones de negocio utilizando el dataset Superstore Sales y un análisis exploratorio orientado a la toma de decisiones.\n\n\n\n\n\nJul 9, 2026\n\n\nDavid Villafuerte\n\n\n\n\n\n\n\n\n\n\n\n\n¿Cómo entender un negocio cuando solo tenemos sus datos?\n\n\n\nRetail\n\nVisualización\n\n\n\nAprende cómo aproximarte a una empresa utilizando únicamente sus datos, identificando patrones clave antes de construir cualquier modelo analítico.\n\n\n\n\n\nJul 7, 2026\n\n\nDavid Villafuerte\n\n\n\n\n\n\n\n\n\n\n\n\nCómo está organizado este blog\n\n\n\nEditorial\n\n\n\nUna guía rápida para recorrer las distintas colecciones del blog.\n\n\n\n\n\nJul 6, 2026\n\n\nDavid Villafuerte\n\n\n\n\n\n\n\n\n\n\n\n\nBienvenido a Business Analytics Bayesiano\n\n\n\nEditorial\n\n\n\nPresentación del blog y de la filosofía que guiará todas las publicaciones.\n\n\n\n\n\nJul 5, 2026\n\n\nDavid Villafuerte\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html",
+    "href": "posts/como-esta-organizado-este-blog/index.html",
+    "title": "Cómo está organizado este blog",
+    "section": "",
+    "text": "Las publicaciones de este blog están organizadas en colecciones temáticas.\nEl objetivo es que puedas seguir un tema completo sin depender del orden cronológico en que fueron publicados los artículos.\nActualmente el blog se organiza alrededor de las siguientes colecciones:"
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#introducción",
+    "href": "posts/como-esta-organizado-este-blog/index.html#introducción",
+    "title": "Cómo está organizado este blog",
+    "section": "",
+    "text": "Las publicaciones de este blog están organizadas en colecciones temáticas.\nEl objetivo es que puedas seguir un tema completo sin depender del orden cronológico en que fueron publicados los artículos.\nActualmente el blog se organiza alrededor de las siguientes colecciones:"
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#business-analytics-fundamental",
+    "href": "posts/como-esta-organizado-este-blog/index.html#business-analytics-fundamental",
+    "title": "Cómo está organizado este blog",
+    "section": "Business Analytics Fundamental",
+    "text": "Business Analytics Fundamental\nConceptos y herramientas que sirven como base para comprender el resto de los proyectos."
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#retail-analytics",
+    "href": "posts/como-esta-organizado-este-blog/index.html#retail-analytics",
+    "title": "Cómo está organizado este blog",
+    "section": "Retail Analytics",
+    "text": "Retail Analytics\nProyectos relacionados con ventas, demanda, pronósticos y análisis comercial."
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#decisiones-bajo-incertidumbre",
+    "href": "posts/como-esta-organizado-este-blog/index.html#decisiones-bajo-incertidumbre",
+    "title": "Cómo está organizado este blog",
+    "section": "Decisiones bajo Incertidumbre",
+    "text": "Decisiones bajo Incertidumbre\nArtículos dedicados a mostrar cómo los modelos bayesianos ayudan a razonar cuando la información es incompleta."
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#healthcare-analytics",
+    "href": "posts/como-esta-organizado-este-blog/index.html#healthcare-analytics",
+    "title": "Cómo está organizado este blog",
+    "section": "Healthcare Analytics",
+    "text": "Healthcare Analytics\nAplicaciones del análisis bayesiano en problemas relacionados con la salud."
+  },
+  {
+    "objectID": "posts/como-esta-organizado-este-blog/index.html#recursos",
+    "href": "posts/como-esta-organizado-este-blog/index.html#recursos",
+    "title": "Cómo está organizado este blog",
+    "section": "Recursos",
+    "text": "Recursos\nMaterial complementario, enlaces, datasets y herramientas utilizadas durante los proyectos.\nConforme el blog crezca, esta organización facilitará recorrer cada colección como si fuera un pequeño libro."
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "",
+    "text": "Las organizaciones modernas generan una enorme cantidad de indicadores. Ventas, utilidad, descuentos, número de pedidos, unidades vendidas y muchas otras métricas aparecen diariamente en informes y paneles de control.\nSin embargo, disponer de muchos indicadores no garantiza tomar mejores decisiones.\nUna empresa puede incrementar sus ventas y, aun así, deteriorar su rentabilidad. Del mismo modo, un elevado volumen de productos vendidos podría ser consecuencia de descuentos tan agresivos que terminen reduciendo las ganancias.\nPor ello, antes de construir modelos predictivos o desarrollar análisis más sofisticados, conviene responder una pregunta mucho más sencilla:\n\n¿Qué indicadores deberíamos revisar antes de tomar cualquier decisión?\n\nEn este artículo utilizaremos el conjunto de datos Superstore Sales para responder esa pregunta. Nuestro objetivo no será construir modelos bayesianos, sino desarrollar la intuición analítica necesaria para reconocer cuáles son las métricas que mejor describen el desempeño de una empresa y por qué ninguna de ellas debería interpretarse de manera aislada."
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#cargar-paquetes",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#cargar-paquetes",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Cargar paquetes",
+    "text": "Cargar paquetes\n\nlibrary(tidyverse)\nlibrary(ggplot2)\nlibrary(skimr)"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#importar-los-datos",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#importar-los-datos",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Importar los datos",
+    "text": "Importar los datos\n\nsales &lt;- read_csv(\"data/superstore.csv\")"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#explorar-la-estructura-del-dataset",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#explorar-la-estructura-del-dataset",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Explorar la estructura del dataset",
+    "text": "Explorar la estructura del dataset\n\nskim(sales)"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#resumen-descriptivo",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#resumen-descriptivo",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Resumen descriptivo",
+    "text": "Resumen descriptivo\n\nsales %&gt;%\n  summarise(\n    Observaciones = n(),\n    Ventas_totales = sum(Sales),\n    Utilidad_total = sum(Profit),\n    Productos_vendidos = sum(Quantity),\n    Descuento_promedio = mean(Discount)\n  )"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-las-ventas",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-las-ventas",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Distribución de las ventas",
+    "text": "Distribución de las ventas\n\nggplot(sales, aes(x = Sales)) +\n  geom_histogram(bins = 40, color = \"white\") +\n  labs(\n    title = \"Distribución de las ventas\",\n    x = \"Ventas\",\n    y = \"Número de transacciones\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(y = Sales)) +\n  geom_boxplot() +\n  labs(\n    title = \"Boxplot de las ventas\",\n    y = \"Ventas\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(y = Sales)) +\n  geom_boxplot() +\n  coord_cartesian(ylim = c(0, 500)) +\n  labs(\n    title = \"Boxplot de las ventas (detalle)\",\n    y = \"Ventas\"\n  ) +\n  theme_minimal()"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-la-utilidad",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-la-utilidad",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Distribución de la utilidad",
+    "text": "Distribución de la utilidad\n\nggplot(sales, aes(x = Profit)) +\n  geom_histogram(bins = 40, color = \"white\") +\n  labs(\n    title = \"Distribución de la utilidad\",\n    x = \"Utilidad\",\n    y = \"Número de transacciones\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(x = Profit)) +\n  geom_histogram(bins = 800, color = \"white\") +\n  coord_cartesian(xlim = c(-300, 300)) +\n  labs(\n    title = \"Distribución de la utilidad (detalle)\",\n    x = \"Utilidad\",\n    y = \"Número de transacciones\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(y = Profit)) +\n  geom_boxplot() +\n  labs(\n    title = \"Boxplot de la utilidad\",\n    y = \"Utilidad\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(y = Profit)) +\n  geom_boxplot() +\n  coord_cartesian(ylim = c(-50, 50)) +\n  labs(\n    title = \"Boxplot de la utilidad (detalle)\",\n    y = \"Utilidad\"\n  ) +\n  theme_minimal()"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-la-cantidad-de-productos",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-la-cantidad-de-productos",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Distribución de la cantidad de productos",
+    "text": "Distribución de la cantidad de productos\n\nggplot(sales, aes(x = Quantity)) +\n  geom_bar() +\n  labs(\n    title = \"Cantidad de productos por pedido\",\n    x = \"Cantidad\",\n    y = \"Número de pedidos\"\n  ) +\n  theme_minimal()"
+  },
+  {
+    "objectID": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-los-descuentos",
+    "href": "posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una empresa/index.html#distribución-de-los-descuentos",
+    "title": "¿Qué indicadores describen mejor el desempeño de una empresa?",
+    "section": "Distribución de los descuentos",
+    "text": "Distribución de los descuentos\n\nggplot(sales, aes(x = Discount)) +\n  geom_bar() +\n  labs(\n    title = \"Distribución de los descuentos\",\n    x = \"Descuento\",\n    y = \"Número de transacciones\"\n  ) +\n  theme_minimal()\n\nggplot(sales, aes(x = Discount)) +\n  geom_bar() +\n  coord_cartesian(ylim = c(0, 500)) +\n  labs(\n    title = \"Distribución de los descuentos (detalle)\",\n    x = \"Descuento\",\n    y = \"Número de transacciones\"\n  ) +\n  theme_minimal()"
+  },
+  {
+    "objectID": "posts/bienvenido/index.html",
+    "href": "posts/bienvenido/index.html",
+    "title": "Bienvenido a Business Analytics Bayesiano",
+    "section": "",
+    "text": "Bienvenido\nGracias por visitar Business Analytics Bayesiano.\nEste blog nace con un objetivo muy sencillo: mostrar cómo los modelos bayesianos pueden ayudar a comprender problemas reales de negocio y apoyar mejores decisiones bajo incertidumbre.\nAquí no encontrarás largas demostraciones matemáticas ni tutoriales centrados exclusivamente en programación.\nCada publicación partirá de una pregunta empresarial concreta y recorrerá todo el proceso analítico: comprender el problema, explorar los datos, construir un modelo, interpretar la incertidumbre y traducir los resultados en recomendaciones para la toma de decisiones.\nSi disfrutas aprendiendo a partir de proyectos reales, espero que este blog te resulte útil.\n¡Bienvenido!"
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "",
+    "text": "Cuando pensamos en Business Analytics es común imaginar modelos predictivos, algoritmos sofisticados o técnicas estadísticas avanzadas. Sin embargo, en la práctica, el trabajo de un analista comienza mucho antes.\nLo habitual es recibir una base de datos sin demasiada información adicional. Nadie entrega un manual explicando cómo funciona el negocio, cuáles son sus principales desafíos o dónde existen oportunidades de mejora. La primera tarea consiste en comprender la empresa utilizando únicamente la evidencia disponible.\nEn este artículo no construiremos ningún modelo bayesiano. Tampoco realizaremos predicciones.\nNuestro objetivo será mucho más sencillo —y, al mismo tiempo, mucho más importante—: aprender a realizar una primera aproximación al negocio utilizando únicamente los datos disponibles.\nTrabajaremos con el conjunto de datos Superstore Sales, que contiene 9 994 registros, correspondientes a 5 009 pedidos realizados entre el 3 de enero de 2014 y el 30 de diciembre de 2017. Este conjunto de datos es ampliamente utilizado para enseñar análisis de negocios debido a la variedad de información que contiene sobre ventas, productos, clientes y regiones.\nAl finalizar este recorrido deberíamos ser capaces de responder una pregunta fundamental:\n\n¿Qué podemos aprender sobre una empresa antes de construir cualquier modelo?"
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-entender-un-negocio-cuando-solo-tenemos-sus-datos",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-entender-un-negocio-cuando-solo-tenemos-sus-datos",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "",
+    "text": "Cuando pensamos en Business Analytics es común imaginar modelos predictivos, algoritmos sofisticados o técnicas estadísticas avanzadas. Sin embargo, en la práctica, el trabajo de un analista comienza mucho antes.\nLo habitual es recibir una base de datos sin demasiada información adicional. Nadie entrega un manual explicando cómo funciona el negocio, cuáles son sus principales desafíos o dónde existen oportunidades de mejora. La primera tarea consiste en comprender la empresa utilizando únicamente la evidencia disponible.\nEn este artículo no construiremos ningún modelo bayesiano. Tampoco realizaremos predicciones.\nNuestro objetivo será mucho más sencillo —y, al mismo tiempo, mucho más importante—: aprender a realizar una primera aproximación al negocio utilizando únicamente los datos disponibles.\nTrabajaremos con el conjunto de datos Superstore Sales, que contiene 9 994 registros, correspondientes a 5 009 pedidos realizados entre el 3 de enero de 2014 y el 30 de diciembre de 2017. Este conjunto de datos es ampliamente utilizado para enseñar análisis de negocios debido a la variedad de información que contiene sobre ventas, productos, clientes y regiones.\nAl finalizar este recorrido deberíamos ser capaces de responder una pregunta fundamental:\n\n¿Qué podemos aprender sobre una empresa antes de construir cualquier modelo?"
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#la-pregunta-de-negocio",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#la-pregunta-de-negocio",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "1. La pregunta de negocio",
+    "text": "1. La pregunta de negocio\nImaginemos que una empresa nos contrata para ayudarla a tomar mejores decisiones.\nEl primer día recibimos únicamente una base de datos con miles de registros de ventas.\nNo conocemos:\n\nla estrategia comercial;\nla estructura organizacional;\nlos productos más importantes;\nlos problemas actuales del negocio.\n\nTodo lo que tenemos son los datos.\nEsta situación es mucho más frecuente de lo que parece. En muchos proyectos de consultoría, comprender el negocio constituye una parte importante del trabajo antes de desarrollar cualquier modelo analítico.\nPor ello, nuestra primera pregunta será:\n\n¿Qué podemos aprender sobre una empresa únicamente observando sus datos?\n\nResponder esta pregunta permitirá construir posteriormente modelos mucho más útiles, ya que comprenderemos mejor el contexto en el que deberán apoyar la toma de decisiones."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#comprendiendo-el-problema",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#comprendiendo-el-problema",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "2. Comprendiendo el problema",
+    "text": "2. Comprendiendo el problema\nAntes de abrir R conviene detenernos un momento para pensar qué información podría resultar útil para comprender una empresa.\nUn analista normalmente intenta responder preguntas como las siguientes:\n\n¿Cómo evoluciona el volumen de ventas?\n¿Las ventas suelen ser pequeñas o existen pedidos extraordinariamente grandes?\n¿Qué líneas de negocio parecen generar mayor actividad?\n¿En qué regiones opera con mayor intensidad la empresa?\n\nObserva que ninguna de estas preguntas requiere todavía construir un modelo estadístico.\nSimplemente intentamos transformar una tabla con miles de filas en una historia comprensible sobre el funcionamiento del negocio.\nEn este artículo utilizaremos principalmente visualizaciones. Los gráficos permiten identificar patrones rápidamente y facilitan la comunicación de los hallazgos con personas que no necesariamente poseen formación técnica.\nNuestro objetivo no será encontrar respuestas definitivas.\nSerá construir una primera imagen del negocio sobre la cual posteriormente podremos formular preguntas más específicas."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#explorando-los-datos",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#explorando-los-datos",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "3. Explorando los datos",
+    "text": "3. Explorando los datos\n\nPreparando el conjunto de datos\nComenzaremos cargando las librerías necesarias e importando el conjunto de datos.\nUna buena práctica consiste en inspeccionar primero la estructura general del conjunto de datos antes de comenzar cualquier análisis. Esto podemos hacer con la función skim().\n\nskim(sales)\n\nLa exploración inicial confirma que trabajaremos con un conjunto de datos limpio, sin valores faltantes y con información correspondiente a cuatro años de operación. Además de variables relacionadas con las ventas, el conjunto incluye información sobre categorías de productos, segmentos de clientes, regiones geográficas, descuentos y ganancias, lo que permitirá profundizar progresivamente en el análisis a lo largo de esta colección.\nAunque todavía no analizaremos todas esas variables, esta primera revisión nos ayuda a conocer el alcance del conjunto de datos y a identificar las preguntas que podremos responder en artículos posteriores."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-evolucionan-las-ventas",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-evolucionan-las-ventas",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "¿Cómo evolucionan las ventas?",
+    "text": "¿Cómo evolucionan las ventas?\nUna de las primeras preguntas que conviene responder es si la actividad comercial parece mantenerse estable o si existen cambios importantes a lo largo del tiempo.\nPara ello agregaremos las ventas por mes.\n\n\n\n\n\n\n\n\n\nA primera vista, las ventas muestran una tendencia general de crecimiento entre 2014 y 2017. Aunque existen fluctuaciones importantes de un mes a otro, los picos de ventas tienden a ser cada vez mayores conforme transcurre el tiempo.\nTambién se observa un patrón recurrente: los meses finales de cada año concentran algunos de los niveles de ventas más altos, mientras que los primeros meses suelen registrar una menor actividad comercial.\nNuestro objetivo en esta etapa no es estudiar formalmente la tendencia o la estacionalidad, sino reconocer que estos patrones existen y que probablemente merecerán un análisis más profundo cuando abordemos los modelos de pronóstico en una colección posterior."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-se-distribuyen-las-ventas",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#cómo-se-distribuyen-las-ventas",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "¿Cómo se distribuyen las ventas?",
+    "text": "¿Cómo se distribuyen las ventas?\nNo todos los pedidos tienen el mismo tamaño.\nEn muchos negocios unos pocos pedidos representan una proporción importante de las ventas totales.\nAntes de calcular promedios conviene observar directamente cómo se distribuyen los valores.\n\n\n\n\n\n\n\n\n\nLa distribución de las ventas es claramente asimétrica. La gran mayoría de los pedidos corresponde a montos relativamente pequeños, mientras que únicamente un número reducido alcanza valores muy elevados.\nAl explorar la distribución con diferentes niveles de zoom observamos que la mayor concentración de pedidos se encuentra por debajo de los 50 dólares y disminuye rápidamente a partir de los 200 dólares. También identificamos unas pocas ventas superiores a los 5 000 dólares, que representan operaciones excepcionales dentro del conjunto de datos.\nEste comportamiento es habitual en muchos negocios minoristas. Un pequeño grupo de pedidos de gran valor convive con una gran cantidad de compras mucho más pequeñas. Por ello, limitarse a observar el promedio de las ventas podría ofrecer una imagen incompleta de la realidad.\nEn los siguientes apartados comenzaremos a responder una nueva pregunta: ¿dónde se concentra la actividad comercial de la empresa?\n\n¿Qué categorías generan mayor actividad?\nUna vez que conocemos cómo evolucionan las ventas y cómo se distribuyen los pedidos, el siguiente paso consiste en identificar qué líneas de negocio concentran la mayor parte de la actividad comercial.\nEn esta etapa todavía no nos interesa responder cuál categoría es más rentable. Esa pregunta será el tema central de un artículo posterior. Por ahora únicamente queremos comprender dónde se generan las ventas.\n\n\n\n\n\n\n\n\n\nLa categoría Technology registra el mayor volumen de ventas, con aproximadamente 836 mil dólares, seguida por Furniture con 742 mil dólares y Office Supplies con cerca de 719 mil dólares.\nAunque las diferencias no son extremadamente grandes, este gráfico permite identificar rápidamente cuáles son las principales líneas de negocio de la empresa. Esta información resulta útil para priorizar análisis posteriores y comprender dónde se concentra la mayor parte de la actividad comercial.\nSin embargo, conviene evitar una conclusión apresurada: una categoría que vende más no necesariamente es la que genera mayor beneficio. Esa distinción será precisamente el objetivo del siguiente artículo dedicado a la rentabilidad.\n\n\n\n¿Dónde opera con mayor intensidad la empresa?\nOtra forma de comprender un negocio consiste en observar cómo se distribuyen las ventas entre las distintas regiones donde opera la empresa.\n\n\n\n\n\n\n\n\n\nLa región West concentra el mayor volumen de ventas, con aproximadamente 725 mil dólares, seguida muy de cerca por East, con cerca de 679 mil dólares. Más atrás aparecen Central, con alrededor de 501 mil dólares, y South, con aproximadamente 392 mil dólares.\nEstas diferencias no permiten concluir todavía que una región tenga un mejor desempeño que otra. Para responder esa pregunta necesitaríamos incorporar información sobre ganancias, costos u otros indicadores del negocio.\nNo obstante, el gráfico sí nos ayuda a identificar dónde parece concentrarse la mayor parte de la actividad comercial y dónde podrían surgir nuevas preguntas de análisis."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#por-qué-todavía-no-construimos-un-modelo",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#por-qué-todavía-no-construimos-un-modelo",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "4. ¿Por qué todavía no construimos un modelo?",
+    "text": "4. ¿Por qué todavía no construimos un modelo?\nHasta este momento no hemos utilizado ningún modelo estadístico.\nEsta decisión puede parecer sorprendente en un blog dedicado al Business Analytics Bayesiano, pero responde a una idea fundamental: antes de construir un modelo debemos comprender el problema que queremos resolver.\nLos modelos ayudan a responder preguntas. Sin embargo, formular buenas preguntas requiere conocer primero el negocio.\nSi hubiéramos comenzado directamente con un modelo predictivo, probablemente habríamos obtenido resultados matemáticamente correctos, pero mucho más difíciles de interpretar dentro del contexto empresarial.\nLa exploración inicial cumple precisamente esa función: construir el contexto necesario para que los modelos posteriores respondan preguntas relevantes y no únicamente ejercicios técnicos."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#qué-aprendimos-sobre-el-negocio",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#qué-aprendimos-sobre-el-negocio",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "5. ¿Qué aprendimos sobre el negocio?",
+    "text": "5. ¿Qué aprendimos sobre el negocio?\nAunque este artículo no incluyó modelos estadísticos, los datos ya permiten construir una primera imagen del funcionamiento de la empresa.\nEn primer lugar, observamos que las ventas muestran un crecimiento general durante el período analizado, acompañado de fluctuaciones mensuales y de picos de actividad hacia los últimos meses de cada año.\nEn segundo lugar, comprobamos que la distribución de las ventas está fuertemente concentrada en pedidos pequeños, mientras que un número reducido de operaciones alcanza valores considerablemente mayores. Este patrón sugiere que unas pocas ventas de gran magnitud conviven con una gran cantidad de pedidos de menor importe.\nTambién identificamos que la categoría Technology representa el mayor volumen de ventas, seguida por Furniture y Office Supplies. De forma similar, las regiones West y East concentran una mayor actividad comercial que Central y South.\nSin embargo, estas observaciones constituyen únicamente una primera aproximación al negocio.\nTodavía desconocemos aspectos fundamentales como:\n\ncuáles categorías generan realmente mayor rentabilidad;\nqué indicadores describen mejor el desempeño de la empresa;\nqué factores explican las diferencias observadas entre regiones;\ncómo podrían evolucionar las ventas en el futuro.\n\nResponder estas preguntas requerirá análisis más específicos y, en muchos casos, modelos estadísticos que nos permitan cuantificar la incertidumbre."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#recomendaciones-para-el-negocio",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#recomendaciones-para-el-negocio",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "6. Recomendaciones para el negocio",
+    "text": "6. Recomendaciones para el negocio\nSi este análisis formara parte de un proyecto real de consultoría, probablemente no recomendaríamos construir inmediatamente un modelo predictivo.\nAntes convendría realizar varias acciones.\nLa primera sería validar que la calidad de los datos sea consistente con la operación del negocio y confirmar que las variables disponibles reflejan adecuadamente la realidad de la empresa.\nLa segunda consistiría en identificar los indicadores que realmente utilizará la organización para evaluar su desempeño. Las ventas son importantes, pero rara vez representan el único objetivo de una empresa.\nFinalmente, sería recomendable conversar con los responsables del negocio para contrastar las hipótesis que surgieron durante esta exploración inicial. Los datos muestran patrones, pero comprender las causas detrás de esos patrones requiere integrar la evidencia con el conocimiento del contexto empresarial.\nEn muchos proyectos, esta etapa evita invertir tiempo en modelos sofisticados que terminan respondiendo preguntas poco relevantes para la toma de decisiones."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#reflexión-bayesiana",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#reflexión-bayesiana",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "7. Reflexión bayesiana",
+    "text": "7. Reflexión bayesiana\nCon frecuencia se piensa que el análisis bayesiano comienza cuando escribimos un modelo.\nNuestra experiencia en este artículo sugiere algo diferente.\nEl pensamiento bayesiano comienza mucho antes, cuando aceptamos que todavía conocemos muy poco sobre el negocio y utilizamos los datos para actualizar gradualmente nuestra comprensión de la realidad.\nCada gráfico que exploramos constituye una nueva pieza de evidencia.\nLa evolución temporal de las ventas nos ayuda a comprender el comportamiento general de la empresa. La distribución de los pedidos revela la coexistencia de operaciones pequeñas con unas pocas ventas extraordinarias. Las categorías y las regiones muestran dónde parece concentrarse la actividad comercial.\nNinguna de estas observaciones elimina completamente la incertidumbre.\nPor el contrario, nos permite formular mejores preguntas para los análisis que vendrán después.\nEse será precisamente el hilo conductor de este blog: utilizar la evidencia disponible para reducir progresivamente la incertidumbre y apoyar decisiones empresariales cada vez mejor fundamentadas."
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#apéndice-código-completo",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#apéndice-código-completo",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "Apéndice — Código completo",
+    "text": "Apéndice — Código completo\nDurante el desarrollo del artículo mantuvimos oculto el código para que la atención del lector se centrara en las preguntas de negocio y en la interpretación de los resultados.\nEn este apéndice reunimos todo el análisis en el mismo orden en que fue realizado. Los bloques utilizan eval: false para evitar una segunda ejecución durante el renderizado del documento, pero pueden copiarse y ejecutarse fácilmente en un nuevo proyecto.\n\n1. Cargar librerías\n\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(skimr)\nlibrary(gt)\n\n\n\n2. Importar y preparar los datos\n\nsales &lt;- read_csv(\"data/superstore.csv\") |&gt;\n  mutate(\n    order_date = mdy(`Order Date`)\n  )\n\n\n\n3. Exploración inicial del conjunto de datos\n\nskim(sales)\n\nrange(sales$order_date)\n\nn_distinct(sales$`Order ID`)\n\n\n\n4. Evolución mensual de las ventas\n\nsales_monthly &lt;-\n  sales |&gt;\n  mutate(\n    month = floor_date(order_date, \"month\")\n  ) |&gt;\n  group_by(month) |&gt;\n  summarise(\n    Sales = sum(Sales),\n    .groups = \"drop\"\n  )\n\nggplot(\n  sales_monthly,\n  aes(month, Sales)\n) +\n  geom_line() +\n  labs(\n    title = \"Ventas mensuales\",\n    x = NULL,\n    y = \"Ventas\"\n  )\n\n\n\n5. Distribución del valor de las ventas\n\nggplot(\n  sales,\n  aes(Sales)\n) +\n  geom_histogram(bins = 50) +\n  labs(\n    title = \"Distribución del valor de las ventas\",\n    x = \"Ventas\",\n    y = \"Número de pedidos\"\n  )\n\n\n\n6. Ventas por categoría\n\nsales_category &lt;-\n  sales |&gt;\n  group_by(Category) |&gt;\n  summarise(\n    Sales = sum(Sales),\n    .groups = \"drop\"\n  )\n\nggplot(\n  sales_category,\n  aes(\n    reorder(Category, Sales),\n    Sales\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Ventas por categoría\",\n    x = NULL,\n    y = \"Ventas\"\n  )\n\n\n\n7. Ventas por región\n\nsales_region &lt;-\n  sales |&gt;\n  group_by(Region) |&gt;\n  summarise(\n    Sales = sum(Sales),\n    .groups = \"drop\"\n  )\n\nggplot(\n  sales_region,\n  aes(\n    reorder(Region, Sales),\n    Sales\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Ventas por región\",\n    x = NULL,\n    y = \"Ventas\"\n  )"
+  },
+  {
+    "objectID": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#conclusión",
+    "href": "posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/index.html#conclusión",
+    "title": "¿Cómo entender un negocio cuando solo tenemos sus datos?",
+    "section": "Conclusión",
+    "text": "Conclusión\nComprender un negocio no comienza construyendo modelos complejos, sino aprendiendo a observar los datos con una actitud crítica y orientada a la toma de decisiones.\nEn este primer recorrido utilizamos únicamente herramientas de exploración para responder preguntas sencillas pero fundamentales: cómo evolucionan las ventas, cómo se distribuyen los pedidos y dónde parece concentrarse la actividad comercial.\nEstas respuestas todavía no explican por qué ocurren los fenómenos observados ni permiten anticipar el futuro. Sin embargo, constituyen el punto de partida sobre el cual construiremos el resto del blog.\nEn el siguiente artículo cambiaremos ligeramente el enfoque. Dejaremos de preguntarnos qué vemos en los datos para comenzar a discutir qué indicadores describen realmente el desempeño de una empresa y por qué algunas métricas pueden resultar más útiles que otras para apoyar decisiones de negocio."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "",
+    "text": "Uno de los errores más frecuentes en la gestión empresarial consiste en asumir que las áreas con mayores ventas son automáticamente las más exitosas.\nSin embargo, las ventas representan únicamente el dinero que entra por la actividad comercial. La verdadera creación de valor depende de otro indicador: la utilidad obtenida después de cubrir los costos.\nEsta diferencia parece sencilla, pero tiene profundas implicaciones para la toma de decisiones. Una línea de productos puede vender millones de dólares y, aun así, aportar muy poco al crecimiento del negocio si sus márgenes son reducidos.\nPor ello, antes de pensar en modelos predictivos o análisis más avanzados, conviene responder una pregunta mucho más básica:\n\n¿Dónde está generando realmente dinero la empresa?\n\nEn este artículo utilizaremos el conjunto de datos Superstore Sales para explorar esta cuestión desde una perspectiva completamente descriptiva. Nuestro objetivo no será construir modelos estadísticos, sino desarrollar intuición empresarial utilizando evidencia proveniente de los datos.\nAl finalizar el análisis veremos que las ventas cuentan solamente una parte de la historia y que la rentabilidad ofrece una visión mucho más cercana al verdadero desempeño del negocio."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#por-qué-esta-pregunta-importa",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#por-qué-esta-pregunta-importa",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "",
+    "text": "Uno de los errores más frecuentes en la gestión empresarial consiste en asumir que las áreas con mayores ventas son automáticamente las más exitosas.\nSin embargo, las ventas representan únicamente el dinero que entra por la actividad comercial. La verdadera creación de valor depende de otro indicador: la utilidad obtenida después de cubrir los costos.\nEsta diferencia parece sencilla, pero tiene profundas implicaciones para la toma de decisiones. Una línea de productos puede vender millones de dólares y, aun así, aportar muy poco al crecimiento del negocio si sus márgenes son reducidos.\nPor ello, antes de pensar en modelos predictivos o análisis más avanzados, conviene responder una pregunta mucho más básica:\n\n¿Dónde está generando realmente dinero la empresa?\n\nEn este artículo utilizaremos el conjunto de datos Superstore Sales para explorar esta cuestión desde una perspectiva completamente descriptiva. Nuestro objetivo no será construir modelos estadísticos, sino desarrollar intuición empresarial utilizando evidencia proveniente de los datos.\nAl finalizar el análisis veremos que las ventas cuentan solamente una parte de la historia y que la rentabilidad ofrece una visión mucho más cercana al verdadero desempeño del negocio."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#la-pregunta-de-negocio",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#la-pregunta-de-negocio",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "1. La pregunta de negocio",
+    "text": "1. La pregunta de negocio\nToda esta entrada gira alrededor de una única pregunta:\n\n¿Las áreas con mayores ventas son también las más rentables?\n\nResponderla correctamente resulta importante porque muchas decisiones empresariales se toman utilizando únicamente indicadores de ventas.\nEs habitual encontrar informes donde se destacan las categorías o regiones que más venden. Sin embargo, desde la perspectiva de la dirección, una pregunta suele ser aún más relevante:\n\n¿Qué áreas están generando realmente valor para la organización?\n\nPara responderla utilizaremos dos indicadores presentes en el conjunto de datos:\n\nSales, que representa el valor de las ventas realizadas.\nProfit, que representa la utilidad obtenida en cada transacción.\n\nAunque ambos indicadores suelen estar relacionados, no siempre evolucionan de la misma manera.\nPrecisamente esa diferencia constituye el eje de nuestro análisis."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#comprendiendo-el-problema",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#comprendiendo-el-problema",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "2. Comprendiendo el problema",
+    "text": "2. Comprendiendo el problema\nImaginemos dos categorías de productos.\nLa primera vende un millón de dólares y obtiene cien mil dólares de utilidad.\nLa segunda vende setecientos mil dólares, pero genera ciento cincuenta mil dólares de beneficio.\nSi únicamente observamos las ventas, parecería evidente que la primera categoría es la más importante.\nSin embargo, desde la perspectiva del negocio, la segunda está creando más valor.\nEsta situación ocurre con mucha frecuencia.\nDescuentos agresivos, promociones, costos logísticos o diferencias entre productos pueden hacer que dos áreas con niveles similares de ventas tengan desempeños económicos completamente distintos.\nPor ello, un analista no debería limitarse a preguntar cuánto vende cada área.\nTambién necesita comprender cuánto beneficio generan esas ventas.\nEsa será precisamente la lógica que seguiremos durante todo el artículo.\nComenzaremos explorando la relación entre ventas y ganancias de cada transacción y, posteriormente, resumiremos esa información por categorías y regiones."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#explorando-los-datos",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#explorando-los-datos",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "3. Explorando los datos",
+    "text": "3. Explorando los datos\n\n¿Existe una relación clara entre ventas y ganancias?\nAntes de resumir la información por categorías o regiones, conviene observar cada transacción de manera individual.\nEl siguiente gráfico muestra simultáneamente el valor de las ventas y la utilidad obtenida en cada operación.\nPara facilitar la interpretación hemos limitado el eje vertical a un rango entre −1000 y 1000 unidades monetarias. La gran mayoría de las transacciones se encuentra dentro de este intervalo, lo que permite apreciar mejor el patrón general sin que unos pocos valores extremos dominen la visualización.\n\n\n\n\n\n\n\n\n\nEl gráfico muestra una elevada concentración de transacciones con ganancias comprendidas aproximadamente entre −500 y 500 unidades monetarias.\nA medida que aumentan las ventas también aumenta la dispersión de las ganancias. Algunas operaciones generan beneficios elevados, mientras que otras producen pérdidas importantes.\nEsta variabilidad transmite una idea fundamental: una venta de gran magnitud no garantiza una ganancia elevada.\nIncluso entre transacciones con niveles similares de ventas encontramos resultados económicos muy diferentes.\nDesde la perspectiva empresarial, esta es una primera señal de que el volumen de ventas, por sí solo, no basta para evaluar el desempeño del negocio.\n\n\n¿Qué categorías generan realmente valor?\nUna vez comprendido el comportamiento de las transacciones individuales, resulta más útil resumir la información por categoría.\n\n\n\n\n\n\n\n\n\nEl gráfico muestra una diferencia muy marcada entre las tres categorías.\nTechnology genera la mayor utilidad del conjunto de datos, seguida muy de cerca por Office Supplies.\nEn contraste, Furniture aporta una utilidad considerablemente menor, a pesar de mantener un volumen de ventas comparable al de las otras categorías.\nPara comprender mejor esta diferencia, resumimos los principales indicadores en la siguiente tabla.\n\n\n\n\n\n\n\n\nCategory\nVentas\nGanancias\nMargen (%)\n\n\n\n\nFurniture\n$741,999.80\n$18,451.27\n2.49\n\n\nOffice Supplies\n$719,047.03\n$122,490.80\n17.04\n\n\nTechnology\n$836,154.03\n$145,454.95\n17.40\n\n\n\n\n\n\n\nLa tabla confirma una de las conclusiones más importantes del artículo.\nAunque Furniture vende casi tanto como Office Supplies, su margen de ganancia alcanza apenas 2.49 %, muy por debajo del 17.0 % observado en Office Supplies y del 17.4 % registrado por Technology.\nEsta diferencia ilustra perfectamente la idea central del análisis.\nLas ventas reflejan la actividad comercial.\nLa rentabilidad revela cuánto valor económico termina generando esa actividad.\n\n\n¿Ocurre lo mismo entre regiones?\nLas diferencias observadas entre categorías plantean una nueva pregunta.\n¿La relación entre ventas y rentabilidad también cambia cuando analizamos distintas regiones?\nResponder esta pregunta resulta importante porque muchas decisiones comerciales —como la asignación de presupuestos, campañas de marketing o expansión territorial— suelen apoyarse en indicadores agregados de ventas.\nSin embargo, si dos regiones presentan niveles similares de actividad comercial pero generan beneficios diferentes, la estrategia de negocio también debería ser diferente.\nPara explorar esta posibilidad resumimos nuevamente la información, esta vez por región.\n\n\n\n\n\n\n\n\n\nLa distribución de las ganancias muestra nuevamente que el volumen de ventas no cuenta toda la historia.\nLa región West obtiene la mayor utilidad total, seguida por East.\nPor el contrario, Central presenta la menor utilidad entre las cuatro regiones analizadas.\nLa diferencia resulta todavía más interesante cuando incorporamos las ventas y el margen de rentabilidad.\n\n\n\n\n\n\n\n\nRegion\nVentas\nGanancias\nMargen (%)\n\n\n\n\nCentral\n$501,239.89\n$39,706.36\n7.92\n\n\nEast\n$678,781.24\n$91,522.78\n13.48\n\n\nSouth\n$391,721.91\n$46,749.43\n11.93\n\n\nWest\n$725,457.82\n$108,418.45\n14.94\n\n\n\n\n\n\n\nLa tabla revela un resultado especialmente ilustrativo.\nLa región Central registra ventas superiores a las de South. Sin embargo, genera una utilidad menor y alcanza un margen de apenas 7.92 %, frente al 11.9 % observado en South.\nEsta comparación resume perfectamente la idea central del artículo.\nSi únicamente analizáramos las ventas, podríamos concluir que Central presenta un mejor desempeño comercial.\nSin embargo, al incorporar la utilidad descubrimos que South convierte una menor cantidad de ventas en un mayor beneficio para la empresa.\nEn otras palabras, vender más no siempre significa generar más valor."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#interpretando-los-resultados",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#interpretando-los-resultados",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "4. Interpretando los resultados",
+    "text": "4. Interpretando los resultados\nVolvamos ahora a la pregunta que dio origen al análisis.\n\n¿Las áreas con mayores ventas son también las más rentables?\n\nLa evidencia obtenida sugiere que la respuesta es no necesariamente.\nLas categorías y regiones con mayor actividad comercial no siempre son las que generan un mayor beneficio económico.\nEl caso de Furniture constituye un ejemplo claro. A pesar de registrar un volumen de ventas similar al de las demás categorías, su margen de ganancia es considerablemente inferior.\nAlgo parecido ocurre cuando analizamos las regiones. Central supera a South en ventas, pero obtiene una utilidad menor y un margen significativamente más reducido.\nEstos resultados muestran que las ventas representan solamente una dimensión del desempeño empresarial.\nPara comprender dónde se crea realmente valor es indispensable incorporar indicadores de rentabilidad.\nNaturalmente, este análisis no permite identificar las causas de esas diferencias.\nLos menores márgenes podrían estar relacionados con descuentos más agresivos, costos logísticos elevados, una mezcla distinta de productos o cualquier otro factor operativo que no hemos estudiado en esta entrada.\nSin embargo, sí proporciona una señal clara sobre dónde conviene dirigir futuras investigaciones."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#recomendaciones-para-el-negocio",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#recomendaciones-para-el-negocio",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "5. Recomendaciones para el negocio",
+    "text": "5. Recomendaciones para el negocio\nAunque este análisis es exclusivamente descriptivo, permite identificar varias acciones que un equipo de Business Analytics podría considerar.\nEn primer lugar, las categorías con márgenes reducidos deberían convertirse en una prioridad para análisis posteriores.\nEn este conjunto de datos, Furniture representa un caso especialmente interesante. Su volumen de ventas demuestra que existe demanda, pero su bajo margen sugiere que parte de ese esfuerzo comercial no se está transformando en beneficio para la empresa.\nUna segunda recomendación consiste en complementar los informes comerciales tradicionales.\nPresentar únicamente las ventas puede conducir a conclusiones incompletas. Incorporar indicadores de utilidad y margen ofrece una visión mucho más cercana al verdadero desempeño del negocio.\nFinalmente, las diferencias observadas entre regiones justifican investigar con mayor profundidad qué prácticas comerciales, políticas de precios o estructuras de costos podrían explicar los mejores resultados obtenidos en West y East, así como el menor desempeño relativo de Central.\nEn todos los casos, el objetivo no consiste simplemente en vender más.\nEl verdadero desafío consiste en convertir las ventas en valor para la organización."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#reflexión-bayesiana",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#reflexión-bayesiana",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "6. Reflexión bayesiana",
+    "text": "6. Reflexión bayesiana\nEn esta ocasión no utilizamos ningún modelo bayesiano.\nY, precisamente por eso, este análisis resulta tan importante.\nExiste la tentación de pensar que Business Analytics comienza cuando construimos un modelo estadístico. En realidad, comienza mucho antes: cuando aprendemos a formular una buena pregunta y a comprender el contexto del negocio.\nEn este artículo utilizamos únicamente herramientas descriptivas para responder una cuestión fundamental: ¿las áreas con mayores ventas son también las más rentables?\nLa evidencia mostró que no necesariamente.\nLas diferencias observadas entre categorías y regiones ilustran que el volumen de ventas constituye solo una parte de la historia. Para entender dónde se crea realmente valor es imprescindible incorporar medidas de rentabilidad.\nEsta forma de razonar también refleja el espíritu del enfoque bayesiano.\nAntes de estimar probabilidades o construir modelos predictivos, necesitamos comprender el problema, reconocer la incertidumbre y decidir qué preguntas merece la pena responder.\nLos modelos bayesianos no sustituyen este proceso.\nLo enriquecen.\nY cuanto mejor entendamos el negocio, más útiles serán los modelos que construiremos en el futuro."
+  },
+  {
+    "objectID": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#apéndice-código-completo",
+    "href": "posts/c1-3-donde-genera-realmente-dinero-una-empresa/index.html#apéndice-código-completo",
+    "title": "¿Dónde genera realmente dinero la empresa?",
+    "section": "Apéndice — Código completo",
+    "text": "Apéndice — Código completo\nEl siguiente apéndice reúne todo el código utilizado durante el análisis en el mismo orden en que fue desarrollado a lo largo del artículo.\nLos bloques utilizan eval: false para evitar una segunda ejecución durante el renderizado y facilitar que el lector pueda reutilizar el análisis completo.\n\nCargar librerías y datos\n\nlibrary(tidyverse)\nlibrary(gt)\n\nsuperstore &lt;- read_csv(\n  \"data/superstore_sales.csv\",\n  show_col_types = FALSE\n)\n\n\n\nVentas y ganancias por transacción\n\nggplot(\n  superstore,\n  aes(\n    x = Sales,\n    y = Profit\n  )\n) +\n  geom_point(\n    alpha = 0.45,\n    color = \"#2C7FB8\"\n  ) +\n  geom_hline(\n    yintercept = 0,\n    linetype = \"dashed\",\n    color = \"firebrick\"\n  ) +\n  coord_cartesian(\n    ylim = c(-1000, 1000)\n  ) +\n  labs(\n    title = \"Ventas y ganancias por transacción\",\n    x = \"Ventas\",\n    y = \"Ganancias\"\n  ) +\n  theme_minimal()\n\n\n\nResumen por categoría\n\nprofit_category &lt;-\n  superstore %&gt;%\n  group_by(Category) %&gt;%\n  summarise(\n    Sales = sum(Sales, na.rm = TRUE),\n    Profit = sum(Profit, na.rm = TRUE),\n    Margin = 100 * Profit / Sales,\n    .groups = \"drop\"\n  )\n\n\n\nGanancias por categoría\n\nggplot(\n  profit_category,\n  aes(\n    x = reorder(Category, Profit),\n    y = Profit\n  )\n) +\n  geom_col(fill = \"#2C7FB8\") +\n  coord_flip() +\n  labs(\n    title = \"Ganancias totales por categoría\",\n    x = NULL,\n    y = \"Ganancias\"\n  ) +\n  theme_minimal()\n\n\n\nTabla resumen por categoría\n\nprofit_category %&gt;%\n  mutate(\n    Margin = round(Margin, 2)\n  ) %&gt;%\n  gt() %&gt;%\n  fmt_currency(\n    columns = c(Sales, Profit)\n  ) %&gt;%\n  fmt_number(\n    columns = Margin,\n    decimals = 2\n  ) %&gt;%\n  cols_label(\n    Sales = \"Ventas\",\n    Profit = \"Ganancias\",\n    Margin = \"Margen (%)\"\n  )\n\n\n\nResumen por región\n\nprofit_region &lt;-\n  superstore %&gt;%\n  group_by(Region) %&gt;%\n  summarise(\n    Sales = sum(Sales, na.rm = TRUE),\n    Profit = sum(Profit, na.rm = TRUE),\n    Margin = 100 * Profit / Sales,\n    .groups = \"drop\"\n  )\n\n\n\nGanancias por región\n\nggplot(\n  profit_region,\n  aes(\n    x = reorder(Region, Profit),\n    y = Profit\n  )\n) +\n  geom_col(fill = \"#41AE76\") +\n  coord_flip() +\n  labs(\n    title = \"Ganancias totales por región\",\n    x = NULL,\n    y = \"Ganancias\"\n  ) +\n  theme_minimal()\n\n\n\nTabla resumen por región\n\nprofit_region %&gt;%\n  mutate(\n    Margin = round(Margin, 2)\n  ) %&gt;%\n  gt() %&gt;%\n  fmt_currency(\n    columns = c(Sales, Profit)\n  ) %&gt;%\n  fmt_number(\n    columns = Margin,\n    decimals = 2\n  ) %&gt;%\n  cols_label(\n    Sales = \"Ventas\",\n    Profit = \"Ganancias\",\n    Margin = \"Margen (%)\"\n  )"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "Sobre el autor",
+    "section": "",
+    "text": "Hola.\nSoy David Villafuerte.\nEste blog nace con el objetivo de compartir proyectos reales de Business Analytics desarrollados con R y modelos bayesianos para mostrar cómo el análisis de datos puede apoyar mejores decisiones bajo incertidumbre."
+  },
+  {
+    "objectID": "about.html#mi-recorrido",
+    "href": "about.html#mi-recorrido",
+    "title": "Sobre el autor",
+    "section": "Mi recorrido",
+    "text": "Mi recorrido\nMi formación comenzó en el área de la salud y posteriormente evolucionó hacia la gestión, la programación y la ciencia de datos.\nCon el tiempo descubrí que los modelos bayesianos ofrecen una forma especialmente intuitiva de comunicar incertidumbre y apoyar la toma de decisiones, razón por la cual este blog está dedicado a esa temática."
+  },
+  {
+    "objectID": "about.html#qué-encontrarás-aquí",
+    "href": "about.html#qué-encontrarás-aquí",
+    "title": "Sobre el autor",
+    "section": "Qué encontrarás aquí",
+    "text": "Qué encontrarás aquí\n\nproyectos completos de análisis;\nvisualizaciones orientadas al negocio;\nmodelos bayesianos desarrollados con R;\ninterpretación de resultados;\nrecomendaciones para la toma de decisiones.\n\nEl objetivo no es enseñar programación ni estadística avanzada.\nEl objetivo es mostrar cómo un analista aborda problemas reales utilizando evidencia y razonamiento probabilístico."
+  },
+  {
+    "objectID": "about.html#contacto",
+    "href": "about.html#contacto",
+    "title": "Sobre el autor",
+    "section": "Contacto",
+    "text": "Contacto\n\nLinkedIn:\nGitHub:\nX (Twitter):\n\n\n\nLos modelos no eliminan la incertidumbre. Nos ayudan a comprenderla y a tomar decisiones más informadas."
+  }
+]
