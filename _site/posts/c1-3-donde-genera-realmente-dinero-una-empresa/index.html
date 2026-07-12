@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-07-10">
+<meta name="description" content="Descubra por qué vender más no siempre significa ganar más y cómo identificar las áreas que realmente crean valor utilizando datos de Superstore.">
+
+<title>¿Dónde genera realmente dinero la empresa? – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#por-qué-esta-pregunta-importa" id="toc-por-qué-esta-pregunta-importa" class="nav-link active" data-scroll-target="#por-qué-esta-pregunta-importa">¿Por qué esta pregunta importa?</a></li>
+  <li><a href="#la-pregunta-de-negocio" id="toc-la-pregunta-de-negocio" class="nav-link" data-scroll-target="#la-pregunta-de-negocio">1. La pregunta de negocio</a></li>
+  <li><a href="#comprendiendo-el-problema" id="toc-comprendiendo-el-problema" class="nav-link" data-scroll-target="#comprendiendo-el-problema">2. Comprendiendo el problema</a></li>
+  <li><a href="#explorando-los-datos" id="toc-explorando-los-datos" class="nav-link" data-scroll-target="#explorando-los-datos">3. Explorando los datos</a>
+  <ul class="collapse">
+  <li><a href="#existe-una-relación-clara-entre-ventas-y-ganancias" id="toc-existe-una-relación-clara-entre-ventas-y-ganancias" class="nav-link" data-scroll-target="#existe-una-relación-clara-entre-ventas-y-ganancias">¿Existe una relación clara entre ventas y ganancias?</a></li>
+  <li><a href="#qué-categorías-generan-realmente-valor" id="toc-qué-categorías-generan-realmente-valor" class="nav-link" data-scroll-target="#qué-categorías-generan-realmente-valor">¿Qué categorías generan realmente valor?</a></li>
+  <li><a href="#ocurre-lo-mismo-entre-regiones" id="toc-ocurre-lo-mismo-entre-regiones" class="nav-link" data-scroll-target="#ocurre-lo-mismo-entre-regiones">¿Ocurre lo mismo entre regiones?</a></li>
+  </ul></li>
+  <li><a href="#interpretando-los-resultados" id="toc-interpretando-los-resultados" class="nav-link" data-scroll-target="#interpretando-los-resultados">4. Interpretando los resultados</a></li>
+  <li><a href="#recomendaciones-para-el-negocio" id="toc-recomendaciones-para-el-negocio" class="nav-link" data-scroll-target="#recomendaciones-para-el-negocio">5. Recomendaciones para el negocio</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">6. Reflexión bayesiana</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a>
+  <ul class="collapse">
+  <li><a href="#cargar-librerías-y-datos" id="toc-cargar-librerías-y-datos" class="nav-link" data-scroll-target="#cargar-librerías-y-datos">Cargar librerías y datos</a></li>
+  <li><a href="#ventas-y-ganancias-por-transacción" id="toc-ventas-y-ganancias-por-transacción" class="nav-link" data-scroll-target="#ventas-y-ganancias-por-transacción">Ventas y ganancias por transacción</a></li>
+  <li><a href="#resumen-por-categoría" id="toc-resumen-por-categoría" class="nav-link" data-scroll-target="#resumen-por-categoría">Resumen por categoría</a></li>
+  <li><a href="#ganancias-por-categoría" id="toc-ganancias-por-categoría" class="nav-link" data-scroll-target="#ganancias-por-categoría">Ganancias por categoría</a></li>
+  <li><a href="#tabla-resumen-por-categoría" id="toc-tabla-resumen-por-categoría" class="nav-link" data-scroll-target="#tabla-resumen-por-categoría">Tabla resumen por categoría</a></li>
+  <li><a href="#resumen-por-región" id="toc-resumen-por-región" class="nav-link" data-scroll-target="#resumen-por-región">Resumen por región</a></li>
+  <li><a href="#ganancias-por-región" id="toc-ganancias-por-región" class="nav-link" data-scroll-target="#ganancias-por-región">Ganancias por región</a></li>
+  <li><a href="#tabla-resumen-por-región" id="toc-tabla-resumen-por-región" class="nav-link" data-scroll-target="#tabla-resumen-por-región">Tabla resumen por región</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">¿Dónde genera realmente dinero la empresa?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Visualización</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Descubra por qué vender más no siempre significa ganar más y cómo identificar las áreas que realmente crean valor utilizando datos de Superstore.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 10, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="por-qué-esta-pregunta-importa" class="level2">
+<h2 class="anchored" data-anchor-id="por-qué-esta-pregunta-importa">¿Por qué esta pregunta importa?</h2>
+<p>Uno de los errores más frecuentes en la gestión empresarial consiste en asumir que las áreas con mayores ventas son automáticamente las más exitosas.</p>
+<p>Sin embargo, las ventas representan únicamente el dinero que entra por la actividad comercial. La verdadera creación de valor depende de otro indicador: la utilidad obtenida después de cubrir los costos.</p>
+<p>Esta diferencia parece sencilla, pero tiene profundas implicaciones para la toma de decisiones. Una línea de productos puede vender millones de dólares y, aun así, aportar muy poco al crecimiento del negocio si sus márgenes son reducidos.</p>
+<p>Por ello, antes de pensar en modelos predictivos o análisis más avanzados, conviene responder una pregunta mucho más básica:</p>
+<blockquote class="blockquote">
+<p><strong>¿Dónde está generando realmente dinero la empresa?</strong></p>
+</blockquote>
+<p>En este artículo utilizaremos el conjunto de datos <strong>Superstore Sales</strong> para explorar esta cuestión desde una perspectiva completamente descriptiva. Nuestro objetivo no será construir modelos estadísticos, sino desarrollar intuición empresarial utilizando evidencia proveniente de los datos.</p>
+<p>Al finalizar el análisis veremos que las ventas cuentan solamente una parte de la historia y que la rentabilidad ofrece una visión mucho más cercana al verdadero desempeño del negocio.</p>
+</section>
+<section id="la-pregunta-de-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="la-pregunta-de-negocio">1. La pregunta de negocio</h2>
+<p>Toda esta entrada gira alrededor de una única pregunta:</p>
+<blockquote class="blockquote">
+<p><strong>¿Las áreas con mayores ventas son también las más rentables?</strong></p>
+</blockquote>
+<p>Responderla correctamente resulta importante porque muchas decisiones empresariales se toman utilizando únicamente indicadores de ventas.</p>
+<p>Es habitual encontrar informes donde se destacan las categorías o regiones que más venden. Sin embargo, desde la perspectiva de la dirección, una pregunta suele ser aún más relevante:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué áreas están generando realmente valor para la organización?</strong></p>
+</blockquote>
+<p>Para responderla utilizaremos dos indicadores presentes en el conjunto de datos:</p>
+<ul>
+<li><strong>Sales</strong>, que representa el valor de las ventas realizadas.</li>
+<li><strong>Profit</strong>, que representa la utilidad obtenida en cada transacción.</li>
+</ul>
+<p>Aunque ambos indicadores suelen estar relacionados, no siempre evolucionan de la misma manera.</p>
+<p>Precisamente esa diferencia constituye el eje de nuestro análisis.</p>
+</section>
+<section id="comprendiendo-el-problema" class="level2">
+<h2 class="anchored" data-anchor-id="comprendiendo-el-problema">2. Comprendiendo el problema</h2>
+<p>Imaginemos dos categorías de productos.</p>
+<p>La primera vende un millón de dólares y obtiene cien mil dólares de utilidad.</p>
+<p>La segunda vende setecientos mil dólares, pero genera ciento cincuenta mil dólares de beneficio.</p>
+<p>Si únicamente observamos las ventas, parecería evidente que la primera categoría es la más importante.</p>
+<p>Sin embargo, desde la perspectiva del negocio, la segunda está creando más valor.</p>
+<p>Esta situación ocurre con mucha frecuencia.</p>
+<p>Descuentos agresivos, promociones, costos logísticos o diferencias entre productos pueden hacer que dos áreas con niveles similares de ventas tengan desempeños económicos completamente distintos.</p>
+<p>Por ello, un analista no debería limitarse a preguntar cuánto vende cada área.</p>
+<p>También necesita comprender cuánto beneficio generan esas ventas.</p>
+<p>Esa será precisamente la lógica que seguiremos durante todo el artículo.</p>
+<p>Comenzaremos explorando la relación entre ventas y ganancias de cada transacción y, posteriormente, resumiremos esa información por categorías y regiones.</p>
+</section>
+<section id="explorando-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="explorando-los-datos">3. Explorando los datos</h2>
+<section id="existe-una-relación-clara-entre-ventas-y-ganancias" class="level3">
+<h3 class="anchored" data-anchor-id="existe-una-relación-clara-entre-ventas-y-ganancias">¿Existe una relación clara entre ventas y ganancias?</h3>
+<p>Antes de resumir la información por categorías o regiones, conviene observar cada transacción de manera individual.</p>
+<p>El siguiente gráfico muestra simultáneamente el valor de las ventas y la utilidad obtenida en cada operación.</p>
+<p>Para facilitar la interpretación hemos limitado el eje vertical a un rango entre −1000 y 1000 unidades monetarias. La gran mayoría de las transacciones se encuentra dentro de este intervalo, lo que permite apreciar mejor el patrón general sin que unos pocos valores extremos dominen la visualización.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El gráfico muestra una elevada concentración de transacciones con ganancias comprendidas aproximadamente entre <strong>−500 y 500</strong> unidades monetarias.</p>
+<p>A medida que aumentan las ventas también aumenta la dispersión de las ganancias. Algunas operaciones generan beneficios elevados, mientras que otras producen pérdidas importantes.</p>
+<p>Esta variabilidad transmite una idea fundamental: <strong>una venta de gran magnitud no garantiza una ganancia elevada</strong>.</p>
+<p>Incluso entre transacciones con niveles similares de ventas encontramos resultados económicos muy diferentes.</p>
+<p>Desde la perspectiva empresarial, esta es una primera señal de que el volumen de ventas, por sí solo, no basta para evaluar el desempeño del negocio.</p>
+</section>
+<section id="qué-categorías-generan-realmente-valor" class="level3">
+<h3 class="anchored" data-anchor-id="qué-categorías-generan-realmente-valor">¿Qué categorías generan realmente valor?</h3>
+<p>Una vez comprendido el comportamiento de las transacciones individuales, resulta más útil resumir la información por categoría.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El gráfico muestra una diferencia muy marcada entre las tres categorías.</p>
+<p><strong>Technology</strong> genera la mayor utilidad del conjunto de datos, seguida muy de cerca por <strong>Office Supplies</strong>.</p>
+<p>En contraste, <strong>Furniture</strong> aporta una utilidad considerablemente menor, a pesar de mantener un volumen de ventas comparable al de las otras categorías.</p>
+<p>Para comprender mejor esta diferencia, resumimos los principales indicadores en la siguiente tabla.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="rldohevsbu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rldohevsbu table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#rldohevsbu thead, #rldohevsbu tbody, #rldohevsbu tfoot, #rldohevsbu tr, #rldohevsbu td, #rldohevsbu th {
+  border-style: none;
+}
+
+#rldohevsbu p {
+  margin: 0;
+  padding: 0;
+}
+
+#rldohevsbu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#rldohevsbu .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#rldohevsbu .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#rldohevsbu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#rldohevsbu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#rldohevsbu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#rldohevsbu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#rldohevsbu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#rldohevsbu .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#rldohevsbu .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#rldohevsbu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#rldohevsbu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#rldohevsbu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#rldohevsbu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#rldohevsbu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rldohevsbu .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#rldohevsbu .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#rldohevsbu .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#rldohevsbu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rldohevsbu .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#rldohevsbu .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rldohevsbu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#rldohevsbu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rldohevsbu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#rldohevsbu .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#rldohevsbu .gt_left {
+  text-align: left;
+}
+
+#rldohevsbu .gt_center {
+  text-align: center;
+}
+
+#rldohevsbu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#rldohevsbu .gt_font_normal {
+  font-weight: normal;
+}
+
+#rldohevsbu .gt_font_bold {
+  font-weight: bold;
+}
+
+#rldohevsbu .gt_font_italic {
+  font-style: italic;
+}
+
+#rldohevsbu .gt_super {
+  font-size: 65%;
+}
+
+#rldohevsbu .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#rldohevsbu .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#rldohevsbu .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#rldohevsbu .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#rldohevsbu .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#rldohevsbu .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#rldohevsbu .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#rldohevsbu .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#rldohevsbu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Category" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Category</th>
+<th id="Sales" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Ventas</th>
+<th id="Profit" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Ganancias</th>
+<th id="Margin" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Margen (%)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_right" headers="Sales">$741,999.80</td>
+<td class="gt_row gt_right" headers="Profit">$18,451.27</td>
+<td class="gt_row gt_right" headers="Margin">2.49</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">$719,047.03</td>
+<td class="gt_row gt_right" headers="Profit">$122,490.80</td>
+<td class="gt_row gt_right" headers="Margin">17.04</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">$836,154.03</td>
+<td class="gt_row gt_right" headers="Profit">$145,454.95</td>
+<td class="gt_row gt_right" headers="Margin">17.40</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>La tabla confirma una de las conclusiones más importantes del artículo.</p>
+<p>Aunque <strong>Furniture</strong> vende casi tanto como <strong>Office Supplies</strong>, su margen de ganancia alcanza apenas <strong>2.49 %</strong>, muy por debajo del <strong>17.0 %</strong> observado en Office Supplies y del <strong>17.4 %</strong> registrado por Technology.</p>
+<p>Esta diferencia ilustra perfectamente la idea central del análisis.</p>
+<p>Las ventas reflejan la actividad comercial.</p>
+<p>La rentabilidad revela cuánto valor económico termina generando esa actividad.</p>
+</section>
+<section id="ocurre-lo-mismo-entre-regiones" class="level3">
+<h3 class="anchored" data-anchor-id="ocurre-lo-mismo-entre-regiones">¿Ocurre lo mismo entre regiones?</h3>
+<p>Las diferencias observadas entre categorías plantean una nueva pregunta.</p>
+<p>¿La relación entre ventas y rentabilidad también cambia cuando analizamos distintas regiones?</p>
+<p>Responder esta pregunta resulta importante porque muchas decisiones comerciales —como la asignación de presupuestos, campañas de marketing o expansión territorial— suelen apoyarse en indicadores agregados de ventas.</p>
+<p>Sin embargo, si dos regiones presentan niveles similares de actividad comercial pero generan beneficios diferentes, la estrategia de negocio también debería ser diferente.</p>
+<p>Para explorar esta posibilidad resumimos nuevamente la información, esta vez por región.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La distribución de las ganancias muestra nuevamente que el volumen de ventas no cuenta toda la historia.</p>
+<p>La región <strong>West</strong> obtiene la mayor utilidad total, seguida por <strong>East</strong>.</p>
+<p>Por el contrario, <strong>Central</strong> presenta la menor utilidad entre las cuatro regiones analizadas.</p>
+<p>La diferencia resulta todavía más interesante cuando incorporamos las ventas y el margen de rentabilidad.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="eamtsokobg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eamtsokobg table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#eamtsokobg thead, #eamtsokobg tbody, #eamtsokobg tfoot, #eamtsokobg tr, #eamtsokobg td, #eamtsokobg th {
+  border-style: none;
+}
+
+#eamtsokobg p {
+  margin: 0;
+  padding: 0;
+}
+
+#eamtsokobg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#eamtsokobg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#eamtsokobg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#eamtsokobg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#eamtsokobg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#eamtsokobg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#eamtsokobg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#eamtsokobg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#eamtsokobg .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#eamtsokobg .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#eamtsokobg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#eamtsokobg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#eamtsokobg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#eamtsokobg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#eamtsokobg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eamtsokobg .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#eamtsokobg .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#eamtsokobg .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#eamtsokobg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eamtsokobg .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#eamtsokobg .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eamtsokobg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#eamtsokobg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eamtsokobg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eamtsokobg .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eamtsokobg .gt_left {
+  text-align: left;
+}
+
+#eamtsokobg .gt_center {
+  text-align: center;
+}
+
+#eamtsokobg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#eamtsokobg .gt_font_normal {
+  font-weight: normal;
+}
+
+#eamtsokobg .gt_font_bold {
+  font-weight: bold;
+}
+
+#eamtsokobg .gt_font_italic {
+  font-style: italic;
+}
+
+#eamtsokobg .gt_super {
+  font-size: 65%;
+}
+
+#eamtsokobg .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#eamtsokobg .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#eamtsokobg .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#eamtsokobg .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#eamtsokobg .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#eamtsokobg .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#eamtsokobg .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#eamtsokobg .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#eamtsokobg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Region" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Region</th>
+<th id="Sales" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Ventas</th>
+<th id="Profit" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Ganancias</th>
+<th id="Margin" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Margen (%)</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Region">Central</td>
+<td class="gt_row gt_right" headers="Sales">$501,239.89</td>
+<td class="gt_row gt_right" headers="Profit">$39,706.36</td>
+<td class="gt_row gt_right" headers="Margin">7.92</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Region">East</td>
+<td class="gt_row gt_right" headers="Sales">$678,781.24</td>
+<td class="gt_row gt_right" headers="Profit">$91,522.78</td>
+<td class="gt_row gt_right" headers="Margin">13.48</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Region">South</td>
+<td class="gt_row gt_right" headers="Sales">$391,721.91</td>
+<td class="gt_row gt_right" headers="Profit">$46,749.43</td>
+<td class="gt_row gt_right" headers="Margin">11.93</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Region">West</td>
+<td class="gt_row gt_right" headers="Sales">$725,457.82</td>
+<td class="gt_row gt_right" headers="Profit">$108,418.45</td>
+<td class="gt_row gt_right" headers="Margin">14.94</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>La tabla revela un resultado especialmente ilustrativo.</p>
+<p>La región <strong>Central</strong> registra ventas superiores a las de <strong>South</strong>. Sin embargo, genera una utilidad menor y alcanza un margen de apenas <strong>7.92 %</strong>, frente al <strong>11.9 %</strong> observado en South.</p>
+<p>Esta comparación resume perfectamente la idea central del artículo.</p>
+<p>Si únicamente analizáramos las ventas, podríamos concluir que Central presenta un mejor desempeño comercial.</p>
+<p>Sin embargo, al incorporar la utilidad descubrimos que South convierte una menor cantidad de ventas en un mayor beneficio para la empresa.</p>
+<p>En otras palabras, <strong>vender más no siempre significa generar más valor</strong>.</p>
+</section>
+</section>
+<section id="interpretando-los-resultados" class="level2">
+<h2 class="anchored" data-anchor-id="interpretando-los-resultados">4. Interpretando los resultados</h2>
+<p>Volvamos ahora a la pregunta que dio origen al análisis.</p>
+<blockquote class="blockquote">
+<p><strong>¿Las áreas con mayores ventas son también las más rentables?</strong></p>
+</blockquote>
+<p>La evidencia obtenida sugiere que la respuesta es <strong>no necesariamente</strong>.</p>
+<p>Las categorías y regiones con mayor actividad comercial no siempre son las que generan un mayor beneficio económico.</p>
+<p>El caso de <strong>Furniture</strong> constituye un ejemplo claro. A pesar de registrar un volumen de ventas similar al de las demás categorías, su margen de ganancia es considerablemente inferior.</p>
+<p>Algo parecido ocurre cuando analizamos las regiones. <strong>Central</strong> supera a <strong>South</strong> en ventas, pero obtiene una utilidad menor y un margen significativamente más reducido.</p>
+<p>Estos resultados muestran que las ventas representan solamente una dimensión del desempeño empresarial.</p>
+<p>Para comprender dónde se crea realmente valor es indispensable incorporar indicadores de rentabilidad.</p>
+<p>Naturalmente, este análisis no permite identificar las causas de esas diferencias.</p>
+<p>Los menores márgenes podrían estar relacionados con descuentos más agresivos, costos logísticos elevados, una mezcla distinta de productos o cualquier otro factor operativo que no hemos estudiado en esta entrada.</p>
+<p>Sin embargo, sí proporciona una señal clara sobre dónde conviene dirigir futuras investigaciones.</p>
+</section>
+<section id="recomendaciones-para-el-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="recomendaciones-para-el-negocio">5. Recomendaciones para el negocio</h2>
+<p>Aunque este análisis es exclusivamente descriptivo, permite identificar varias acciones que un equipo de Business Analytics podría considerar.</p>
+<p>En primer lugar, las categorías con márgenes reducidos deberían convertirse en una prioridad para análisis posteriores.</p>
+<p>En este conjunto de datos, <strong>Furniture</strong> representa un caso especialmente interesante. Su volumen de ventas demuestra que existe demanda, pero su bajo margen sugiere que parte de ese esfuerzo comercial no se está transformando en beneficio para la empresa.</p>
+<p>Una segunda recomendación consiste en complementar los informes comerciales tradicionales.</p>
+<p>Presentar únicamente las ventas puede conducir a conclusiones incompletas. Incorporar indicadores de utilidad y margen ofrece una visión mucho más cercana al verdadero desempeño del negocio.</p>
+<p>Finalmente, las diferencias observadas entre regiones justifican investigar con mayor profundidad qué prácticas comerciales, políticas de precios o estructuras de costos podrían explicar los mejores resultados obtenidos en <strong>West</strong> y <strong>East</strong>, así como el menor desempeño relativo de <strong>Central</strong>.</p>
+<p>En todos los casos, el objetivo no consiste simplemente en vender más.</p>
+<p>El verdadero desafío consiste en <strong>convertir las ventas en valor para la organización</strong>.</p>
+</section>
+<section id="reflexión-bayesiana" class="level2">
+<h2 class="anchored" data-anchor-id="reflexión-bayesiana">6. Reflexión bayesiana</h2>
+<p>En esta ocasión no utilizamos ningún modelo bayesiano.</p>
+<p>Y, precisamente por eso, este análisis resulta tan importante.</p>
+<p>Existe la tentación de pensar que Business Analytics comienza cuando construimos un modelo estadístico. En realidad, comienza mucho antes: cuando aprendemos a formular una buena pregunta y a comprender el contexto del negocio.</p>
+<p>En este artículo utilizamos únicamente herramientas descriptivas para responder una cuestión fundamental: <strong>¿las áreas con mayores ventas son también las más rentables?</strong></p>
+<p>La evidencia mostró que no necesariamente.</p>
+<p>Las diferencias observadas entre categorías y regiones ilustran que el volumen de ventas constituye solo una parte de la historia. Para entender dónde se crea realmente valor es imprescindible incorporar medidas de rentabilidad.</p>
+<p>Esta forma de razonar también refleja el espíritu del enfoque bayesiano.</p>
+<p>Antes de estimar probabilidades o construir modelos predictivos, necesitamos comprender el problema, reconocer la incertidumbre y decidir qué preguntas merece la pena responder.</p>
+<p>Los modelos bayesianos no sustituyen este proceso.</p>
+<p>Lo enriquecen.</p>
+<p>Y cuanto mejor entendamos el negocio, más útiles serán los modelos que construiremos en el futuro.</p>
+</section>
+<section id="apéndice-código-completo" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-código-completo">Apéndice — Código completo</h2>
+<p>El siguiente apéndice reúne todo el código utilizado durante el análisis en el mismo orden en que fue desarrollado a lo largo del artículo.</p>
+<p>Los bloques utilizan <code>eval: false</code> para evitar una segunda ejecución durante el renderizado y facilitar que el lector pueda reutilizar el análisis completo.</p>
+<section id="cargar-librerías-y-datos" class="level3">
+<h3 class="anchored" data-anchor-id="cargar-librerías-y-datos">Cargar librerías y datos</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/superstore_sales.csv"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ventas-y-ganancias-por-transacción" class="level3">
+<h3 class="anchored" data-anchor-id="ventas-y-ganancias-por-transacción">Ventas y ganancias por transacción</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Sales,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.45</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"#2C7FB8"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">yintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"firebrick"</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1000</span>, <span class="dv">1000</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ventas y ganancias por transacción"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancias"</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumen-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="resumen-por-categoría">Resumen por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>profit_category <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  superstore <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Category) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sales =</span> <span class="fu">sum</span>(Sales, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Profit =</span> <span class="fu">sum</span>(Profit, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="dv">100</span> <span class="sc">*</span> Profit <span class="sc">/</span> Sales,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ganancias-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="ganancias-por-categoría">Ganancias por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  profit_category,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">reorder</span>(Category, Profit),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#2C7FB8"</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ganancias totales por categoría"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancias"</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabla-resumen-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="tabla-resumen-por-categoría">Tabla resumen por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>profit_category <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="fu">round</span>(Margin, <span class="dv">2</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(Sales, Profit)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Margin,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sales =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Profit =</span> <span class="st">"Ganancias"</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="st">"Margen (%)"</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumen-por-región" class="level3">
+<h3 class="anchored" data-anchor-id="resumen-por-región">Resumen por región</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>profit_region <span class="ot">&lt;-</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  superstore <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Region) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sales =</span> <span class="fu">sum</span>(Sales, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Profit =</span> <span class="fu">sum</span>(Profit, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="dv">100</span> <span class="sc">*</span> Profit <span class="sc">/</span> Sales,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ganancias-por-región" class="level3">
+<h3 class="anchored" data-anchor-id="ganancias-por-región">Ganancias por región</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  profit_region,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">reorder</span>(Region, Profit),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#41AE76"</span>) <span class="sc">+</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ganancias totales por región"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancias"</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabla-resumen-por-región" class="level3">
+<h3 class="anchored" data-anchor-id="tabla-resumen-por-región">Tabla resumen por región</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>profit_region <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="fu">round</span>(Margin, <span class="dv">2</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_currency</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(Sales, Profit)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> Margin,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sales =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Profit =</span> <span class="st">"Ganancias"</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Margin =</span> <span class="st">"Margen (%)"</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

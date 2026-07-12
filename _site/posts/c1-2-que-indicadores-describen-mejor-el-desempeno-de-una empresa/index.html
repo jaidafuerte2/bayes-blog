@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-07-09">
+<meta name="description" content="Descubra qué métricas merece la pena revisar antes de tomar decisiones de negocio utilizando el dataset Superstore Sales y un análisis exploratorio orientado a la toma de decisiones.">
+
+<title>¿Qué indicadores describen mejor el desempeño de una empresa? – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#la-pregunta-de-negocio" id="toc-la-pregunta-de-negocio" class="nav-link active" data-scroll-target="#la-pregunta-de-negocio">La pregunta de negocio</a></li>
+  <li><a href="#comprendiendo-el-problema" id="toc-comprendiendo-el-problema" class="nav-link" data-scroll-target="#comprendiendo-el-problema">Comprendiendo el problema</a></li>
+  <li><a href="#explorando-los-datos" id="toc-explorando-los-datos" class="nav-link" data-scroll-target="#explorando-los-datos">Explorando los datos</a></li>
+  <li><a href="#cómo-se-distribuyen-las-ventas" id="toc-cómo-se-distribuyen-las-ventas" class="nav-link" data-scroll-target="#cómo-se-distribuyen-las-ventas">¿Cómo se distribuyen las ventas?</a></li>
+  <li><a href="#qué-nos-dice-la-utilidad-sobre-el-negocio" id="toc-qué-nos-dice-la-utilidad-sobre-el-negocio" class="nav-link" data-scroll-target="#qué-nos-dice-la-utilidad-sobre-el-negocio">¿Qué nos dice la utilidad sobre el negocio?</a></li>
+  <li><a href="#cuántos-productos-compra-un-cliente-en-cada-pedido" id="toc-cuántos-productos-compra-un-cliente-en-cada-pedido" class="nav-link" data-scroll-target="#cuántos-productos-compra-un-cliente-en-cada-pedido">¿Cuántos productos compra un cliente en cada pedido?</a></li>
+  <li><a href="#qué-papel-desempeñan-los-descuentos" id="toc-qué-papel-desempeñan-los-descuentos" class="nav-link" data-scroll-target="#qué-papel-desempeñan-los-descuentos">¿Qué papel desempeñan los descuentos?</a></li>
+  <li><a href="#comparando-los-principales-indicadores" id="toc-comparando-los-principales-indicadores" class="nav-link" data-scroll-target="#comparando-los-principales-indicadores">Comparando los principales indicadores</a></li>
+  <li><a href="#recomendaciones-para-el-negocio" id="toc-recomendaciones-para-el-negocio" class="nav-link" data-scroll-target="#recomendaciones-para-el-negocio">Recomendaciones para el negocio</a></li>
+  <li><a href="#qué-aprendimos" id="toc-qué-aprendimos" class="nav-link" data-scroll-target="#qué-aprendimos">¿Qué aprendimos?</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">Reflexión bayesiana</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a>
+  <ul class="collapse">
+  <li><a href="#cargar-paquetes" id="toc-cargar-paquetes" class="nav-link" data-scroll-target="#cargar-paquetes">Cargar paquetes</a></li>
+  <li><a href="#importar-los-datos" id="toc-importar-los-datos" class="nav-link" data-scroll-target="#importar-los-datos">Importar los datos</a></li>
+  <li><a href="#explorar-la-estructura-del-dataset" id="toc-explorar-la-estructura-del-dataset" class="nav-link" data-scroll-target="#explorar-la-estructura-del-dataset">Explorar la estructura del dataset</a></li>
+  <li><a href="#resumen-descriptivo" id="toc-resumen-descriptivo" class="nav-link" data-scroll-target="#resumen-descriptivo">Resumen descriptivo</a></li>
+  <li><a href="#distribución-de-las-ventas" id="toc-distribución-de-las-ventas" class="nav-link" data-scroll-target="#distribución-de-las-ventas">Distribución de las ventas</a></li>
+  <li><a href="#distribución-de-la-utilidad" id="toc-distribución-de-la-utilidad" class="nav-link" data-scroll-target="#distribución-de-la-utilidad">Distribución de la utilidad</a></li>
+  <li><a href="#distribución-de-la-cantidad-de-productos" id="toc-distribución-de-la-cantidad-de-productos" class="nav-link" data-scroll-target="#distribución-de-la-cantidad-de-productos">Distribución de la cantidad de productos</a></li>
+  <li><a href="#distribución-de-los-descuentos" id="toc-distribución-de-los-descuentos" class="nav-link" data-scroll-target="#distribución-de-los-descuentos">Distribución de los descuentos</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">¿Qué indicadores describen mejor el desempeño de una empresa?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Visualización</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Descubra qué métricas merece la pena revisar antes de tomar decisiones de negocio utilizando el dataset Superstore Sales y un análisis exploratorio orientado a la toma de decisiones.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 9, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="la-pregunta-de-negocio" class="level1">
+<h1>La pregunta de negocio</h1>
+<p>Las organizaciones modernas generan una enorme cantidad de indicadores. Ventas, utilidad, descuentos, número de pedidos, unidades vendidas y muchas otras métricas aparecen diariamente en informes y paneles de control.</p>
+<p>Sin embargo, disponer de muchos indicadores no garantiza tomar mejores decisiones.</p>
+<p>Una empresa puede incrementar sus ventas y, aun así, deteriorar su rentabilidad. Del mismo modo, un elevado volumen de productos vendidos podría ser consecuencia de descuentos tan agresivos que terminen reduciendo las ganancias.</p>
+<p>Por ello, antes de construir modelos predictivos o desarrollar análisis más sofisticados, conviene responder una pregunta mucho más sencilla:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué indicadores deberíamos revisar antes de tomar cualquier decisión?</strong></p>
+</blockquote>
+<p>En este artículo utilizaremos el conjunto de datos <strong>Superstore Sales</strong> para responder esa pregunta. Nuestro objetivo no será construir modelos bayesianos, sino desarrollar la intuición analítica necesaria para reconocer cuáles son las métricas que mejor describen el desempeño de una empresa y por qué ninguna de ellas debería interpretarse de manera aislada.</p>
+<hr>
+</section>
+<section id="comprendiendo-el-problema" class="level1">
+<h1>Comprendiendo el problema</h1>
+<p>Cuando una empresa atraviesa un buen o un mal momento, la explicación rara vez se encuentra en un único indicador.</p>
+<p>Las ventas muestran cuánto dinero ingresa al negocio, pero no cuánto valor genera realmente. La utilidad refleja la rentabilidad de cada operación, aunque puede verse afectada por unas pocas transacciones extraordinarias. El volumen de productos vendidos ayuda a comprender el comportamiento de los clientes, mientras que los descuentos permiten evaluar la intensidad de la estrategia comercial.</p>
+<p>En este artículo trabajaremos con cuatro indicadores fundamentales:</p>
+<ul>
+<li><strong>Sales:</strong> ingresos obtenidos en cada transacción.</li>
+<li><strong>Profit:</strong> utilidad generada por cada venta.</li>
+<li><strong>Quantity:</strong> número de productos incluidos en cada pedido.</li>
+<li><strong>Discount:</strong> descuento aplicado a la transacción.</li>
+</ul>
+<p>Cada uno responde una pregunta distinta.</p>
+<p>Las ventas describen el tamaño económico del negocio.</p>
+<p>La utilidad muestra si esas ventas realmente generan valor.</p>
+<p>La cantidad vendida refleja el volumen de productos comercializados.</p>
+<p>Finalmente, los descuentos ayudan a comprender el esfuerzo promocional necesario para concretar las ventas.</p>
+<p>Ninguno de estos indicadores es suficiente por sí solo. El propósito de este análisis es comprender cómo se comporta cada uno antes de estudiar las relaciones entre ellos en los siguientes artículos de esta colección.</p>
+<hr>
+</section>
+<section id="explorando-los-datos" class="level1">
+<h1>Explorando los datos</h1>
+<p>Antes de interpretar cualquier indicador conviene conocer el conjunto de datos con el que trabajaremos. Para esto usamos la función skim():</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(sales)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>El conjunto de datos contiene <strong>9 994 transacciones</strong> y <strong>21 variables</strong>, de las cuales <strong>16 son categóricas</strong> y <strong>5 numéricas</strong>. Un aspecto especialmente tranquilizador es que ninguna de las variables presenta valores faltantes, por lo que podemos centrar nuestra atención en comprender el comportamiento del negocio sin realizar procesos adicionales de limpieza.</p>
+<p>Antes de estudiar cada variable individualmente, resulta útil construir un pequeño resumen que nos permita dimensionar la actividad de la empresa.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 5
+  Observaciones Ventas_totales Utilidad_total Productos_vendidos
+          &lt;int&gt;          &lt;dbl&gt;          &lt;dbl&gt;              &lt;dbl&gt;
+1          9994       2297201.        286397.              37873
+# ℹ 1 more variable: Descuento_promedio &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Este resumen ofrece una primera fotografía del negocio.</p>
+<p>Durante el período analizado se registraron <strong>9 994 pedidos</strong>, que generaron aproximadamente <strong>2,30 millones de dólares en ventas</strong> y <strong>286 mil dólares de utilidad</strong>, con un total de <strong>37 873 productos vendidos</strong>.</p>
+<p>Además, el <strong>descuento promedio fue del 15,6 %</strong>, un valor suficientemente alto como para justificar un análisis más detallado de esta variable en futuras publicaciones.</p>
+<p>Sin embargo, estos valores agregados cuentan únicamente una parte de la historia. Dos empresas pueden presentar exactamente las mismas ventas totales y, aun así, comportarse de forma completamente distinta si una depende de unas pocas operaciones muy grandes y la otra de miles de ventas pequeñas.</p>
+<p>Por esta razón, el siguiente paso consiste en estudiar la distribución de cada indicador.</p>
+<hr>
+</section>
+<section id="cómo-se-distribuyen-las-ventas" class="level1">
+<h1>¿Cómo se distribuyen las ventas?</h1>
+<p>La variable <strong>Sales</strong> representa el ingreso generado por cada transacción.</p>
+<p>Antes de calcular promedios o comparar segmentos resulta útil responder una pregunta muy sencilla:</p>
+<blockquote class="blockquote">
+<p><strong>¿La empresa realiza muchas ventas pequeñas o unas pocas ventas de gran tamaño?</strong></p>
+</blockquote>
+<p>El siguiente histograma nos ayuda a responder esa pregunta.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La distribución de las ventas presenta una <strong>marcada asimetría hacia la derecha</strong>.</p>
+<p>La inmensa mayoría de las transacciones corresponde a ventas de bajo valor económico. A medida que aumenta el monto de la venta, el número de operaciones disminuye rápidamente. De hecho, las ventas superiores a <strong>1 000 dólares</strong> representan solo una pequeña fracción del total de transacciones.</p>
+<p>Desde una perspectiva empresarial, esto significa que la actividad cotidiana de la empresa se sostiene principalmente sobre un gran número de pedidos relativamente pequeños, mientras que las ventas de gran valor constituyen eventos poco frecuentes.</p>
+<p>Esta característica tiene una consecuencia importante: <strong>el promedio de ventas puede verse influido por unas pocas operaciones extraordinariamente grandes</strong>, por lo que no siempre representa adecuadamente una transacción típica.</p>
+<p>Para comprender mejor este comportamiento resulta útil observar el diagrama de caja.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El boxplot confirma la presencia de numerosos valores atípicos.</p>
+<p>Aunque existen algunas ventas que superan los <strong>15 000 dólares</strong> e incluso una cercana a los <strong>22 500 dólares</strong>, estas operaciones son claramente excepcionales dentro del conjunto de datos.</p>
+<p>No obstante, la presencia de estos valores extremos dificulta apreciar el comportamiento de la mayor parte de las transacciones. Para ello resulta útil realizar un acercamiento sobre la zona donde se concentra la mayoría de las ventas.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Al limitar el eje vertical a los primeros <strong>500 dólares</strong> aparece una imagen mucho más representativa del negocio cotidiano.</p>
+<p>La <strong>mediana</strong> de las ventas se sitúa alrededor de <strong>55 dólares</strong>, mientras que las ventas superiores a <strong>200 dólares</strong> ya comienzan a comportarse como valores atípicos respecto al patrón habitual de la empresa.</p>
+<p>En otras palabras, aunque ocasionalmente se realizan ventas muy elevadas, la actividad comercial diaria está dominada por operaciones considerablemente más pequeñas.</p>
+<p>Este resultado deja una primera lección importante para cualquier analista.</p>
+<blockquote class="blockquote">
+<p>Evaluar el desempeño del negocio únicamente mediante la venta promedio podría conducir a una imagen demasiado optimista del tamaño habitual de las transacciones, ya que unas pocas operaciones excepcionales influyen de forma importante sobre ese indicador.</p>
+</blockquote>
+<p>Antes de extraer conclusiones sobre el desempeño general de la empresa todavía debemos responder una pregunta aún más importante:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuánta utilidad generan realmente esas ventas?</strong></p>
+</blockquote>
+<p>La respuesta comienza estudiando la distribución de la utilidad.</p>
+</section>
+<section id="qué-nos-dice-la-utilidad-sobre-el-negocio" class="level1">
+<h1>¿Qué nos dice la utilidad sobre el negocio?</h1>
+<p>Las ventas muestran cuánto dinero ingresa a la empresa, pero por sí solas no indican si ese dinero realmente genera valor.</p>
+<p>Desde la perspectiva de la toma de decisiones, la utilidad suele ser un indicador mucho más informativo. Una empresa puede incrementar sus ventas de manera considerable y, aun así, obtener beneficios muy modestos si ese crecimiento depende de descuentos excesivos o de productos con márgenes reducidos.</p>
+<p>Por ello, el siguiente paso consiste en estudiar cómo se distribuye la utilidad de cada transacción.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A primera vista observamos que la utilidad también presenta una distribución muy concentrada alrededor de valores bajos. Sin embargo, la presencia de algunos valores extremos dificulta apreciar dónde se encuentra la mayor parte de las transacciones.</p>
+<p>Por ello resulta útil realizar un acercamiento sobre la región central de la distribución.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Con este acercamiento aparece con claridad el comportamiento habitual del negocio.</p>
+<p>La mayoría de las transacciones generan utilidades cercanas a <strong>20 dólares</strong>, mientras que tanto las pérdidas importantes como las ganancias extraordinarias representan situaciones relativamente poco frecuentes.</p>
+<p>Desde una perspectiva empresarial, este resultado es especialmente relevante.</p>
+<p>El negocio parece sostenerse sobre un gran número de operaciones con ganancias relativamente pequeñas. Aunque existen ventas muy rentables, no constituyen el comportamiento típico de la empresa.</p>
+<p>Esta observación también ayuda a interpretar correctamente la utilidad total obtenida anteriormente. Una utilidad agregada elevada no implica necesariamente que cada pedido sea altamente rentable; con frecuencia es el resultado de acumular miles de pequeñas ganancias.</p>
+<p>Para complementar esta interpretación analizaremos ahora el diagrama de caja.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El boxplot confirma la existencia de valores atípicos tanto positivos como negativos.</p>
+<p>Existen algunas transacciones con pérdidas superiores a <strong>1 000 dólares</strong>, mientras que otras generan utilidades superiores a <strong>8 000 dólares</strong>. Aunque estos casos son poco frecuentes, tienen capacidad para modificar significativamente indicadores como la utilidad promedio.</p>
+<p>Una vez más, conviene observar con mayor detalle la zona donde se concentra la mayoría de las observaciones.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El acercamiento muestra que la <strong>mediana de la utilidad</strong> se sitúa alrededor de <strong>9 dólares</strong>, mientras que la mitad central de las transacciones genera aproximadamente entre <strong>2 y 30 dólares</strong> de utilidad.</p>
+<p>En otras palabras, el comportamiento cotidiano del negocio está dominado por ganancias relativamente modestas. Las utilidades extraordinarias existen, pero representan excepciones más que la regla.</p>
+<p>Esta diferencia entre el comportamiento habitual y los casos extremos constituye otra razón para no evaluar el desempeño únicamente mediante promedios.</p>
+<hr>
+</section>
+<section id="cuántos-productos-compra-un-cliente-en-cada-pedido" class="level1">
+<h1>¿Cuántos productos compra un cliente en cada pedido?</h1>
+<p>Hasta ahora hemos estudiado el valor económico de las transacciones. Sin embargo, también resulta útil comprender el volumen físico de cada pedido.</p>
+<p>La variable <strong>Quantity</strong> indica cuántos productos fueron incluidos en cada compra.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La mayor parte de los pedidos incluye entre <strong>2 y 3 productos</strong>, con aproximadamente <strong>2 500 transacciones</strong> para cada uno de estos niveles.</p>
+<p>También son relativamente frecuentes los pedidos de <strong>1, 4 y 5 productos</strong>, mientras que las compras de mayor tamaño disminuyen rápidamente.</p>
+<p>Desde la perspectiva del negocio, este resultado sugiere que el cliente típico realiza pedidos pequeños. Las compras de gran volumen existen, pero representan una proporción reducida del total.</p>
+<p>Esta información será especialmente útil en artículos posteriores, cuando analicemos si los pedidos con mayor cantidad de productos también generan mayores ingresos o mejores márgenes de utilidad.</p>
+<hr>
+</section>
+<section id="qué-papel-desempeñan-los-descuentos" class="level1">
+<h1>¿Qué papel desempeñan los descuentos?</h1>
+<p>Los descuentos constituyen una de las herramientas comerciales más utilizadas para estimular las ventas.</p>
+<p>Sin embargo, también representan uno de los principales factores que pueden reducir la rentabilidad de una empresa.</p>
+<p>Antes de estudiar su relación con la utilidad, conviene conocer cómo se utilizan.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El gráfico muestra un patrón muy claro.</p>
+<p>Aproximadamente <strong>4 500 transacciones</strong> se realizaron <strong>sin aplicar ningún descuento</strong>, mientras que cerca de <strong>3 500 pedidos</strong> recibieron un descuento del <strong>20 %</strong>.</p>
+<p>El resto de los niveles de descuento aparecen con mucha menor frecuencia, aunque todavía pueden observarse algunos pedidos con descuentos muy elevados.</p>
+<p>Para apreciar mejor esas categorías menos frecuentes realizamos un nuevo acercamiento.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Con este zoom resulta evidente que todos los descuentos distintos del <strong>0 %</strong> y del <strong>20 %</strong> aparecen en menos de <strong>450 transacciones</strong>.</p>
+<p>En términos empresariales, esto sugiere que la estrategia comercial de la compañía descansa principalmente sobre dos escenarios: vender al precio habitual o aplicar un descuento moderado del 20 %. Los descuentos muy agresivos existen, pero parecen utilizarse únicamente en situaciones específicas.</p>
+<p>Naturalmente, este resultado no permite concluir si los descuentos son beneficiosos o perjudiciales para el negocio. Para responder esa pregunta será necesario estudiar cómo se relacionan con la utilidad, un tema que abordaremos en una publicación posterior.</p>
+<hr>
+</section>
+<section id="comparando-los-principales-indicadores" class="level1">
+<h1>Comparando los principales indicadores</h1>
+<p>Después de explorar cada variable por separado, resulta útil resumir el papel que desempeña cada indicador dentro del análisis.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 27%">
+<col style="width: 60%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Indicador</th>
+<th>¿Qué aporta al análisis?</th>
+<th>¿Qué podría ocultar si se interpreta de forma aislada?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Sales</strong></td>
+<td>Mide el tamaño económico de las ventas.</td>
+<td>No informa si esas ventas generan ganancias.</td>
+</tr>
+<tr class="even">
+<td><strong>Profit</strong></td>
+<td>Refleja la rentabilidad de cada transacción.</td>
+<td>Puede verse influido por unos pocos valores extremos.</td>
+</tr>
+<tr class="odd">
+<td><strong>Quantity</strong></td>
+<td>Describe el volumen físico de los pedidos.</td>
+<td>No refleja el valor económico de las ventas.</td>
+</tr>
+<tr class="even">
+<td><strong>Discount</strong></td>
+<td>Resume la intensidad de la estrategia comercial.</td>
+<td>No indica si los descuentos mejoran o empeoran la rentabilidad.</td>
+</tr>
+</tbody>
+</table>
+<p>El principal aprendizaje de este análisis es que <strong>ningún indicador resume por sí solo el desempeño de una empresa</strong>.</p>
+<p>Las mejores decisiones surgen cuando estas métricas se interpretan conjuntamente y dentro del contexto del negocio.</p>
+</section>
+<section id="recomendaciones-para-el-negocio" class="level1">
+<h1>Recomendaciones para el negocio</h1>
+<p>Después de recorrer los principales indicadores del conjunto de datos, resulta evidente que evaluar el desempeño de una empresa exige mucho más que observar una única cifra.</p>
+<p>Cada indicador aporta una perspectiva distinta sobre el negocio y, precisamente por ello, ninguno debería utilizarse de manera aislada.</p>
+<p>Si un analista tuviera que elaborar un informe ejecutivo a partir de esta información, probablemente recomendaría revisar de forma sistemática los siguientes aspectos:</p>
+<ul>
+<li>la evolución de las ventas para comprender el tamaño económico del negocio;</li>
+<li>la utilidad para evaluar si ese crecimiento realmente genera valor;</li>
+<li>la cantidad de productos vendidos para entender el comportamiento habitual de los clientes;</li>
+<li>la política de descuentos para identificar posibles riesgos sobre la rentabilidad.</li>
+</ul>
+<p>Más importante aún, estos indicadores deben interpretarse conjuntamente.</p>
+<p>Por ejemplo, un incremento de las ventas podría parecer una excelente noticia. Sin embargo, si ese crecimiento estuviera acompañado por una reducción de la utilidad, la conclusión cambiaría por completo. Del mismo modo, un aumento en la cantidad de productos vendidos podría deberse simplemente a una estrategia comercial basada en descuentos agresivos.</p>
+<p>En otras palabras, <strong>los indicadores no compiten entre sí; se complementan</strong>.</p>
+<p>El verdadero trabajo del analista consiste en integrarlos para construir una visión coherente del negocio antes de proponer cualquier acción.</p>
+<hr>
+</section>
+<section id="qué-aprendimos" class="level1">
+<h1>¿Qué aprendimos?</h1>
+<p>Aunque este artículo no ha utilizado modelos bayesianos, sí ha cumplido un objetivo fundamental: comprender el contexto del problema antes de intentar resolverlo.</p>
+<p>A lo largo del análisis encontramos varios patrones que merecen atención.</p>
+<p>Las ventas presentan una distribución fuertemente asimétrica. La mayor parte de la actividad comercial está compuesta por pedidos relativamente pequeños, mientras que unas pocas operaciones de gran valor elevan considerablemente el promedio.</p>
+<p>La utilidad muestra un comportamiento similar. La empresa obtiene la mayor parte de sus ganancias a partir de muchas transacciones con beneficios modestos, mientras que las utilidades extraordinarias representan casos poco frecuentes.</p>
+<p>La cantidad de productos vendidos también revela un patrón claro: los clientes suelen realizar pedidos pequeños, generalmente de dos o tres artículos.</p>
+<p>Finalmente, los descuentos muestran que la estrategia comercial se concentra principalmente en dos escenarios: ventas sin descuento y ventas con un descuento del 20 %, mientras que los descuentos más agresivos son poco habituales.</p>
+<p>Estos resultados, por sí solos, no indican qué decisiones debería tomar la empresa. Sin embargo, permiten formular preguntas mucho más interesantes que las que teníamos al comenzar el análisis.</p>
+<p>Por ejemplo:</p>
+<ul>
+<li>¿Los descuentos reducen sistemáticamente la utilidad?</li>
+<li>¿Las ventas de mayor valor generan también mayores beneficios?</li>
+<li>¿Los pedidos más grandes son realmente más rentables?</li>
+<li>¿Existen categorías de productos donde estos patrones cambien?</li>
+</ul>
+<p>Responder estas preguntas requerirá estudiar las relaciones entre las variables y, más adelante, construir modelos que incorporen explícitamente la incertidumbre.</p>
+<p>Ese será el siguiente paso en nuestra evolución como analistas.</p>
+<hr>
+</section>
+<section id="reflexión-bayesiana" class="level1">
+<h1>Reflexión bayesiana</h1>
+<p>Existe una idea muy extendida según la cual el análisis de datos comienza cuando construimos un modelo estadístico.</p>
+<p>En realidad, ocurre exactamente lo contrario.</p>
+<p>El análisis comienza mucho antes, cuando intentamos comprender el problema que queremos resolver y aprendemos a distinguir qué información resulta verdaderamente relevante para tomar una decisión.</p>
+<p>En este artículo no necesitábamos modelos bayesianos para descubrir que unas pocas ventas extraordinarias pueden modificar la percepción del desempeño de la empresa, ni para reconocer que la utilidad aporta información diferente a las ventas o que los descuentos constituyen una variable estratégica.</p>
+<p>Lo que sí hemos hecho es construir una base sólida para los análisis que vendrán después.</p>
+<p>A medida que avancemos en esta colección comenzaremos a estudiar cómo se relacionan estos indicadores entre sí y utilizaremos modelos bayesianos para cuantificar la incertidumbre de esas relaciones.</p>
+<p>Porque esa es, precisamente, una de las principales fortalezas del enfoque bayesiano.</p>
+<p>No pretende eliminar la incertidumbre.</p>
+<p>Nos ayuda a comprenderla para tomar decisiones mejor fundamentadas.</p>
+<hr>
+</section>
+<section id="apéndice-código-completo" class="level1">
+<h1>Apéndice — Código completo</h1>
+<p>El cuerpo principal del artículo ocultó el código para facilitar la lectura y centrar la atención en la interpretación de los resultados.</p>
+<p>A continuación reunimos todos los bloques utilizados durante el análisis en el mismo orden cronológico en que fueron ejecutados. Cada bloque utiliza <code>#| eval: false</code>, por lo que el documento no volverá a ejecutar el análisis durante el renderizado y el código podrá copiarse fácilmente para reutilizarlo.</p>
+<section id="cargar-paquetes" class="level2">
+<h2 class="anchored" data-anchor-id="cargar-paquetes">Cargar paquetes</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="importar-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="importar-los-datos">Importar los datos</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sales <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/superstore.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="explorar-la-estructura-del-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="explorar-la-estructura-del-dataset">Explorar la estructura del dataset</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(sales)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumen-descriptivo" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-descriptivo">Resumen descriptivo</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sales <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Observaciones =</span> <span class="fu">n</span>(),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ventas_totales =</span> <span class="fu">sum</span>(Sales),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Utilidad_total =</span> <span class="fu">sum</span>(Profit),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Productos_vendidos =</span> <span class="fu">sum</span>(Quantity),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Descuento_promedio =</span> <span class="fu">mean</span>(Discount)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="distribución-de-las-ventas" class="level2">
+<h2 class="anchored" data-anchor-id="distribución-de-las-ventas">Distribución de las ventas</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Sales)) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">40</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de las ventas"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de transacciones"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">y =</span> Sales)) <span class="sc">+</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot de las ventas"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">y =</span> Sales)) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>)) <span class="sc">+</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot de las ventas (detalle)"</span>,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="distribución-de-la-utilidad" class="level2">
+<h2 class="anchored" data-anchor-id="distribución-de-la-utilidad">Distribución de la utilidad</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Profit)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">40</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de la utilidad"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Utilidad"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de transacciones"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Profit)) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">800</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">300</span>, <span class="dv">300</span>)) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de la utilidad (detalle)"</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Utilidad"</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de transacciones"</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">y =</span> Profit)) <span class="sc">+</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot de la utilidad"</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Utilidad"</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">y =</span> Profit)) <span class="sc">+</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">50</span>, <span class="dv">50</span>)) <span class="sc">+</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Boxplot de la utilidad (detalle)"</span>,</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Utilidad"</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="distribución-de-la-cantidad-de-productos" class="level2">
+<h2 class="anchored" data-anchor-id="distribución-de-la-cantidad-de-productos">Distribución de la cantidad de productos</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Quantity)) <span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Cantidad de productos por pedido"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Cantidad"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de pedidos"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="distribución-de-los-descuentos" class="level2">
+<h2 class="anchored" data-anchor-id="distribución-de-los-descuentos">Distribución de los descuentos</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Discount)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de los descuentos"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de transacciones"</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sales, <span class="fu">aes</span>(<span class="at">x =</span> Discount)) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>)) <span class="sc">+</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de los descuentos (detalle)"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de transacciones"</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
