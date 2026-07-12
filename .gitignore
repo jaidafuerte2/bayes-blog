@@ -6,8 +6,10 @@
 
 .quarto/
 
-_site/
+#_site/ # No ignorar site
 
 *.html
 
 .DS_Store
+/.quarto/
+**/*.quarto_ipynb
