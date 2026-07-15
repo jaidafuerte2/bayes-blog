@@ -1,0 +1,451 @@
+---
+title: "Cómo crear tablas profesionales en Quarto utilizando gt()"
+subtitle: "Presentando resultados de Business Analytics de forma clara y moderna"
+
+author: "David Villafuerte"
+
+date: "2026-7-15"
+
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    code-fold: false
+
+execute:
+  warning: false
+  message: false
+  
+drat: false
+---
+
+## La importancia de comunicar resultados
+
+Cuando comenzamos un proyecto de análisis de datos solemos dedicar la mayor parte del tiempo a limpiar la información, construir visualizaciones y desarrollar modelos. Sin embargo, el trabajo no termina cuando obtenemos los resultados. En realidad, uno de los pasos más importantes consiste en comunicarlos de manera que otras personas puedan comprenderlos con facilidad.
+
+Los gráficos elaborados con **ggplot2** permiten responder muchas preguntas de negocio, pero no siempre son la mejor herramienta. En numerosas ocasiones necesitamos resumir información mediante una tabla: comparar categorías, mostrar indicadores clave o presentar resultados de un modelo.
+
+Durante el desarrollo de este blog apareció exactamente ese problema. Las tablas generadas directamente desde R cumplían su función, pero no transmitían la misma sensación de profesionalismo que los gráficos.
+
+Fue entonces cuando descubrimos **gt**, un paquete diseñado para construir tablas modernas y fáciles de leer dentro de documentos Quarto.
+
+Este artículo no pretende cubrir todas las funciones del paquete. En su lugar, aprenderemos únicamente aquellas herramientas que utilizaremos repetidamente en las futuras entradas del blog. Al finalizar, seremos capaces de construir tablas claras, elegantes y completamente reproducibles para comunicar resultados de Business Analytics.
+
+## Preparando los datos
+
+Trabajaremos con el conjunto de datos **Superstore Sales**, el mismo utilizado en otras publicaciones del blog. Esto nos permitirá concentrarnos en aprender a construir tablas sin introducir nuevas fuentes de datos.
+
+Comenzamos cargando los paquetes necesarios y preparando un pequeño resumen de las ventas por categoría.
+
+```{r}
+
+
+library(tidyverse)
+library(gt)
+
+sales <- read_csv("../../data/superstore_sales.csv") |>
+  mutate(
+    order_date = mdy(`Order Date`)
+  )
+
+sales_summary <-
+  sales %>%
+  group_by(Category) %>%
+  summarise(
+    Orders = n(),
+    Sales = sum(Sales),
+    Profit = sum(Profit),
+    Avg_Sale = mean(Sales),
+    .groups = "drop"
+  )
+```
+
+El objeto `sales_summary` contiene suficiente información para ilustrar las principales funciones que aprenderemos durante este tutorial.
+
+## Nuestra primera tabla
+
+La mayoría de nosotros hemos utilizado alguna vez funciones como `print()` o simplemente hemos dejado que R muestre un data frame en la consola.
+
+Ese enfoque resulta adecuado durante el análisis exploratorio, pero rara vez es apropiado para un informe dirigido a otras personas.
+
+El paquete **gt** transforma un data frame en una tabla diseñada para ser leída, no solamente para ser inspeccionada.
+
+La forma más sencilla de comenzar consiste en utilizar únicamente la función `gt()`.
+
+```{r}
+
+
+sales_summary %>%
+  gt()
+```
+
+Observemos que no hemos realizado ningún trabajo adicional. Simplemente convertimos un data frame en un objeto de tipo **gt**.
+
+Aun así, la presentación ya resulta considerablemente más limpia que la salida habitual de R.
+
+Sin embargo, todavía podemos mejorar varios aspectos importantes. Por ejemplo, la tabla no tiene un título y los nombres de las columnas continúan siendo los nombres originales de las variables.
+
+En las siguientes secciones comenzaremos a resolver ambos problemas.
+
+## Agregando un título
+
+Toda tabla debería responder inmediatamente dos preguntas:
+
+- ¿Qué información contiene?
+- ¿Qué representa exactamente?
+
+Una de las formas más sencillas de proporcionar ese contexto consiste en agregar un título y un subtítulo.
+
+Para ello utilizaremos `tab_header()`.
+
+```{r}
+
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  )
+```
+
+El cambio es pequeño desde el punto de vista del código, pero muy importante para el lector.
+
+Ahora la tabla puede entenderse incluso si aparece aislada dentro de una presentación o un informe.
+
+Este tipo de detalles mejora considerablemente la comunicación de resultados y será una práctica habitual en todas las tablas del blog.
+
+## Utilizando nombres pensados para el lector
+
+Cuando escribimos código solemos utilizar nombres cortos para las variables.
+
+Por ejemplo:
+
+- Sales
+- Profit
+- Orders
+- Avg_Sale
+
+Estos nombres funcionan perfectamente para programar, pero no necesariamente para comunicar resultados a un gerente, un cliente o un responsable de negocio.
+
+La función `cols_label()` nos permite cambiar los nombres de las columnas sin modificar el conjunto de datos original.
+
+```{r}
+
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  )
+```
+
+Ahora la tabla comienza a parecerse mucho más a la que encontraríamos en un informe profesional.
+
+El conjunto de datos sigue siendo exactamente el mismo. Lo único que cambió fue la forma de presentar la información.
+
+Esta idea es importante porque separa claramente dos etapas del análisis:
+
+- los datos continúan utilizando nombres convenientes para trabajar con R;
+- la tabla utiliza nombres pensados para las personas que leerán el informe.
+
+En la siguiente sección daremos un paso adicional. Aprenderemos a presentar cantidades monetarias y números decimales utilizando formatos mucho más fáciles de interpretar.
+
+
+## Haciendo que los números sean más fáciles de leer
+
+Hasta ahora hemos mejorado la estructura de la tabla, pero todavía existe un detalle importante.
+
+Los valores numéricos siguen apareciendo exactamente como fueron almacenados en R. Esto puede dificultar la lectura, especialmente cuando trabajamos con cantidades monetarias o números con muchos decimales.
+
+Una buena tabla debe permitir que el lector comprenda la información con el menor esfuerzo posible.
+
+Comencemos con las columnas que representan dinero.
+
+## Formateando cantidades monetarias
+
+Las columnas **Ventas** y **Utilidad** representan valores monetarios. En lugar de mostrarlas como números sin contexto, podemos indicar explícitamente que se trata de dólares.
+
+Para ello utilizaremos `fmt_currency()`.
+
+```{r}
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  ) %>%
+  fmt_currency(
+    columns = c(Sales, Profit),
+    currency = "USD"
+  )
+```
+
+Con una única línea de código la tabla comunica inmediatamente que ambas columnas representan cantidades de dinero.
+
+Este pequeño cambio evita ambigüedades y mejora considerablemente la interpretación de los resultados.
+
+Además, mantiene un formato consistente en todo el informe, algo especialmente importante cuando existen muchas tablas.
+
+## Controlando el número de decimales
+
+La columna **Venta promedio** suele contener varios decimales.
+
+Aunque R los calcula correctamente, mostrar demasiadas cifras rara vez aporta información útil al lector.
+
+En la mayoría de informes resulta suficiente mostrar dos decimales.
+
+La función `fmt_number()` permite controlar este aspecto de forma muy sencilla.
+
+```{r}
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  ) %>%
+  fmt_currency(
+    columns = c(Sales, Profit),
+    currency = "USD"
+  ) %>%
+  fmt_number(
+    columns = Avg_Sale,
+    decimals = 2
+  )
+```
+
+No estamos modificando los datos originales.
+
+Simplemente estamos eligiendo la forma en que deseamos presentarlos.
+
+Esta diferencia es importante porque la precisión continúa existiendo en el análisis, mientras que la tabla prioriza la claridad para el lector.
+
+## Una tabla también necesita una buena organización visual
+
+Las personas no leen una tabla fila por fila.
+
+En realidad, recorren rápidamente las columnas buscando patrones y comparaciones.
+
+Por ese motivo, la alineación de los elementos también influye en la velocidad con la que comprendemos la información.
+
+En general, una buena práctica consiste en:
+
+- alinear el texto hacia la izquierda;
+- mantener los números alineados hacia la derecha;
+- centrar únicamente aquellas columnas que realmente lo requieran.
+
+El paquete **gt** permite controlar este comportamiento mediante `cols_align()`.
+
+```{r}
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  ) %>%
+  fmt_currency(
+    columns = c(Sales, Profit),
+    currency = "USD"
+  ) %>%
+  fmt_number(
+    columns = Avg_Sale,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "left",
+    columns = Category
+  ) %>%
+  cols_align(
+    align = "right",
+    columns = c(Orders, Sales, Profit, Avg_Sale)
+  )
+```
+
+El cambio puede parecer sutil, pero mejora notablemente la legibilidad cuando las tablas contienen muchas filas o varias columnas numéricas.
+
+En futuros artículos utilizaremos esta configuración prácticamente como un estándar.
+
+## Indicando la fuente de los datos
+
+Cuando compartimos una tabla fuera de nuestro entorno de trabajo, el lector puede preguntarse:
+
+- ¿De dónde provienen estos datos?
+- ¿Qué conjunto de datos se utilizó?
+- ¿Existe alguna observación importante que deba conocer?
+
+Una forma elegante de responder estas preguntas consiste en agregar una nota al pie mediante `tab_source_note()`.
+
+```{r}
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Dataset Superstore Sales"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  ) %>%
+  fmt_currency(
+    columns = c(Sales, Profit),
+    currency = "USD"
+  ) %>%
+  fmt_number(
+    columns = Avg_Sale,
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "left",
+    columns = Category
+  ) %>%
+  cols_align(
+    align = "right",
+    columns = c(Orders, Sales, Profit, Avg_Sale)
+  ) %>%
+  tab_source_note(
+    source_note = md(
+      "**Fuente:** Superstore Sales Dataset. Elaboración propia con R y gt."
+    )
+  )
+```
+
+Aunque esta nota ocupa muy poco espacio, aporta un contexto valioso.
+
+En proyectos reales es habitual utilizar este espacio para indicar la fuente de los datos, la fecha de actualización o cualquier aclaración relevante para el lector.
+
+A lo largo del blog utilizaremos esta práctica de forma sistemática.
+
+## Construyendo tablas paso a paso
+
+Si observamos el recorrido realizado hasta este punto, veremos que no hemos construido una tabla compleja desde el principio.
+
+En lugar de ello, comenzamos con un simple data frame y fuimos incorporando pequeñas mejoras:
+
+- un título para aportar contexto;
+- nombres de columnas pensados para el lector;
+- formato monetario para las variables financieras;
+- un número adecuado de decimales;
+- una alineación más cómoda para la lectura;
+- una nota que documenta la fuente de los datos.
+
+Cada una de estas funciones resuelve un problema específico de comunicación.
+
+Cuando se combinan, el resultado es una tabla mucho más cercana a la que esperaríamos encontrar en un informe profesional que a la salida habitual de una sesión de R.
+
+En la siguiente sección reuniremos todas estas piezas para construir una tabla completa, limpia y lista para formar parte de un proyecto de Business Analytics.
+
+## Construyendo una tabla lista para un informe
+
+Hasta este punto hemos aprendido varias funciones de **gt()**, cada una con un propósito específico. Sin embargo, en un proyecto real no las utilizaremos de forma aislada. Lo habitual será combinarlas para producir una tabla que pueda incorporarse directamente a un informe o a una publicación.
+
+Para ilustrarlo construiremos un resumen de las ventas por categoría utilizando todas las herramientas que hemos visto hasta ahora.
+
+```{r}
+
+sales_summary %>%
+  gt() %>%
+  tab_header(
+    title = "Resumen de ventas por categoría",
+    subtitle = "Indicadores principales del conjunto de datos Superstore"
+  ) %>%
+  cols_label(
+    Category = "Categoría",
+    Orders = "Pedidos",
+    Sales = "Ventas",
+    Profit = "Utilidad",
+    Avg_Sale = "Venta promedio"
+  ) %>%
+  fmt_currency(
+    columns = c(Sales, Profit, Avg_Sale),
+    currency = "USD"
+  ) %>%
+  fmt_number(
+    columns = Orders,
+    decimals = 0
+  ) %>%
+  cols_align(
+    align = "left",
+    columns = Category
+  ) %>%
+  cols_align(
+    align = "right",
+    columns = c(Orders, Sales, Profit, Avg_Sale)
+  ) %>%
+  tab_source_note(
+    source_note = md(
+      "**Fuente:** Superstore Sales Dataset. Tabla elaborada con R, Quarto y gt."
+    )
+  )
+```
+
+Observemos que el código continúa siendo relativamente corto y fácil de leer.
+
+Cada función añade una mejora concreta a la tabla, de manera que el resultado final surge de combinar pequeñas decisiones de presentación. Este enfoque tiene una ventaja importante: si en el futuro deseamos modificar el formato, bastará con cambiar una o dos líneas de código sin alterar el resto del análisis.
+
+Más adelante, cuando construyamos tablas con resultados de modelos bayesianos, intervalos de credibilidad o comparaciones entre escenarios, seguiremos exactamente esta misma filosofía.
+
+## ¿Qué aprendimos?
+
+A lo largo de este artículo no intentamos aprender todas las funciones del paquete **gt**. Ese nunca fue el objetivo.
+
+En su lugar, nos concentramos en aquellas herramientas que realmente utilizaremos durante el resto del blog.
+
+Ahora sabemos cómo:
+
+- transformar un data frame en una tabla profesional mediante `gt()`;
+- agregar títulos y subtítulos con `tab_header()`;
+- utilizar nombres de columnas más claros mediante `cols_label()`;
+- presentar cantidades monetarias con `fmt_currency()`;
+- controlar la presentación de valores numéricos con `fmt_number()`;
+- mejorar la legibilidad mediante `cols_align()`;
+- documentar la fuente de los datos con `tab_source_note()`.
+
+Estas funciones cubren una gran parte de las necesidades habituales en proyectos de Business Analytics. A medida que el blog avance aparecerán tablas más elaboradas, pero la base será siempre la misma.
+
+## Reflexión final
+
+Es fácil dedicar muchas horas a mejorar un modelo y olvidar que, al final, otras personas tomarán decisiones basándose en la forma en que presentamos los resultados.
+
+Una tabla clara no cambia la evidencia disponible, pero sí puede cambiar la velocidad con la que alguien comprende esa evidencia y actúa sobre ella.
+
+Por esa razón, aprender a comunicar resultados forma parte del trabajo de cualquier analista.
+
+En las próximas entradas del blog utilizaremos **gt** de manera natural para presentar resúmenes descriptivos, comparar escenarios y comunicar resultados de modelos bayesianos. A partir de este punto, las tablas dejarán de ser simples salidas de R para convertirse en una herramienta más dentro del proceso de toma de decisiones bajo incertidumbre.
+
