@@ -14,6 +14,20 @@ Este blog está organizado alrededor de proyectos completos de Business Analytic
 
 Antes de construir modelos bayesianos, un analista debe comprender el contexto del problema. Esta colección enseña a explorar un negocio desde la perspectiva de la toma de decisiones, utilizando los datos para identificar patrones, formular preguntas relevantes y reconocer oportunidades de análisis.
 
+1. [¿Cómo enetender un negocio cuando solo tenenemos sus datos?](posts/c1-1-como-entender-un-negocio-cuando-solo-tenemos-sus-datos/)
+
+2. [¿Qué indicadores describen mejor el desempeño de una empresa?](posts/c1-2-que-indicadores-describen-mejor-el-desempeno-de-una-empresa/)
+
+3. [¿Dónde genera realmente dinero la empresa?](posts/c1-3-donde-genera-realmente-dinero-una-empresa/)
+
+4. [¿Qué patrones aparecen cuando observamos las ventas a lo largo del tiempo?](posts/c1-4-que-patrones-aparecen-cuando-observamos-las-ventas-a-lo-largo-del-tiempo/)
+
+5. [De los datos a las preguntas: Cómo pensar como una analista antes de construir modelos.](posts/c1-5-como-pensar-como-un-analista-antes-de-construir-modelos/)
+
+Bonus extra:
+
+- [¿Cómo crear tablas profesionales en quarto usando gt()?](posts/c1-gt-como-crear-tablas-profesionales-en-quarto-usando-gt/)
+
 ---
 
 ### Colección II — Explicar con modelos

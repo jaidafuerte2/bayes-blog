@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-07-23">
+<meta name="description" content="Aprenda a transformar un conjunto de datos en preguntas de negocio relevantes utilizando Superstore Sales como punto de partida para el análisis.">
+
+<title>De los datos a las preguntas: cómo pensar como un analista antes de construir modelos – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#la-pregunta-práctica" id="toc-la-pregunta-práctica" class="nav-link active" data-scroll-target="#la-pregunta-práctica">La pregunta práctica</a></li>
+  <li><a href="#comprendiendo-el-problema" id="toc-comprendiendo-el-problema" class="nav-link" data-scroll-target="#comprendiendo-el-problema">Comprendiendo el problema</a></li>
+  <li><a href="#qué-sabemos-del-negocio" id="toc-qué-sabemos-del-negocio" class="nav-link" data-scroll-target="#qué-sabemos-del-negocio">¿Qué sabemos del negocio?</a></li>
+  <li><a href="#una-misma-base-de-datos-muchas-perspectivas" id="toc-una-misma-base-de-datos-muchas-perspectivas" class="nav-link" data-scroll-target="#una-misma-base-de-datos-muchas-perspectivas">Una misma base de datos, muchas perspectivas</a></li>
+  <li><a href="#el-primer-ejercicio-del-analista" id="toc-el-primer-ejercicio-del-analista" class="nav-link" data-scroll-target="#el-primer-ejercicio-del-analista">El primer ejercicio del analista</a></li>
+  <li><a href="#transformando-los-datos-en-preguntas-de-negocio" id="toc-transformando-los-datos-en-preguntas-de-negocio" class="nav-link" data-scroll-target="#transformando-los-datos-en-preguntas-de-negocio">Transformando los datos en preguntas de negocio</a></li>
+  <li><a href="#una-pregunta-suele-conducir-a-otra" id="toc-una-pregunta-suele-conducir-a-otra" class="nav-link" data-scroll-target="#una-pregunta-suele-conducir-a-otra">Una pregunta suele conducir a otra</a></li>
+  <li><a href="#organizando-las-preguntas" id="toc-organizando-las-preguntas" class="nav-link" data-scroll-target="#organizando-las-preguntas">Organizando las preguntas</a></li>
+  <li><a href="#cómo-priorizar-las-preguntas" id="toc-cómo-priorizar-las-preguntas" class="nav-link" data-scroll-target="#cómo-priorizar-las-preguntas">¿Cómo priorizar las preguntas?</a></li>
+  <li><a href="#del-análisis-descriptivo-a-los-modelos" id="toc-del-análisis-descriptivo-a-los-modelos" class="nav-link" data-scroll-target="#del-análisis-descriptivo-a-los-modelos">Del análisis descriptivo a los modelos</a></li>
+  <li><a href="#recomendaciones-para-el-negocio" id="toc-recomendaciones-para-el-negocio" class="nav-link" data-scroll-target="#recomendaciones-para-el-negocio">Recomendaciones para el negocio</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">Reflexión bayesiana</a></li>
+  <li><a href="#la-hoja-de-ruta-de-la-siguiente-colección" id="toc-la-hoja-de-ruta-de-la-siguiente-colección" class="nav-link" data-scroll-target="#la-hoja-de-ruta-de-la-siguiente-colección">La hoja de ruta de la siguiente colección</a></li>
+  <li><a href="#conclusiones" id="toc-conclusiones" class="nav-link" data-scroll-target="#conclusiones">Conclusiones</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">De los datos a las preguntas: cómo pensar como un analista antes de construir modelos</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Comunicación</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Aprenda a transformar un conjunto de datos en preguntas de negocio relevantes utilizando Superstore Sales como punto de partida para el análisis.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 23, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="la-pregunta-práctica" class="level2">
+<h2 class="anchored" data-anchor-id="la-pregunta-práctica">La pregunta práctica</h2>
+<p>Cada proyecto de Business Analytics comienza con un conjunto de datos.</p>
+<p>Sin embargo, los datos por sí solos rara vez indican qué decisiones deben tomarse. Dos analistas pueden recibir exactamente el mismo archivo y llegar a conclusiones completamente diferentes. La diferencia no suele estar en las herramientas que utilizan, sino en las preguntas que son capaces de formular.</p>
+<p>Esta habilidad suele pasar desapercibida porque la mayor parte de los cursos de análisis de datos comienzan enseñando gráficos, modelos o algoritmos. En la práctica ocurre lo contrario: antes de construir cualquier modelo necesitamos comprender el negocio y definir qué problema vale la pena resolver.</p>
+<p>En este artículo cambiaremos deliberadamente el enfoque habitual. No construiremos modelos bayesianos, no estimaremos probabilidades posteriores y tampoco compararemos algoritmos. Nuestro objetivo será mucho más sencillo, pero también mucho más importante: aprender a convertir un conjunto de datos en una lista de preguntas que puedan apoyar decisiones empresariales.</p>
+<p>Trabajaremos nuevamente con <strong>Superstore Sales</strong>, el conjunto de datos que ha acompañado toda esta primera colección. Después de explorar distintas partes del negocio en las entradas anteriores, ha llegado el momento de integrarlas para construir una visión más amplia del proceso analítico.</p>
+<p>Al finalizar esta lectura no habremos respondido todas las preguntas posibles. En realidad, ese es precisamente el objetivo: terminar con una agenda clara de problemas de negocio que abordaremos posteriormente mediante modelos bayesianos.</p>
+</section>
+<section id="comprendiendo-el-problema" class="level2">
+<h2 class="anchored" data-anchor-id="comprendiendo-el-problema">Comprendiendo el problema</h2>
+<p>Cuando una organización decide invertir en analítica, normalmente no espera recibir más gráficos ni tablas. Espera tomar mejores decisiones.</p>
+<p>Un director comercial quiere saber dónde concentrar el esfuerzo del equipo de ventas.</p>
+<p>El responsable financiero desea identificar qué líneas de productos generan realmente valor para la empresa.</p>
+<p>El gerente de operaciones intenta reducir tiempos de entrega sin deteriorar el servicio.</p>
+<p>El departamento de marketing busca atraer clientes más rentables.</p>
+<p>Ninguna de estas personas solicita explícitamente un modelo estadístico. Lo que necesitan es comprender mejor la realidad para reducir la incertidumbre antes de actuar.</p>
+<p>Esa es precisamente la función del analista.</p>
+<p>Más que responder preguntas, un buen analista aprende a formularlas.</p>
+<p>Cuando observamos una variable como <strong>Sales</strong>, no deberíamos pensar únicamente en una columna numérica. Deberíamos preguntarnos:</p>
+<ul>
+<li>¿Qué decisiones dependen de estas ventas?</li>
+<li>¿Qué factores podrían explicarlas?</li>
+<li>¿Cómo podríamos incrementarlas?</li>
+<li>¿Qué incertidumbre existe alrededor de ellas?</li>
+</ul>
+<p>De forma similar, una variable como <strong>Profit</strong> no representa solamente una utilidad monetaria. También puede reflejar diferencias entre productos, segmentos de clientes, regiones geográficas o estrategias comerciales.</p>
+<p>Las columnas del dataset son únicamente el lenguaje con el que el negocio describe su funcionamiento.</p>
+<p>Nuestro trabajo consiste en traducir ese lenguaje en preguntas útiles para la toma de decisiones.</p>
+</section>
+<section id="qué-sabemos-del-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="qué-sabemos-del-negocio">¿Qué sabemos del negocio?</h2>
+<p>Antes de formular nuevas preguntas conviene detenernos unos minutos para recordar qué representa este conjunto de datos.</p>
+<p>Superstore Sales registra miles de pedidos realizados por una empresa dedicada a la venta de artículos de oficina y tecnología. Cada observación corresponde a un pedido individual e incluye información comercial, logística y geográfica.</p>
+<p>A lo largo de esta colección hemos utilizado diferentes partes del dataset para comprender aspectos específicos del negocio. Ahora reuniremos todas esas piezas para construir una visión integrada.</p>
+<section id="las-principales-áreas-del-negocio" class="level3">
+<h3 class="anchored" data-anchor-id="las-principales-áreas-del-negocio">Las principales áreas del negocio</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div id="gqvebanrfe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gqvebanrfe table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#gqvebanrfe thead, #gqvebanrfe tbody, #gqvebanrfe tfoot, #gqvebanrfe tr, #gqvebanrfe td, #gqvebanrfe th {
+  border-style: none;
+}
+
+#gqvebanrfe p {
+  margin: 0;
+  padding: 0;
+}
+
+#gqvebanrfe .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#gqvebanrfe .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#gqvebanrfe .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#gqvebanrfe .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#gqvebanrfe .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#gqvebanrfe .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#gqvebanrfe .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#gqvebanrfe .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#gqvebanrfe .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#gqvebanrfe .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#gqvebanrfe .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gqvebanrfe .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#gqvebanrfe .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#gqvebanrfe .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#gqvebanrfe .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gqvebanrfe .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#gqvebanrfe .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#gqvebanrfe .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#gqvebanrfe .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gqvebanrfe .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#gqvebanrfe .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gqvebanrfe .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#gqvebanrfe .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gqvebanrfe .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gqvebanrfe .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gqvebanrfe .gt_left {
+  text-align: left;
+}
+
+#gqvebanrfe .gt_center {
+  text-align: center;
+}
+
+#gqvebanrfe .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#gqvebanrfe .gt_font_normal {
+  font-weight: normal;
+}
+
+#gqvebanrfe .gt_font_bold {
+  font-weight: bold;
+}
+
+#gqvebanrfe .gt_font_italic {
+  font-style: italic;
+}
+
+#gqvebanrfe .gt_super {
+  font-size: 65%;
+}
+
+#gqvebanrfe .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#gqvebanrfe .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#gqvebanrfe .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#gqvebanrfe .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#gqvebanrfe .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#gqvebanrfe .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#gqvebanrfe .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#gqvebanrfe .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#gqvebanrfe div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Area" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Área del negocio</th>
+<th id="Variables" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Variables principales</th>
+<th id="a¿Qué-describe?" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">¿Qué describe?</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Area">Ventas</td>
+<td class="gt_row gt_left" headers="Variables">Sales</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Valor económico de cada pedido</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Area">Rentabilidad</td>
+<td class="gt_row gt_left" headers="Variables">Profit, Discount</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Ganancias y descuentos aplicados</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Area">Clientes</td>
+<td class="gt_row gt_left" headers="Variables">Customer ID, Segment</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Quién compra y a qué segmento pertenece</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Area">Productos</td>
+<td class="gt_row gt_left" headers="Variables">Category, Sub-Category</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Qué se vende</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Area">Ubicación</td>
+<td class="gt_row gt_left" headers="Variables">Region, State, City</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Dónde ocurre la venta</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Area">Logística</td>
+<td class="gt_row gt_left" headers="Variables">Ship Mode</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Cómo se entrega el pedido</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Area">Tiempo</td>
+<td class="gt_row gt_left" headers="Variables">Order Date, Ship Date</td>
+<td class="gt_row gt_left" headers="¿Qué describe?">Cuándo ocurre cada operación</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Cada grupo de variables representa una dimensión distinta del negocio. En conjunto permiten analizar la empresa desde múltiples perspectivas y muestran por qué Superstore es un excelente conjunto de datos para desarrollar intuición analítica.</p>
+<p>Obsérvese que todavía no estamos intentando responder ninguna pregunta. Primero necesitamos identificar qué información está disponible y qué tipo de decisiones podría respaldar.</p>
+</section>
+</section>
+<section id="una-misma-base-de-datos-muchas-perspectivas" class="level2">
+<h2 class="anchored" data-anchor-id="una-misma-base-de-datos-muchas-perspectivas">Una misma base de datos, muchas perspectivas</h2>
+<p>Una característica interesante de los proyectos reales es que un mismo conjunto de datos puede resultar útil para departamentos completamente diferentes.</p>
+<p>Por ejemplo, el área comercial probablemente observará las ventas por segmento de clientes.</p>
+<p>El departamento financiero se concentrará en la rentabilidad.</p>
+<p>Operaciones analizará los tiempos y modalidades de envío.</p>
+<p>Marketing estudiará los perfiles de clientes y las oportunidades de crecimiento.</p>
+<p>Todos utilizan exactamente la misma información, pero cada uno formula preguntas distintas porque enfrenta decisiones diferentes.</p>
+<p>Esta idea es fundamental en Business Analytics: <strong>los datos no tienen una única interpretación</strong>.</p>
+<p>Su valor depende del contexto empresarial desde el cual se analicen.</p>
+</section>
+<section id="el-primer-ejercicio-del-analista" class="level2">
+<h2 class="anchored" data-anchor-id="el-primer-ejercicio-del-analista">El primer ejercicio del analista</h2>
+<p>Antes de escribir una sola línea de código podemos realizar un ejercicio muy sencillo.</p>
+<p>Tomemos una variable cualquiera del dataset.</p>
+<p>Por ejemplo:</p>
+<p><strong>Discount</strong>.</p>
+<p>Una forma de pensar sería preguntarnos:</p>
+<blockquote class="blockquote">
+<p>¿Cuál es el descuento promedio?</p>
+</blockquote>
+<p>Aunque esa información puede ser interesante, difícilmente conduce a una decisión.</p>
+<p>Un analista suele formular preguntas diferentes.</p>
+<p>Por ejemplo:</p>
+<ul>
+<li>¿Qué productos reciben los mayores descuentos?</li>
+<li>¿Los descuentos incrementan realmente las ventas?</li>
+<li>¿Existen descuentos que reducen la rentabilidad?</li>
+<li>¿Hay regiones donde los descuentos parecen funcionar mejor?</li>
+<li>¿Qué ocurriría si redujéramos los descuentos en determinadas categorías?</li>
+</ul>
+<p>Obsérvese cómo las preguntas evolucionan desde una simple descripción hacia posibles decisiones empresariales.</p>
+<p>Ese cambio de perspectiva constituye uno de los mayores aportes del pensamiento analítico.</p>
+</section>
+<section id="transformando-los-datos-en-preguntas-de-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="transformando-los-datos-en-preguntas-de-negocio">Transformando los datos en preguntas de negocio</h2>
+<p>Llegados a este punto ya conocemos las principales áreas del negocio representadas en Superstore Sales. El siguiente paso consiste en traducir esas variables en preguntas que puedan orientar decisiones reales.</p>
+<p>Este ejercicio puede parecer sencillo, pero constituye una de las competencias más importantes de cualquier analista. Un buen proyecto de Business Analytics rara vez comienza con una técnica estadística. Normalmente comienza con una conversación acerca de los problemas que la organización intenta resolver.</p>
+<p>Las preguntas que veremos a continuación no pretenden ser las únicas posibles. Más bien representan un punto de partida para explorar distintas dimensiones del negocio. Muchas de ellas podrán responderse mediante análisis descriptivos; otras requerirán modelos probabilísticos que desarrollaremos en la siguiente colección del blog.</p>
+<section id="área-1.-ventas" class="level3">
+<h3 class="anchored" data-anchor-id="área-1.-ventas">Área 1. Ventas</h3>
+<p>Las ventas suelen ser la primera variable que una organización observa. Sin embargo, conocer el monto total vendido rara vez es suficiente para apoyar decisiones estratégicas.</p>
+<p>Un analista intentará comprender cómo cambian las ventas entre distintos grupos de clientes, productos o regiones, y qué factores podrían explicar esas diferencias.</p>
+<p>Algunas preguntas que pueden plantearse son:</p>
+<ul>
+<li>¿Qué categorías generan la mayor parte de las ventas?</li>
+<li>¿Existen subcategorías con un crecimiento especialmente rápido?</li>
+<li>¿Qué segmentos de clientes concentran la mayor actividad comercial?</li>
+<li>¿Las ventas presentan estacionalidad durante el año?</li>
+<li>¿Existen regiones con un desempeño consistentemente superior?</li>
+</ul>
+<p>Cada una de estas preguntas apunta hacia decisiones distintas: asignación de recursos comerciales, planificación del inventario o expansión geográfica.</p>
+</section>
+<section id="área-2.-rentabilidad" class="level3">
+<h3 class="anchored" data-anchor-id="área-2.-rentabilidad">Área 2. Rentabilidad</h3>
+<p>Vender más no siempre significa obtener mejores resultados.</p>
+<p>Una empresa puede incrementar sus ingresos y, al mismo tiempo, reducir sus ganancias si los descuentos son demasiado agresivos o si determinados productos presentan márgenes muy bajos.</p>
+<p>Por esa razón, la variable <strong>Profit</strong> suele ser incluso más relevante que <strong>Sales</strong> cuando el objetivo consiste en mejorar la sostenibilidad financiera del negocio.</p>
+<p>Preguntas frecuentes incluyen:</p>
+<ul>
+<li>¿Qué categorías generan mayores beneficios?</li>
+<li>¿Existen productos que venden mucho pero aportan poca rentabilidad?</li>
+<li>¿Qué regiones producen mayores utilidades?</li>
+<li>¿Hay segmentos de clientes más rentables que otros?</li>
+<li>¿Qué factores parecen asociarse con pérdidas económicas?</li>
+</ul>
+<p>Responder estas preguntas ayuda a priorizar aquellas actividades que realmente generan valor para la empresa.</p>
+</section>
+<section id="área-3.-clientes" class="level3">
+<h3 class="anchored" data-anchor-id="área-3.-clientes">Área 3. Clientes</h3>
+<p>Toda empresa necesita comprender a quién vende.</p>
+<p>El objetivo no consiste únicamente en identificar los clientes actuales, sino también en reconocer diferencias de comportamiento entre distintos segmentos.</p>
+<p>Algunas preguntas relevantes son:</p>
+<ul>
+<li>¿Qué segmento concentra el mayor volumen de ventas?</li>
+<li>¿Qué segmento parece generar mayores beneficios?</li>
+<li>¿Existen clientes especialmente importantes para el negocio?</li>
+<li>¿Algunos segmentos compran categorías muy diferentes?</li>
+<li>¿Qué perfiles podrían convertirse en oportunidades de crecimiento?</li>
+</ul>
+<p>Estas preguntas suelen ser el punto de partida para futuras estrategias de fidelización, segmentación y marketing.</p>
+</section>
+<section id="área-4.-productos" class="level3">
+<h3 class="anchored" data-anchor-id="área-4.-productos">Área 4. Productos</h3>
+<p>Los productos constituyen el corazón del negocio.</p>
+<p>No todos cumplen el mismo papel dentro del portafolio. Algunos impulsan las ventas, otros generan rentabilidad y algunos pueden convertirse en candidatos para ser retirados.</p>
+<p>Preguntas habituales incluyen:</p>
+<ul>
+<li>¿Qué categorías venden más?</li>
+<li>¿Qué subcategorías presentan menor desempeño?</li>
+<li>¿Qué productos generan pérdidas repetidamente?</li>
+<li>¿Existen productos muy rentables pero poco vendidos?</li>
+<li>¿Qué líneas parecen ofrecer mayor potencial de crecimiento?</li>
+</ul>
+<p>Obsérvese que muchas de estas preguntas no pueden responderse observando únicamente una variable. Requieren combinar información procedente de ventas, ganancias y características del producto.</p>
+</section>
+<section id="área-5.-descuentos" class="level3">
+<h3 class="anchored" data-anchor-id="área-5.-descuentos">Área 5. Descuentos</h3>
+<p>Los descuentos representan una de las decisiones comerciales más frecuentes y también una de las más difíciles.</p>
+<p>Reducir el precio puede incrementar las ventas, pero también disminuir la rentabilidad.</p>
+<p>En consecuencia, un analista suele preguntarse:</p>
+<ul>
+<li>¿Qué categorías reciben mayores descuentos?</li>
+<li>¿Los descuentos parecen aumentar las ventas?</li>
+<li>¿Existe un nivel de descuento a partir del cual las ganancias disminuyen?</li>
+<li>¿Todas las categorías responden de la misma manera?</li>
+<li>¿Hay segmentos donde los descuentos parecen más efectivos?</li>
+</ul>
+<p>Estas preguntas serán especialmente interesantes cuando introduzcemos modelos probabilísticos para cuantificar la incertidumbre asociada a estas relaciones.</p>
+</section>
+<section id="área-6.-ubicación-geográfica" class="level3">
+<h3 class="anchored" data-anchor-id="área-6.-ubicación-geográfica">Área 6. Ubicación geográfica</h3>
+<p>Toda empresa desea comprender cómo cambia su desempeño entre diferentes regiones.</p>
+<p>Las diferencias geográficas pueden reflejar preferencias de los clientes, competencia local, problemas logísticos o condiciones económicas particulares.</p>
+<p>Entre las preguntas posibles encontramos:</p>
+<ul>
+<li>¿Qué regiones generan mayores ventas?</li>
+<li>¿Qué estados presentan menor rentabilidad?</li>
+<li>¿Existen ciudades especialmente atractivas para expandir el negocio?</li>
+<li>¿Dónde parecen concentrarse las pérdidas?</li>
+<li>¿Qué patrones geográficos merecen investigarse con mayor detalle?</li>
+</ul>
+<p>En muchos proyectos reales, responder estas preguntas puede tener un impacto directo sobre la planificación comercial.</p>
+</section>
+<section id="área-7.-logística" class="level3">
+<h3 class="anchored" data-anchor-id="área-7.-logística">Área 7. Logística</h3>
+<p>La logística suele permanecer en segundo plano cuando se analiza un negocio. Sin embargo, constituye uno de los principales determinantes de la satisfacción del cliente y de los costos operativos.</p>
+<p>Las variables relacionadas con el envío permiten formular preguntas como:</p>
+<ul>
+<li>¿Qué modalidades de envío se utilizan con mayor frecuencia?</li>
+<li>¿Existen diferencias importantes en los tiempos de entrega?</li>
+<li>¿Algunas modalidades parecen asociarse con pedidos de mayor valor?</li>
+<li>¿Qué estrategias logísticas podrían optimizarse?</li>
+<li>¿Cómo equilibrar velocidad y costos de envío?</li>
+</ul>
+<p>Aunque este dataset no responde todas estas preguntas, sí ofrece un excelente punto de partida para comenzar a explorarlas.</p>
+</section>
+<section id="área-8.-tiempo" class="level3">
+<h3 class="anchored" data-anchor-id="área-8.-tiempo">Área 8. Tiempo</h3>
+<p>Toda empresa cambia con el tiempo.</p>
+<p>Analizar únicamente valores agregados puede ocultar tendencias importantes.</p>
+<p>Por ello resulta útil formular preguntas relacionadas con la evolución temporal del negocio.</p>
+<p>Por ejemplo:</p>
+<ul>
+<li>¿Las ventas aumentan o disminuyen con el tiempo?</li>
+<li>¿Existen patrones estacionales?</li>
+<li>¿Hay meses especialmente rentables?</li>
+<li>¿Qué categorías muestran un crecimiento sostenido?</li>
+<li>¿Qué tendencias merecen seguimiento continuo?</li>
+</ul>
+<p>Este tipo de preguntas abrirá posteriormente la puerta a modelos de predicción y forecasting.</p>
+</section>
+</section>
+<section id="una-pregunta-suele-conducir-a-otra" class="level2">
+<h2 class="anchored" data-anchor-id="una-pregunta-suele-conducir-a-otra">Una pregunta suele conducir a otra</h2>
+<p>Uno de los aspectos más interesantes del análisis de datos es que las respuestas rara vez cierran una investigación.</p>
+<p>Con frecuencia ocurre exactamente lo contrario.</p>
+<p>Una respuesta genera nuevas preguntas.</p>
+<p>Supongamos que descubrimos que una determinada categoría produce pérdidas.</p>
+<p>Inmediatamente surgirán nuevas dudas:</p>
+<ul>
+<li>¿Se debe a los descuentos?</li>
+<li>¿Ocurre únicamente en algunas regiones?</li>
+<li>¿Afecta a todos los clientes por igual?</li>
+<li>¿Ha sucedido siempre o comenzó recientemente?</li>
+<li>¿Existe algún producto responsable de la mayor parte de las pérdidas?</li>
+</ul>
+<p>Este proceso puede continuar durante varias iteraciones.</p>
+<p>Cada respuesta reduce parcialmente la incertidumbre, pero también revela aspectos que anteriormente permanecían ocultos.</p>
+<p>Esa dinámica explica por qué el análisis de datos rara vez sigue un camino completamente lineal.</p>
+</section>
+<section id="organizando-las-preguntas" class="level2">
+<h2 class="anchored" data-anchor-id="organizando-las-preguntas">Organizando las preguntas</h2>
+<p>Después de explorar el negocio, resulta útil resumir todas las preguntas identificadas en un único lugar.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="yscmzxvdya" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#yscmzxvdya table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#yscmzxvdya thead, #yscmzxvdya tbody, #yscmzxvdya tfoot, #yscmzxvdya tr, #yscmzxvdya td, #yscmzxvdya th {
+  border-style: none;
+}
+
+#yscmzxvdya p {
+  margin: 0;
+  padding: 0;
+}
+
+#yscmzxvdya .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#yscmzxvdya .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#yscmzxvdya .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#yscmzxvdya .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#yscmzxvdya .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#yscmzxvdya .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#yscmzxvdya .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#yscmzxvdya .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#yscmzxvdya .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#yscmzxvdya .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#yscmzxvdya .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yscmzxvdya .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#yscmzxvdya .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#yscmzxvdya .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#yscmzxvdya .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yscmzxvdya .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#yscmzxvdya .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#yscmzxvdya .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#yscmzxvdya .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yscmzxvdya .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#yscmzxvdya .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yscmzxvdya .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#yscmzxvdya .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yscmzxvdya .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yscmzxvdya .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yscmzxvdya .gt_left {
+  text-align: left;
+}
+
+#yscmzxvdya .gt_center {
+  text-align: center;
+}
+
+#yscmzxvdya .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#yscmzxvdya .gt_font_normal {
+  font-weight: normal;
+}
+
+#yscmzxvdya .gt_font_bold {
+  font-weight: bold;
+}
+
+#yscmzxvdya .gt_font_italic {
+  font-style: italic;
+}
+
+#yscmzxvdya .gt_super {
+  font-size: 65%;
+}
+
+#yscmzxvdya .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#yscmzxvdya .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#yscmzxvdya .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#yscmzxvdya .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#yscmzxvdya .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#yscmzxvdya .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#yscmzxvdya .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#yscmzxvdya .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#yscmzxvdya div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="aÁrea" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Área del negocio</th>
+<th id="Pregunta_principal" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Pregunta estratégica</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Área">Ventas</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Dónde se concentran las ventas?</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Área">Rentabilidad</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Qué genera realmente beneficios?</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Área">Clientes</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Quiénes aportan mayor valor?</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Área">Productos</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Qué líneas conviene fortalecer?</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Área">Descuentos</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Cuándo ayudan y cuándo perjudican?</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Área">Regiones</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Dónde existen oportunidades de crecimiento?</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Área">Logística</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Cómo mejorar las entregas?</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Área">Tiempo</td>
+<td class="gt_row gt_left" headers="Pregunta_principal">¿Cómo evoluciona el negocio?</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>La tabla anterior resume únicamente la primera capa del análisis.</p>
+<p>Cada una de estas preguntas puede descomponerse posteriormente en otras mucho más específicas y conducir a proyectos analíticos completamente diferentes.</p>
+</section>
+<section id="cómo-priorizar-las-preguntas" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-priorizar-las-preguntas">¿Cómo priorizar las preguntas?</h2>
+<p>Después de este recorrido probablemente haya ocurrido algo curioso: en lugar de obtener una única respuesta, ahora tenemos muchas más preguntas que al comienzo del artículo.</p>
+<p>Lejos de ser un problema, este es un excelente resultado.</p>
+<p>Uno de los errores más frecuentes en Business Analytics consiste en intentar responder todas las preguntas al mismo tiempo. En la práctica, las organizaciones disponen de recursos limitados y necesitan decidir qué problemas investigar primero.</p>
+<p>Una forma sencilla de priorizar consiste en evaluar cada pregunta desde tres perspectivas:</p>
+<ul>
+<li><strong>Impacto para el negocio.</strong> ¿Responder esta pregunta podría mejorar significativamente los resultados de la organización?</li>
+<li><strong>Disponibilidad de datos.</strong> ¿Contamos con la información necesaria para responderla de manera confiable?</li>
+<li><strong>Posibilidad de actuar.</strong> Si encontramos evidencia interesante, ¿la empresa realmente puede tomar decisiones a partir de ella?</li>
+</ul>
+<p>Las preguntas que obtienen una buena calificación en estos tres aspectos suelen convertirse en excelentes candidatos para proyectos analíticos.</p>
+<p>En cambio, algunas preguntas pueden ser muy interesantes desde el punto de vista académico, pero poco útiles para la toma de decisiones cotidiana.</p>
+<p>El objetivo de un analista no es responder todas las preguntas posibles, sino responder primero aquellas que pueden generar mayor valor.</p>
+</section>
+<section id="del-análisis-descriptivo-a-los-modelos" class="level2">
+<h2 class="anchored" data-anchor-id="del-análisis-descriptivo-a-los-modelos">Del análisis descriptivo a los modelos</h2>
+<p>Hasta ahora hemos trabajado únicamente con el conocimiento del negocio y con la información disponible en el dataset.</p>
+<p>En muchos casos esto será suficiente.</p>
+<p>Por ejemplo, una empresa puede descubrir que determinada región vende menos que las demás o que una categoría concentra gran parte de la rentabilidad. Esa información, por sí sola, ya puede orientar algunas decisiones.</p>
+<p>Sin embargo, otras preguntas requieren un análisis más profundo.</p>
+<p>Por ejemplo:</p>
+<ul>
+<li>¿Los descuentos realmente aumentan las ventas?</li>
+<li>¿Qué probabilidad existe de que una promoción reduzca la rentabilidad?</li>
+<li>¿Cómo cambiarían las ganancias bajo distintos escenarios?</li>
+<li>¿Qué ocurriría si modificáramos nuestra estrategia comercial?</li>
+<li>¿Qué resultados parecen más plausibles considerando la incertidumbre existente?</li>
+</ul>
+<p>En este punto aparecen los modelos probabilísticos.</p>
+<p>No sustituyen el conocimiento del negocio.</p>
+<p>Lo complementan.</p>
+<p>Su principal aportación consiste en ayudarnos a razonar bajo incertidumbre, comparando escenarios posibles en lugar de ofrecer respuestas absolutas.</p>
+<p>Por esa razón, la siguiente colección del blog estará dedicada a construir modelos bayesianos que permitan responder varias de las preguntas que hemos identificado hoy.</p>
+<p>Las preguntas ya están planteadas.</p>
+<p>Ahora necesitaremos herramientas para responderlas.</p>
+</section>
+<section id="recomendaciones-para-el-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="recomendaciones-para-el-negocio">Recomendaciones para el negocio</h2>
+<p>Si este conjunto de datos perteneciera a una empresa real, antes de construir cualquier modelo recomendaríamos dedicar tiempo a definir claramente las prioridades analíticas.</p>
+<p>Una posible hoja de ruta sería la siguiente:</p>
+<ol type="1">
+<li>Identificar qué decisiones generan mayor impacto económico.</li>
+<li>Formular preguntas concretas y medibles.</li>
+<li>Verificar que los datos disponibles sean suficientes para responderlas.</li>
+<li>Realizar un análisis exploratorio para comprender el contexto.</li>
+<li>Construir modelos únicamente cuando aporten información adicional para la toma de decisiones.</li>
+<li>Comunicar los resultados utilizando un lenguaje comprensible para los responsables del negocio.</li>
+</ol>
+<p>Obsérvese que el modelo aparece recién en el quinto paso.</p>
+<p>Esta secuencia refleja una idea que ha acompañado toda esta colección: <strong>la analítica comienza comprendiendo el problema, no eligiendo una técnica</strong>.</p>
+</section>
+<section id="reflexión-bayesiana" class="level2">
+<h2 class="anchored" data-anchor-id="reflexión-bayesiana">Reflexión bayesiana</h2>
+<p>Con frecuencia pensamos que la incertidumbre aparece únicamente cuando construimos modelos estadísticos.</p>
+<p>En realidad, está presente mucho antes.</p>
+<p>Existe incertidumbre cuando intentamos comprender por qué disminuyen las ventas.</p>
+<p>También cuando buscamos explicar diferencias entre regiones o identificar qué clientes generan mayor valor.</p>
+<p>Los modelos bayesianos no eliminan esa incertidumbre.</p>
+<p>Nos ayudan a describirla, cuantificarla y utilizarla para tomar decisiones más informadas.</p>
+<p>Por ello, el primer paso del pensamiento bayesiano no consiste en ejecutar un algoritmo.</p>
+<p>Consiste en formular mejores preguntas.</p>
+<p>Y, como hemos visto en este artículo, un mismo conjunto de datos puede dar origen a decenas de preguntas igualmente válidas.</p>
+<p>La diferencia entre un análisis superficial y un proyecto de Business Analytics suele comenzar precisamente allí.</p>
+</section>
+<section id="la-hoja-de-ruta-de-la-siguiente-colección" class="level2">
+<h2 class="anchored" data-anchor-id="la-hoja-de-ruta-de-la-siguiente-colección">La hoja de ruta de la siguiente colección</h2>
+<p>A lo largo de esta primera colección aprendimos a observar un negocio antes de intentar explicarlo.</p>
+<p>Exploramos ventas, productos, clientes, descuentos, regiones y rentabilidad desde distintas perspectivas. Más importante aún, aprendimos que los datos no constituyen el objetivo final del análisis, sino el punto de partida para formular preguntas relevantes.</p>
+<p>En la siguiente colección comenzaremos a responder varias de esas preguntas mediante modelos bayesianos construidos con <strong>rstanarm</strong>.</p>
+<p>Algunos de los temas que abordaremos serán:</p>
+<ul>
+<li>¿Cómo afectan los descuentos a la rentabilidad?</li>
+<li>¿Qué factores parecen explicar las ganancias?</li>
+<li>¿Qué escenarios futuros resultan más plausibles?</li>
+<li>¿Cómo interpretar la incertidumbre de un modelo?</li>
+<li>¿Cómo traducir los resultados en recomendaciones para el negocio?</li>
+</ul>
+<p>En otras palabras, dejaremos de preguntar únicamente <strong>qué está ocurriendo</strong> para empezar a investigar <strong>por qué ocurre y qué podría suceder después</strong>.</p>
+<p>Ese es el paso natural desde la exploración hacia el modelado.</p>
+</section>
+<section id="conclusiones" class="level2">
+<h2 class="anchored" data-anchor-id="conclusiones">Conclusiones</h2>
+<p>Los proyectos de Business Analytics no comienzan con un algoritmo.</p>
+<p>Comienzan con una conversación.</p>
+<p>Una conversación sobre el negocio, sobre sus objetivos y sobre las decisiones que necesitan apoyo.</p>
+<p>El conjunto de datos de Superstore Sales ha servido durante toda esta colección como un laboratorio para desarrollar esa forma de pensar.</p>
+<p>Aunque todavía no hemos construido modelos probabilísticos, sí hemos desarrollado una competencia que los precede y les da sentido: la capacidad de transformar datos en preguntas relevantes.</p>
+<p>Ese es, probablemente, el trabajo más importante de cualquier analista.</p>
+<p>Porque un modelo sofisticado nunca podrá compensar una pregunta mal formulada.</p>
+<p>En cambio, una buena pregunta suele conducir naturalmente hacia el modelo más adecuado.</p>
+</section>
+<section id="apéndice-código-completo" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-código-completo">Apéndice — Código completo</h2>
+<p>A continuación se incluye el código utilizado durante el artículo en el mismo orden en que apareció. Todos los bloques utilizan <code>eval: false</code> para evitar una segunda ejecución durante el renderizado y facilitar su reutilización.</p>
+<section id="cargar-paquetes" class="level3">
+<h3 class="anchored" data-anchor-id="cargar-paquetes">Cargar paquetes</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabla-de-áreas-del-negocio" class="level3">
+<h3 class="anchored" data-anchor-id="tabla-de-áreas-del-negocio">Tabla de áreas del negocio</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>diccionario <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Area =</span> <span class="fu">c</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ventas"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Rentabilidad"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Clientes"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Productos"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ubicación"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Logística"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tiempo"</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variables =</span> <span class="fu">c</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Sales"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Profit, Discount"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Customer ID, Segment"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Category, Sub-Category"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Region, State, City"</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ship Mode"</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Order Date, Ship Date"</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">Descripcion =</span> <span class="fu">c</span>(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Valor económico de cada pedido"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ganancias y descuentos aplicados"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Quién compra y a qué segmento pertenece"</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Qué se vende"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Dónde ocurre la venta"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cómo se entrega el pedido"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cuándo ocurre cada operación"</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>diccionario <span class="sc">|&gt;</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">Area =</span> <span class="st">"Área del negocio"</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variables =</span> <span class="st">"Variables principales"</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">Descripcion =</span> <span class="st">"¿Qué describe?"</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabla-de-preguntas-estratégicas" class="level3">
+<h3 class="anchored" data-anchor-id="tabla-de-preguntas-estratégicas">Tabla de preguntas estratégicas</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>preguntas <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="sc">~</span>Área, <span class="sc">~</span>Pregunta_principal,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">"Ventas"</span>, <span class="st">"¿Dónde se concentran las ventas?"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">"Rentabilidad"</span>, <span class="st">"¿Qué genera realmente beneficios?"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">"Clientes"</span>, <span class="st">"¿Quiénes aportan mayor valor?"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">"Productos"</span>, <span class="st">"¿Qué líneas conviene fortalecer?"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">"Descuentos"</span>, <span class="st">"¿Cuándo ayudan y cuándo perjudican?"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">"Regiones"</span>, <span class="st">"¿Dónde existen oportunidades de crecimiento?"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">"Logística"</span>, <span class="st">"¿Cómo mejorar las entregas?"</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">"Tiempo"</span>, <span class="st">"¿Cómo evoluciona el negocio?"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>preguntas <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    Á<span class="at">rea =</span> <span class="st">"Área del negocio"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">Pregunta_principal =</span> <span class="st">"Pregunta estratégica"</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

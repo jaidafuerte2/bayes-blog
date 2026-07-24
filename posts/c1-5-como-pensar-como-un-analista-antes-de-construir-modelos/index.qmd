@@ -1,0 +1,588 @@
+---
+title: "De los datos a las preguntas: cómo pensar como un analista antes de construir modelos"
+
+description: "Aprenda a transformar un conjunto de datos en preguntas de negocio relevantes utilizando Superstore Sales como punto de partida para el análisis."
+
+author: "David Villafuerte"
+
+date: "2026-7-23"
+
+categories:
+  - Retail
+  - Comunicación
+  
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: false
+
+execute:
+  warning: false
+  message: false
+  
+draft: false
+---
+
+## La pregunta práctica
+
+Cada proyecto de Business Analytics comienza con un conjunto de datos.
+
+Sin embargo, los datos por sí solos rara vez indican qué decisiones deben tomarse. Dos analistas pueden recibir exactamente el mismo archivo y llegar a conclusiones completamente diferentes. La diferencia no suele estar en las herramientas que utilizan, sino en las preguntas que son capaces de formular.
+
+Esta habilidad suele pasar desapercibida porque la mayor parte de los cursos de análisis de datos comienzan enseñando gráficos, modelos o algoritmos. En la práctica ocurre lo contrario: antes de construir cualquier modelo necesitamos comprender el negocio y definir qué problema vale la pena resolver.
+
+En este artículo cambiaremos deliberadamente el enfoque habitual. No construiremos modelos bayesianos, no estimaremos probabilidades posteriores y tampoco compararemos algoritmos. Nuestro objetivo será mucho más sencillo, pero también mucho más importante: aprender a convertir un conjunto de datos en una lista de preguntas que puedan apoyar decisiones empresariales.
+
+Trabajaremos nuevamente con **Superstore Sales**, el conjunto de datos que ha acompañado toda esta primera colección. Después de explorar distintas partes del negocio en las entradas anteriores, ha llegado el momento de integrarlas para construir una visión más amplia del proceso analítico.
+
+Al finalizar esta lectura no habremos respondido todas las preguntas posibles. En realidad, ese es precisamente el objetivo: terminar con una agenda clara de problemas de negocio que abordaremos posteriormente mediante modelos bayesianos.
+
+## Comprendiendo el problema
+
+Cuando una organización decide invertir en analítica, normalmente no espera recibir más gráficos ni tablas. Espera tomar mejores decisiones.
+
+Un director comercial quiere saber dónde concentrar el esfuerzo del equipo de ventas.
+
+El responsable financiero desea identificar qué líneas de productos generan realmente valor para la empresa.
+
+El gerente de operaciones intenta reducir tiempos de entrega sin deteriorar el servicio.
+
+El departamento de marketing busca atraer clientes más rentables.
+
+Ninguna de estas personas solicita explícitamente un modelo estadístico. Lo que necesitan es comprender mejor la realidad para reducir la incertidumbre antes de actuar.
+
+Esa es precisamente la función del analista.
+
+Más que responder preguntas, un buen analista aprende a formularlas.
+
+Cuando observamos una variable como **Sales**, no deberíamos pensar únicamente en una columna numérica. Deberíamos preguntarnos:
+
+- ¿Qué decisiones dependen de estas ventas?
+- ¿Qué factores podrían explicarlas?
+- ¿Cómo podríamos incrementarlas?
+- ¿Qué incertidumbre existe alrededor de ellas?
+
+De forma similar, una variable como **Profit** no representa solamente una utilidad monetaria. También puede reflejar diferencias entre productos, segmentos de clientes, regiones geográficas o estrategias comerciales.
+
+Las columnas del dataset son únicamente el lenguaje con el que el negocio describe su funcionamiento.
+
+Nuestro trabajo consiste en traducir ese lenguaje en preguntas útiles para la toma de decisiones.
+
+## ¿Qué sabemos del negocio?
+
+Antes de formular nuevas preguntas conviene detenernos unos minutos para recordar qué representa este conjunto de datos.
+
+Superstore Sales registra miles de pedidos realizados por una empresa dedicada a la venta de artículos de oficina y tecnología. Cada observación corresponde a un pedido individual e incluye información comercial, logística y geográfica.
+
+A lo largo de esta colección hemos utilizado diferentes partes del dataset para comprender aspectos específicos del negocio. Ahora reuniremos todas esas piezas para construir una visión integrada.
+
+### Las principales áreas del negocio
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(gt)
+
+diccionario <- tibble(
+  Area = c(
+    "Ventas",
+    "Rentabilidad",
+    "Clientes",
+    "Productos",
+    "Ubicación",
+    "Logística",
+    "Tiempo"
+  ),
+  Variables = c(
+    "Sales",
+    "Profit, Discount",
+    "Customer ID, Segment",
+    "Category, Sub-Category",
+    "Region, State, City",
+    "Ship Mode",
+    "Order Date, Ship Date"
+  ),
+  "¿Qué describe?" = c(
+    "Valor económico de cada pedido",
+    "Ganancias y descuentos aplicados",
+    "Quién compra y a qué segmento pertenece",
+    "Qué se vende",
+    "Dónde ocurre la venta",
+    "Cómo se entrega el pedido",
+    "Cuándo ocurre cada operación"
+  )
+)
+
+diccionario |>
+  gt() |>
+  cols_label(
+    Area = "Área del negocio",
+    Variables = "Variables principales"
+  )
+```
+
+Cada grupo de variables representa una dimensión distinta del negocio. En conjunto permiten analizar la empresa desde múltiples perspectivas y muestran por qué Superstore es un excelente conjunto de datos para desarrollar intuición analítica.
+
+Obsérvese que todavía no estamos intentando responder ninguna pregunta. Primero necesitamos identificar qué información está disponible y qué tipo de decisiones podría respaldar.
+
+## Una misma base de datos, muchas perspectivas
+
+Una característica interesante de los proyectos reales es que un mismo conjunto de datos puede resultar útil para departamentos completamente diferentes.
+
+Por ejemplo, el área comercial probablemente observará las ventas por segmento de clientes.
+
+El departamento financiero se concentrará en la rentabilidad.
+
+Operaciones analizará los tiempos y modalidades de envío.
+
+Marketing estudiará los perfiles de clientes y las oportunidades de crecimiento.
+
+Todos utilizan exactamente la misma información, pero cada uno formula preguntas distintas porque enfrenta decisiones diferentes.
+
+Esta idea es fundamental en Business Analytics: **los datos no tienen una única interpretación**.
+
+Su valor depende del contexto empresarial desde el cual se analicen.
+
+## El primer ejercicio del analista
+
+Antes de escribir una sola línea de código podemos realizar un ejercicio muy sencillo.
+
+Tomemos una variable cualquiera del dataset.
+
+Por ejemplo:
+
+**Discount**.
+
+Una forma de pensar sería preguntarnos:
+
+> ¿Cuál es el descuento promedio?
+
+Aunque esa información puede ser interesante, difícilmente conduce a una decisión.
+
+Un analista suele formular preguntas diferentes.
+
+Por ejemplo:
+
+- ¿Qué productos reciben los mayores descuentos?
+- ¿Los descuentos incrementan realmente las ventas?
+- ¿Existen descuentos que reducen la rentabilidad?
+- ¿Hay regiones donde los descuentos parecen funcionar mejor?
+- ¿Qué ocurriría si redujéramos los descuentos en determinadas categorías?
+
+Obsérvese cómo las preguntas evolucionan desde una simple descripción hacia posibles decisiones empresariales.
+
+Ese cambio de perspectiva constituye uno de los mayores aportes del pensamiento analítico.
+
+
+## Transformando los datos en preguntas de negocio
+
+Llegados a este punto ya conocemos las principales áreas del negocio representadas en Superstore Sales. El siguiente paso consiste en traducir esas variables en preguntas que puedan orientar decisiones reales.
+
+Este ejercicio puede parecer sencillo, pero constituye una de las competencias más importantes de cualquier analista. Un buen proyecto de Business Analytics rara vez comienza con una técnica estadística. Normalmente comienza con una conversación acerca de los problemas que la organización intenta resolver.
+
+Las preguntas que veremos a continuación no pretenden ser las únicas posibles. Más bien representan un punto de partida para explorar distintas dimensiones del negocio. Muchas de ellas podrán responderse mediante análisis descriptivos; otras requerirán modelos probabilísticos que desarrollaremos en la siguiente colección del blog.
+
+### Área 1. Ventas
+
+Las ventas suelen ser la primera variable que una organización observa. Sin embargo, conocer el monto total vendido rara vez es suficiente para apoyar decisiones estratégicas.
+
+Un analista intentará comprender cómo cambian las ventas entre distintos grupos de clientes, productos o regiones, y qué factores podrían explicar esas diferencias.
+
+Algunas preguntas que pueden plantearse son:
+
+- ¿Qué categorías generan la mayor parte de las ventas?
+- ¿Existen subcategorías con un crecimiento especialmente rápido?
+- ¿Qué segmentos de clientes concentran la mayor actividad comercial?
+- ¿Las ventas presentan estacionalidad durante el año?
+- ¿Existen regiones con un desempeño consistentemente superior?
+
+Cada una de estas preguntas apunta hacia decisiones distintas: asignación de recursos comerciales, planificación del inventario o expansión geográfica.
+
+### Área 2. Rentabilidad
+
+Vender más no siempre significa obtener mejores resultados.
+
+Una empresa puede incrementar sus ingresos y, al mismo tiempo, reducir sus ganancias si los descuentos son demasiado agresivos o si determinados productos presentan márgenes muy bajos.
+
+Por esa razón, la variable **Profit** suele ser incluso más relevante que **Sales** cuando el objetivo consiste en mejorar la sostenibilidad financiera del negocio.
+
+Preguntas frecuentes incluyen:
+
+- ¿Qué categorías generan mayores beneficios?
+- ¿Existen productos que venden mucho pero aportan poca rentabilidad?
+- ¿Qué regiones producen mayores utilidades?
+- ¿Hay segmentos de clientes más rentables que otros?
+- ¿Qué factores parecen asociarse con pérdidas económicas?
+
+Responder estas preguntas ayuda a priorizar aquellas actividades que realmente generan valor para la empresa.
+
+### Área 3. Clientes
+
+Toda empresa necesita comprender a quién vende.
+
+El objetivo no consiste únicamente en identificar los clientes actuales, sino también en reconocer diferencias de comportamiento entre distintos segmentos.
+
+Algunas preguntas relevantes son:
+
+- ¿Qué segmento concentra el mayor volumen de ventas?
+- ¿Qué segmento parece generar mayores beneficios?
+- ¿Existen clientes especialmente importantes para el negocio?
+- ¿Algunos segmentos compran categorías muy diferentes?
+- ¿Qué perfiles podrían convertirse en oportunidades de crecimiento?
+
+Estas preguntas suelen ser el punto de partida para futuras estrategias de fidelización, segmentación y marketing.
+
+### Área 4. Productos
+
+Los productos constituyen el corazón del negocio.
+
+No todos cumplen el mismo papel dentro del portafolio. Algunos impulsan las ventas, otros generan rentabilidad y algunos pueden convertirse en candidatos para ser retirados.
+
+Preguntas habituales incluyen:
+
+- ¿Qué categorías venden más?
+- ¿Qué subcategorías presentan menor desempeño?
+- ¿Qué productos generan pérdidas repetidamente?
+- ¿Existen productos muy rentables pero poco vendidos?
+- ¿Qué líneas parecen ofrecer mayor potencial de crecimiento?
+
+Obsérvese que muchas de estas preguntas no pueden responderse observando únicamente una variable. Requieren combinar información procedente de ventas, ganancias y características del producto.
+
+### Área 5. Descuentos
+
+Los descuentos representan una de las decisiones comerciales más frecuentes y también una de las más difíciles.
+
+Reducir el precio puede incrementar las ventas, pero también disminuir la rentabilidad.
+
+En consecuencia, un analista suele preguntarse:
+
+- ¿Qué categorías reciben mayores descuentos?
+- ¿Los descuentos parecen aumentar las ventas?
+- ¿Existe un nivel de descuento a partir del cual las ganancias disminuyen?
+- ¿Todas las categorías responden de la misma manera?
+- ¿Hay segmentos donde los descuentos parecen más efectivos?
+
+Estas preguntas serán especialmente interesantes cuando introduzcemos modelos probabilísticos para cuantificar la incertidumbre asociada a estas relaciones.
+
+### Área 6. Ubicación geográfica
+
+Toda empresa desea comprender cómo cambia su desempeño entre diferentes regiones.
+
+Las diferencias geográficas pueden reflejar preferencias de los clientes, competencia local, problemas logísticos o condiciones económicas particulares.
+
+Entre las preguntas posibles encontramos:
+
+- ¿Qué regiones generan mayores ventas?
+- ¿Qué estados presentan menor rentabilidad?
+- ¿Existen ciudades especialmente atractivas para expandir el negocio?
+- ¿Dónde parecen concentrarse las pérdidas?
+- ¿Qué patrones geográficos merecen investigarse con mayor detalle?
+
+En muchos proyectos reales, responder estas preguntas puede tener un impacto directo sobre la planificación comercial.
+
+### Área 7. Logística
+
+La logística suele permanecer en segundo plano cuando se analiza un negocio. Sin embargo, constituye uno de los principales determinantes de la satisfacción del cliente y de los costos operativos.
+
+Las variables relacionadas con el envío permiten formular preguntas como:
+
+- ¿Qué modalidades de envío se utilizan con mayor frecuencia?
+- ¿Existen diferencias importantes en los tiempos de entrega?
+- ¿Algunas modalidades parecen asociarse con pedidos de mayor valor?
+- ¿Qué estrategias logísticas podrían optimizarse?
+- ¿Cómo equilibrar velocidad y costos de envío?
+
+Aunque este dataset no responde todas estas preguntas, sí ofrece un excelente punto de partida para comenzar a explorarlas.
+
+### Área 8. Tiempo
+
+Toda empresa cambia con el tiempo.
+
+Analizar únicamente valores agregados puede ocultar tendencias importantes.
+
+Por ello resulta útil formular preguntas relacionadas con la evolución temporal del negocio.
+
+Por ejemplo:
+
+- ¿Las ventas aumentan o disminuyen con el tiempo?
+- ¿Existen patrones estacionales?
+- ¿Hay meses especialmente rentables?
+- ¿Qué categorías muestran un crecimiento sostenido?
+- ¿Qué tendencias merecen seguimiento continuo?
+
+Este tipo de preguntas abrirá posteriormente la puerta a modelos de predicción y forecasting.
+
+## Una pregunta suele conducir a otra
+
+Uno de los aspectos más interesantes del análisis de datos es que las respuestas rara vez cierran una investigación.
+
+Con frecuencia ocurre exactamente lo contrario.
+
+Una respuesta genera nuevas preguntas.
+
+Supongamos que descubrimos que una determinada categoría produce pérdidas.
+
+Inmediatamente surgirán nuevas dudas:
+
+- ¿Se debe a los descuentos?
+- ¿Ocurre únicamente en algunas regiones?
+- ¿Afecta a todos los clientes por igual?
+- ¿Ha sucedido siempre o comenzó recientemente?
+- ¿Existe algún producto responsable de la mayor parte de las pérdidas?
+
+Este proceso puede continuar durante varias iteraciones.
+
+Cada respuesta reduce parcialmente la incertidumbre, pero también revela aspectos que anteriormente permanecían ocultos.
+
+Esa dinámica explica por qué el análisis de datos rara vez sigue un camino completamente lineal.
+
+## Organizando las preguntas
+
+Después de explorar el negocio, resulta útil resumir todas las preguntas identificadas en un único lugar.
+
+```{r}
+#| echo: false
+
+library(gt)
+library(tibble)
+
+preguntas <- tribble(
+~Área, ~Pregunta_principal,
+"Ventas", "¿Dónde se concentran las ventas?",
+"Rentabilidad", "¿Qué genera realmente beneficios?",
+"Clientes", "¿Quiénes aportan mayor valor?",
+"Productos", "¿Qué líneas conviene fortalecer?",
+"Descuentos", "¿Cuándo ayudan y cuándo perjudican?",
+"Regiones", "¿Dónde existen oportunidades de crecimiento?",
+"Logística", "¿Cómo mejorar las entregas?",
+"Tiempo", "¿Cómo evoluciona el negocio?"
+)
+
+preguntas |>
+gt() |>
+cols_label(
+Área = "Área del negocio",
+Pregunta_principal = "Pregunta estratégica"
+)
+
+```
+
+La tabla anterior resume únicamente la primera capa del análisis.
+
+Cada una de estas preguntas puede descomponerse posteriormente en otras mucho más específicas y conducir a proyectos analíticos completamente diferentes.
+
+## ¿Cómo priorizar las preguntas?
+
+Después de este recorrido probablemente haya ocurrido algo curioso: en lugar de obtener una única respuesta, ahora tenemos muchas más preguntas que al comienzo del artículo.
+
+Lejos de ser un problema, este es un excelente resultado.
+
+Uno de los errores más frecuentes en Business Analytics consiste en intentar responder todas las preguntas al mismo tiempo. En la práctica, las organizaciones disponen de recursos limitados y necesitan decidir qué problemas investigar primero.
+
+Una forma sencilla de priorizar consiste en evaluar cada pregunta desde tres perspectivas:
+
+- **Impacto para el negocio.** ¿Responder esta pregunta podría mejorar significativamente los resultados de la organización?
+- **Disponibilidad de datos.** ¿Contamos con la información necesaria para responderla de manera confiable?
+- **Posibilidad de actuar.** Si encontramos evidencia interesante, ¿la empresa realmente puede tomar decisiones a partir de ella?
+
+Las preguntas que obtienen una buena calificación en estos tres aspectos suelen convertirse en excelentes candidatos para proyectos analíticos.
+
+En cambio, algunas preguntas pueden ser muy interesantes desde el punto de vista académico, pero poco útiles para la toma de decisiones cotidiana.
+
+El objetivo de un analista no es responder todas las preguntas posibles, sino responder primero aquellas que pueden generar mayor valor.
+
+## Del análisis descriptivo a los modelos
+
+Hasta ahora hemos trabajado únicamente con el conocimiento del negocio y con la información disponible en el dataset.
+
+En muchos casos esto será suficiente.
+
+Por ejemplo, una empresa puede descubrir que determinada región vende menos que las demás o que una categoría concentra gran parte de la rentabilidad. Esa información, por sí sola, ya puede orientar algunas decisiones.
+
+Sin embargo, otras preguntas requieren un análisis más profundo.
+
+Por ejemplo:
+
+- ¿Los descuentos realmente aumentan las ventas?
+- ¿Qué probabilidad existe de que una promoción reduzca la rentabilidad?
+- ¿Cómo cambiarían las ganancias bajo distintos escenarios?
+- ¿Qué ocurriría si modificáramos nuestra estrategia comercial?
+- ¿Qué resultados parecen más plausibles considerando la incertidumbre existente?
+
+En este punto aparecen los modelos probabilísticos.
+
+No sustituyen el conocimiento del negocio.
+
+Lo complementan.
+
+Su principal aportación consiste en ayudarnos a razonar bajo incertidumbre, comparando escenarios posibles en lugar de ofrecer respuestas absolutas.
+
+Por esa razón, la siguiente colección del blog estará dedicada a construir modelos bayesianos que permitan responder varias de las preguntas que hemos identificado hoy.
+
+Las preguntas ya están planteadas.
+
+Ahora necesitaremos herramientas para responderlas.
+
+## Recomendaciones para el negocio
+
+Si este conjunto de datos perteneciera a una empresa real, antes de construir cualquier modelo recomendaríamos dedicar tiempo a definir claramente las prioridades analíticas.
+
+Una posible hoja de ruta sería la siguiente:
+
+1. Identificar qué decisiones generan mayor impacto económico.
+2. Formular preguntas concretas y medibles.
+3. Verificar que los datos disponibles sean suficientes para responderlas.
+4. Realizar un análisis exploratorio para comprender el contexto.
+5. Construir modelos únicamente cuando aporten información adicional para la toma de decisiones.
+6. Comunicar los resultados utilizando un lenguaje comprensible para los responsables del negocio.
+
+Obsérvese que el modelo aparece recién en el quinto paso.
+
+Esta secuencia refleja una idea que ha acompañado toda esta colección: **la analítica comienza comprendiendo el problema, no eligiendo una técnica**.
+
+## Reflexión bayesiana
+
+Con frecuencia pensamos que la incertidumbre aparece únicamente cuando construimos modelos estadísticos.
+
+En realidad, está presente mucho antes.
+
+Existe incertidumbre cuando intentamos comprender por qué disminuyen las ventas.
+
+También cuando buscamos explicar diferencias entre regiones o identificar qué clientes generan mayor valor.
+
+Los modelos bayesianos no eliminan esa incertidumbre.
+
+Nos ayudan a describirla, cuantificarla y utilizarla para tomar decisiones más informadas.
+
+Por ello, el primer paso del pensamiento bayesiano no consiste en ejecutar un algoritmo.
+
+Consiste en formular mejores preguntas.
+
+Y, como hemos visto en este artículo, un mismo conjunto de datos puede dar origen a decenas de preguntas igualmente válidas.
+
+La diferencia entre un análisis superficial y un proyecto de Business Analytics suele comenzar precisamente allí.
+
+## La hoja de ruta de la siguiente colección
+
+A lo largo de esta primera colección aprendimos a observar un negocio antes de intentar explicarlo.
+
+Exploramos ventas, productos, clientes, descuentos, regiones y rentabilidad desde distintas perspectivas. Más importante aún, aprendimos que los datos no constituyen el objetivo final del análisis, sino el punto de partida para formular preguntas relevantes.
+
+En la siguiente colección comenzaremos a responder varias de esas preguntas mediante modelos bayesianos construidos con **rstanarm**.
+
+Algunos de los temas que abordaremos serán:
+
+- ¿Cómo afectan los descuentos a la rentabilidad?
+- ¿Qué factores parecen explicar las ganancias?
+- ¿Qué escenarios futuros resultan más plausibles?
+- ¿Cómo interpretar la incertidumbre de un modelo?
+- ¿Cómo traducir los resultados en recomendaciones para el negocio?
+
+En otras palabras, dejaremos de preguntar únicamente **qué está ocurriendo** para empezar a investigar **por qué ocurre y qué podría suceder después**.
+
+Ese es el paso natural desde la exploración hacia el modelado.
+
+## Conclusiones
+
+Los proyectos de Business Analytics no comienzan con un algoritmo.
+
+Comienzan con una conversación.
+
+Una conversación sobre el negocio, sobre sus objetivos y sobre las decisiones que necesitan apoyo.
+
+El conjunto de datos de Superstore Sales ha servido durante toda esta colección como un laboratorio para desarrollar esa forma de pensar.
+
+Aunque todavía no hemos construido modelos probabilísticos, sí hemos desarrollado una competencia que los precede y les da sentido: la capacidad de transformar datos en preguntas relevantes.
+
+Ese es, probablemente, el trabajo más importante de cualquier analista.
+
+Porque un modelo sofisticado nunca podrá compensar una pregunta mal formulada.
+
+En cambio, una buena pregunta suele conducir naturalmente hacia el modelo más adecuado.
+
+## Apéndice — Código completo
+
+A continuación se incluye el código utilizado durante el artículo en el mismo orden en que apareció. Todos los bloques utilizan `eval: false` para evitar una segunda ejecución durante el renderizado y facilitar su reutilización.
+
+### Cargar paquetes
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+library(gt)
+
+```
+
+### Tabla de áreas del negocio
+
+```{r}
+#| eval: false
+
+diccionario <- tibble(
+  Area = c(
+    "Ventas",
+    "Rentabilidad",
+    "Clientes",
+    "Productos",
+    "Ubicación",
+    "Logística",
+    "Tiempo"
+  ),
+  Variables = c(
+    "Sales",
+    "Profit, Discount",
+    "Customer ID, Segment",
+    "Category, Sub-Category",
+    "Region, State, City",
+    "Ship Mode",
+    "Order Date, Ship Date"
+  ),
+  Descripcion = c(
+    "Valor económico de cada pedido",
+    "Ganancias y descuentos aplicados",
+    "Quién compra y a qué segmento pertenece",
+    "Qué se vende",
+    "Dónde ocurre la venta",
+    "Cómo se entrega el pedido",
+    "Cuándo ocurre cada operación"
+  )
+)
+
+diccionario |>
+  gt() |>
+  cols_label(
+    Area = "Área del negocio",
+    Variables = "Variables principales",
+    Descripcion = "¿Qué describe?"
+  )
+
+```
+
+### Tabla de preguntas estratégicas
+
+```{r}
+#| eval: false
+
+preguntas <- tribble(
+~Área, ~Pregunta_principal,
+"Ventas", "¿Dónde se concentran las ventas?",
+"Rentabilidad", "¿Qué genera realmente beneficios?",
+"Clientes", "¿Quiénes aportan mayor valor?",
+"Productos", "¿Qué líneas conviene fortalecer?",
+"Descuentos", "¿Cuándo ayudan y cuándo perjudican?",
+"Regiones", "¿Dónde existen oportunidades de crecimiento?",
+"Logística", "¿Cómo mejorar las entregas?",
+"Tiempo", "¿Cómo evoluciona el negocio?"
+)
+
+preguntas |>
+  gt() |>
+  cols_label(
+    Área = "Área del negocio",
+    Pregunta_principal = "Pregunta estratégica"
+  )
+
+```
