@@ -110,7 +110,9 @@ modelo_sales <- stan_glm(
   seed = 1234,
   refresh = 0
 ) 
-print(modelo_sales, digits = 2)
+resumen <- print(modelo_sales, digits = 2)
+
+
 
 #            Median MAD_SD
 #(Intercept) 243.25   7.47
@@ -122,7 +124,7 @@ print(modelo_sales, digits = 2)
 
 # 7. Conocer el intervalo posterior
 
-posterior_interval(
+intervalos <- posterior_interval(
   modelo_sales,
   prob = 0.95
 ) # produce:
@@ -134,7 +136,7 @@ posterior_interval(
 # 8. Conocer la incertidumbre del efecto del descuento sobre las 
 # ventas
 
-as.matrix(modelo_sales) # produce:
+draws <- as.matrix(modelo_sales) # produce:
 #    parameters
 #iterations (Intercept)    Discount    sigma
 #      [1,]    239.7658  -73.139692 623.1477
@@ -148,6 +150,17 @@ as.matrix(modelo_sales) # produce:
 #      [332,]    239.0272  -77.288160 616.3038
 #      [333,]    241.0389  -60.126147 623.8257
 #[ reached 'max' / getOption("max.print") -- omitted 667 rows ]
+
+colnames(draws)
+
+coeficientes <- tibble(
+  Parametro = colnames(draws),
+  Mediana   = apply(draws, 2, median),
+  MAD_SD    = apply(draws, 2, mad)
+)
+coeficientes
+
+
 
 # 8. Visualizar la distribución del intervalo posterior
 mcmc_areas(
@@ -286,3 +299,16 @@ ggplot(superstore,
     x = "Descuento",
     y = "Ventas"
   )
+
+# Guardar todo
+saveRDS(resumen, "resumen.rds")
+
+saveRDS(intervalos, "intervalos.rds")
+
+saveRDS(draws, "draws.rds")
+
+saveRDS(newdata, "newdata.rds")
+
+saveRDS(predicciones, "blog_ba/R/col2-1/predicciones.rds")
+
+saveRDS(coeficientes, "blog_ba/R/col2-1/coeficientes.rds")

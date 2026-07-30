@@ -24,6 +24,9 @@ execute:
 draft: false
 ---
 
+
+
+
 En prácticamente cualquier empresa existe una forma rápida de intentar vender más: ofrecer descuentos.
 
 La estrategia parece intuitiva. Si un producto cuesta menos, más clientes estarán dispuestos a comprarlo y, como consecuencia, las ventas aumentarán. Sin embargo, la realidad suele ser bastante más compleja.
@@ -82,10 +85,22 @@ En particular responderemos tres preguntas sencillas:
 ```{r}
 #| echo: false
 
+#resumen <- readRDS("../../R/col2-1/resumen.rds")
+coeficientes <- readRDS("../../R/col2-1/coeficientes.rds")
+intervalos <- readRDS("../../R/col2-1/intervalos.rds")
+draws <- readRDS("../../R/col2-1/draws.rds")
+newdata <- readRDS("../../R/col2-1/newdata.rds")
+predicciones <- readRDS("../../R/col2-1/predicciones.rds")
+```
+
+```{r}
+#| echo: false
+
 library(tidyverse)
 library(ggplot2)
-library(rstanarm)
-library(posterior)
+library(gt)
+#library(rstanarm)
+#library(posterior)
 library(bayesplot)
 library(skimr)
 
@@ -198,20 +213,6 @@ El objetivo no es demostrar que los descuentos causan un aumento o una disminuci
 
 ## Ajustando el modelo
 
-```{r}
-#| echo: false
-
-modelo_sales <- stan_glm(
-  Sales ~ Discount,
-  data = superstore,
-  family = gaussian(),
-  chains = 2,
-  iter = 1000,
-  seed = 1234,
-  refresh = 0
-)
-```
-
 Una vez ajustado el modelo, el siguiente paso consiste en resumir la distribución posterior de sus parámetros. En lugar de centrarnos únicamente en un valor puntual, nos interesa conocer el rango de valores que parecen plausibles a la luz de los datos.
 
 ## Resumen del modelo
@@ -219,7 +220,7 @@ Una vez ajustado el modelo, el siguiente paso consiste en resumir la distribuci�
 ```{r}
 #| echo: false
 
-print(modelo_sales, digits = 2)
+gt(coeficientes)
 ```
 
 El modelo estima una venta media de **243,25 dólares** cuando el descuento es igual a cero. Además, la mediana posterior de la pendiente es de **−84,90**, lo que indica que, dentro del modelo lineal ajustado, mayores niveles de descuento tienden a asociarse con menores niveles de ventas promedio.
@@ -233,10 +234,7 @@ La desviación residual estimada (**σ = 623,26**) pone de manifiesto que las ve
 ```{r}
 #| echo: false
 
-posterior_interval(
-  modelo_sales,
-  prob = 0.95
-)
+intervalos
 ```
 
 El intervalo de credibilidad del 95 % para la pendiente se extiende aproximadamente desde **−142,56** hasta **−27,94**.
@@ -253,7 +251,7 @@ Es importante interpretar correctamente este resultado. El modelo no demuestra q
 #| echo: false
 
 mcmc_areas(
-  as.matrix(modelo_sales),
+  draws,
   pars = "Discount",
   prob = 0.95
 )
@@ -282,11 +280,6 @@ newdata <- tibble(
     max(superstore$Discount),
     length.out = 100
   )
-)
-
-predicciones <- posterior_epred(
-  modelo_sales,
-  newdata = newdata
 )
 
 newdata <- newdata |>

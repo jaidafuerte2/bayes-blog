@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -153,6 +188,19 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#qué-descuentos-aparecen-con-mayor-frecuencia" id="toc-qué-descuentos-aparecen-con-mayor-frecuencia" class="nav-link" data-scroll-target="#qué-descuentos-aparecen-con-mayor-frecuencia">¿Qué descuentos aparecen con mayor frecuencia?</a></li>
   <li><a href="#existe-una-relación-visible-entre-descuentos-y-ventas" id="toc-existe-una-relación-visible-entre-descuentos-y-ventas" class="nav-link" data-scroll-target="#existe-una-relación-visible-entre-descuentos-y-ventas">¿Existe una relación visible entre descuentos y ventas?</a></li>
   </ul></li>
+  <li><a href="#construyendo-el-modelo" id="toc-construyendo-el-modelo" class="nav-link" data-scroll-target="#construyendo-el-modelo">Construyendo el modelo</a>
+  <ul class="collapse">
+  <li><a href="#ajustando-el-modelo" id="toc-ajustando-el-modelo" class="nav-link" data-scroll-target="#ajustando-el-modelo">Ajustando el modelo</a></li>
+  <li><a href="#resumen-del-modelo" id="toc-resumen-del-modelo" class="nav-link" data-scroll-target="#resumen-del-modelo">Resumen del modelo</a></li>
+  <li><a href="#qué-nos-dice-el-intervalo-de-credibilidad" id="toc-qué-nos-dice-el-intervalo-de-credibilidad" class="nav-link" data-scroll-target="#qué-nos-dice-el-intervalo-de-credibilidad">¿Qué nos dice el intervalo de credibilidad?</a></li>
+  <li><a href="#qué-nos-dice-la-distribución-posterior-de-la-pendiente" id="toc-qué-nos-dice-la-distribución-posterior-de-la-pendiente" class="nav-link" data-scroll-target="#qué-nos-dice-la-distribución-posterior-de-la-pendiente">¿Qué nos dice la distribución posterior de la pendiente?</a></li>
+  <li><a href="#visualizando-la-relación-estimada" id="toc-visualizando-la-relación-estimada" class="nav-link" data-scroll-target="#visualizando-la-relación-estimada">Visualizando la relación estimada</a></li>
+  </ul></li>
+  <li><a href="#interpretando-los-resultados" id="toc-interpretando-los-resultados" class="nav-link" data-scroll-target="#interpretando-los-resultados">Interpretando los resultados</a></li>
+  <li><a href="#recomendaciones-para-el-negocio" id="toc-recomendaciones-para-el-negocio" class="nav-link" data-scroll-target="#recomendaciones-para-el-negocio">Recomendaciones para el negocio</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">Reflexión bayesiana</a></li>
+  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">Conclusión</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a></li>
   </ul>
 </nav>
     </div>
@@ -356,7 +404,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -371,7 +419,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -386,7 +434,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -395,9 +443,737 @@ ul.task-list li input[type="checkbox"] {
 <p>Los pedidos sin descuento incluyen algunos de los valores de venta más elevados del conjunto de datos. También aparecen operaciones de gran importe con descuentos del 20 % y, de forma aislada, con descuentos superiores.</p>
 <p>Sin embargo, el gráfico no revela una tendencia lineal claramente definida entre ambas variables. La elevada dispersión de los puntos sugiere que el descuento, por sí solo, probablemente no sea suficiente para explicar el comportamiento de las ventas y que otros factores del negocio también desempeñan un papel importante.</p>
 <p>Precisamente por ello resulta útil construir un modelo bayesiano que permita cuantificar esta relación y expresar explícitamente la incertidumbre asociada a ella.</p>
-
-
+<hr>
 </section>
+</section>
+<section id="construyendo-el-modelo" class="level1">
+<h1>Construyendo el modelo</h1>
+<p>Hasta ahora únicamente hemos observado los datos. Aunque el diagrama de dispersión puede sugerir una tendencia, resulta difícil cuantificar visualmente qué tan fuerte parece ser esa relación o cuánta incertidumbre existe alrededor de ella.</p>
+<p>Para responder esa pregunta construiremos una <strong>regresión lineal bayesiana simple</strong>, donde las ventas serán la variable de respuesta y el descuento la variable explicativa.</p>
+<p>El objetivo no es demostrar que los descuentos causan un aumento o una disminución de las ventas. Con un conjunto de datos observacional como este no podemos establecer relaciones causales. Lo que sí podemos hacer es estimar qué relación parece ser compatible con la evidencia disponible y expresar la incertidumbre asociada a esa estimación.</p>
+<section id="ajustando-el-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="ajustando-el-modelo">Ajustando el modelo</h2>
+<p>Una vez ajustado el modelo, el siguiente paso consiste en resumir la distribución posterior de sus parámetros. En lugar de centrarnos únicamente en un valor puntual, nos interesa conocer el rango de valores que parecen plausibles a la luz de los datos.</p>
+</section>
+<section id="resumen-del-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-del-modelo">Resumen del modelo</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div id="eqclxgtosa" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#eqclxgtosa table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#eqclxgtosa thead, #eqclxgtosa tbody, #eqclxgtosa tfoot, #eqclxgtosa tr, #eqclxgtosa td, #eqclxgtosa th {
+  border-style: none;
+}
+
+#eqclxgtosa p {
+  margin: 0;
+  padding: 0;
+}
+
+#eqclxgtosa .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#eqclxgtosa .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#eqclxgtosa .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#eqclxgtosa .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#eqclxgtosa .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#eqclxgtosa .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#eqclxgtosa .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#eqclxgtosa .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#eqclxgtosa .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#eqclxgtosa .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#eqclxgtosa .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#eqclxgtosa .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#eqclxgtosa .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#eqclxgtosa .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#eqclxgtosa .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqclxgtosa .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#eqclxgtosa .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#eqclxgtosa .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#eqclxgtosa .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqclxgtosa .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#eqclxgtosa .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqclxgtosa .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#eqclxgtosa .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqclxgtosa .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#eqclxgtosa .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#eqclxgtosa .gt_left {
+  text-align: left;
+}
+
+#eqclxgtosa .gt_center {
+  text-align: center;
+}
+
+#eqclxgtosa .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#eqclxgtosa .gt_font_normal {
+  font-weight: normal;
+}
+
+#eqclxgtosa .gt_font_bold {
+  font-weight: bold;
+}
+
+#eqclxgtosa .gt_font_italic {
+  font-style: italic;
+}
+
+#eqclxgtosa .gt_super {
+  font-size: 65%;
+}
+
+#eqclxgtosa .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#eqclxgtosa .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#eqclxgtosa .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#eqclxgtosa .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#eqclxgtosa .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#eqclxgtosa .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#eqclxgtosa .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#eqclxgtosa .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#eqclxgtosa div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Parametro" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Parametro</th>
+<th id="Mediana" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Mediana</th>
+<th id="MAD_SD" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">MAD_SD</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Parametro">(Intercept)</td>
+<td class="gt_row gt_right" headers="Mediana">243.24527</td>
+<td class="gt_row gt_right" headers="MAD_SD">7.468706</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Parametro">Discount</td>
+<td class="gt_row gt_right" headers="Mediana">-84.90257</td>
+<td class="gt_row gt_right" headers="MAD_SD">31.927384</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Parametro">sigma</td>
+<td class="gt_row gt_right" headers="Mediana">623.25714</td>
+<td class="gt_row gt_right" headers="MAD_SD">4.035002</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>El modelo estima una venta media de <strong>243,25 dólares</strong> cuando el descuento es igual a cero. Además, la mediana posterior de la pendiente es de <strong>−84,90</strong>, lo que indica que, dentro del modelo lineal ajustado, mayores niveles de descuento tienden a asociarse con menores niveles de ventas promedio.</p>
+<p>La desviación residual estimada (<strong>σ = 623,26</strong>) pone de manifiesto que las ventas presentan una variabilidad muy elevada que el descuento, por sí solo, no consigue explicar. Este resultado es coherente con el análisis exploratorio y sugiere que otros factores del negocio, como la categoría del producto, el segmento del cliente o la región, probablemente desempeñan un papel importante en el comportamiento de las ventas.</p>
+<hr>
+</section>
+<section id="qué-nos-dice-el-intervalo-de-credibilidad" class="level2">
+<h2 class="anchored" data-anchor-id="qué-nos-dice-el-intervalo-de-credibilidad">¿Qué nos dice el intervalo de credibilidad?</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                 2.5%     97.5%
+(Intercept)  228.1053 258.51819
+Discount    -142.5592 -27.94353
+sigma        614.6660 631.86259</code></pre>
+</div>
+</div>
+<p>El intervalo de credibilidad del 95 % para la pendiente se extiende aproximadamente desde <strong>−142,56</strong> hasta <strong>−27,94</strong>.</p>
+<p>Un aspecto especialmente relevante es que todo el intervalo permanece por debajo de cero. En consecuencia, la evidencia disponible resulta compatible con una asociación negativa entre el descuento y las ventas dentro del modelo ajustado.</p>
+<p>Es importante interpretar correctamente este resultado. El modelo no demuestra que ofrecer descuentos reduzca las ventas. Lo que indica es que, considerando únicamente estas dos variables y la información contenida en el conjunto de datos, los valores más plausibles para la pendiente son negativos.</p>
+<hr>
+</section>
+<section id="qué-nos-dice-la-distribución-posterior-de-la-pendiente" class="level2">
+<h2 class="anchored" data-anchor-id="qué-nos-dice-la-distribución-posterior-de-la-pendiente">¿Qué nos dice la distribución posterior de la pendiente?</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La distribución posterior resume todos los valores plausibles para la pendiente del modelo. Su centro se sitúa alrededor de <strong>−85</strong>, muy próximo a la mediana posterior obtenida anteriormente.</p>
+<p>La franja sombreada representa el intervalo central del 95 % de la distribución posterior y coincide con el intervalo de credibilidad calculado previamente. Como prácticamente toda la distribución se encuentra por debajo de cero, el conjunto de escenarios compatibles con la evidencia apunta hacia una asociación negativa entre el descuento y las ventas.</p>
+<p>Una de las principales ventajas del enfoque bayesiano es precisamente esta representación gráfica de la incertidumbre. En lugar de resumir el resultado mediante un único coeficiente, podemos visualizar directamente qué valores parecen más plausibles y cuáles reciben un menor respaldo por parte de los datos.</p>
+<hr>
+</section>
+<section id="visualizando-la-relación-estimada" class="level2">
+<h2 class="anchored" data-anchor-id="visualizando-la-relación-estimada">Visualizando la relación estimada</h2>
+<p>El siguiente gráfico combina la información observada con la estimación obtenida mediante el modelo bayesiano.</p>
+<p>La línea representa la relación media estimada y la banda refleja la incertidumbre alrededor de esa estimación.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La línea de regresión presenta una pendiente descendente moderada, coherente con el coeficiente estimado por el modelo. Al ampliar la escala del eje vertical puede apreciarse que la venta media estimada disminuye gradualmente conforme aumenta el descuento.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La banda de incertidumbre permanece relativamente estrecha para los descuentos más frecuentes y se ensancha ligeramente en los niveles de descuento más elevados. Este comportamiento es esperable, ya que existen menos observaciones en esos valores y, por tanto, el modelo dispone de menos información para realizar sus estimaciones.</p>
+<p>Aunque la tendencia descendente es consistente con la distribución posterior de la pendiente, también resulta evidente que la dispersión de las ventas alrededor de la línea es muy grande. Esto confirma que el descuento explica únicamente una pequeña parte de la variabilidad observada en las ventas.</p>
+<hr>
+</section>
+</section>
+<section id="interpretando-los-resultados" class="level1">
+<h1>Interpretando los resultados</h1>
+<p>La evidencia obtenida mediante el modelo bayesiano sugiere que la relación entre descuentos y ventas es más compleja de lo que podría suponerse inicialmente.</p>
+<p>Lejos de observar una asociación positiva, el modelo encuentra que los niveles de descuento más elevados tienden a asociarse con ventas promedio ligeramente menores. Sin embargo, esta asociación debe interpretarse con cautela.</p>
+<p>El conjunto de datos utilizado es observacional y el modelo incorpora únicamente una variable explicativa. En consecuencia, el efecto estimado podría estar reflejando la influencia de otros factores no incluidos en el análisis. Por ejemplo, determinados descuentos podrían aplicarse con mayor frecuencia a productos de menor precio, a categorías específicas o durante campañas comerciales concretas.</p>
+<p>Por ello, el resultado más importante de este análisis no es concluir que los descuentos reduzcan las ventas, sino reconocer que la evidencia disponible no respalda la idea de que ofrecer mayores descuentos conduzca automáticamente a mayores niveles de ventas.</p>
+<hr>
+</section>
+<section id="recomendaciones-para-el-negocio" class="level1">
+<h1>Recomendaciones para el negocio</h1>
+<p>A primera vista podría parecer razonable pensar que ofrecer mayores descuentos debería traducirse en mayores ventas. Sin embargo, la evidencia obtenida en este análisis invita a ser más prudentes.</p>
+<p>El modelo bayesiano no encuentra indicios de que incrementar el descuento se asocie con un aumento de las ventas. Por el contrario, la relación estimada entre ambas variables resulta compatible con una asociación negativa. Esto sugiere que aumentar los descuentos, por sí solo, difícilmente constituye una estrategia suficiente para impulsar las ventas.</p>
+<p>No obstante, este resultado no debe interpretarse como una recomendación para eliminar las promociones comerciales. Los descuentos continúan siendo una herramienta valiosa cuando forman parte de una estrategia más amplia que considere el tipo de producto, el segmento de clientes, la estacionalidad y los objetivos específicos de cada campaña.</p>
+<p>Desde la perspectiva de Business Analytics, el principal aprendizaje consiste en evitar decisiones basadas únicamente en intuiciones. Antes de ampliar una política de descuentos conviene evaluar si realmente genera el comportamiento esperado o si simplemente reduce el margen de ganancia sin producir un incremento significativo en las ventas.</p>
+<p>Un siguiente paso natural sería construir un modelo con varias variables explicativas que incorpore información sobre categorías de productos, regiones, segmentos de clientes y otros factores relevantes. Esto permitiría estimar el efecto del descuento controlando simultáneamente por otras características del negocio.</p>
+<hr>
+</section>
+<section id="reflexión-bayesiana" class="level1">
+<h1>Reflexión bayesiana</h1>
+<p>Los modelos bayesianos no eliminan la incertidumbre; ayudan a describirla de forma explícita.</p>
+<p>En este artículo no obtuvimos una respuesta categórica sobre si los descuentos “funcionan” o no. En cambio, estimamos una distribución de valores plausibles para el efecto del descuento sobre las ventas y utilizamos esa información para comprender mejor la evidencia disponible.</p>
+<p>Esta diferencia puede parecer sutil, pero tiene importantes implicaciones para la toma de decisiones. En lugar de actuar como si conociéramos la respuesta exacta, reconocemos que siempre existe incertidumbre y que las decisiones empresariales deben considerar esa incertidumbre como parte del proceso de análisis.</p>
+<p>Pensar de forma bayesiana significa precisamente eso: actualizar nuestras creencias a medida que incorporamos nueva evidencia, en lugar de buscar respuestas absolutas en un entorno donde rara vez existen.</p>
+<hr>
+</section>
+<section id="conclusión" class="level1">
+<h1>Conclusión</h1>
+<p>Comenzamos este proyecto con una pregunta aparentemente sencilla:</p>
+<blockquote class="blockquote">
+<p><strong>¿Vale la pena ofrecer descuentos para vender más?</strong></p>
+</blockquote>
+<p>Después de explorar los datos y ajustar un modelo de regresión lineal bayesiana, la respuesta resulta más matizada de lo que cabría esperar.</p>
+<p>La evidencia disponible no respalda la idea de que ofrecer descuentos más elevados conduzca, por sí solo, a mayores niveles de ventas. Por el contrario, el modelo encuentra una asociación negativa entre ambas variables. Sin embargo, esta asociación no debe interpretarse como una relación causal, ya que las ventas dependen de muchos otros factores que no fueron incluidos en este análisis.</p>
+<p>Más que proporcionar una respuesta definitiva, este proyecto ilustra cómo un modelo bayesiano puede ayudarnos a formular mejores preguntas y a expresar explícitamente la incertidumbre que acompaña a cualquier decisión empresarial.</p>
+<p>En la siguiente entrada ampliaremos este enfoque incorporando nuevas variables explicativas para comprender con mayor profundidad qué factores parecen influir en el comportamiento de las ventas.</p>
+<hr>
+</section>
+<section id="apéndice-código-completo" class="level1">
+<h1>Apéndice — Código completo</h1>
+<p>A continuación se presenta el código utilizado durante todo el análisis. Los bloques aparecen en el mismo orden cronológico en que fueron ejecutados durante el artículo. Se incluyen con <code>eval: false</code> para facilitar su reutilización sin ejecutar nuevamente el análisis durante el renderizado.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/superstore.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Sales, Discount) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(superstore,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> Sales)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">40</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"white"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de las ventas"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de pedidos"</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(superstore,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> Discount)) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">20</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"white"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de los descuentos"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de pedidos"</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(superstore,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> Discount,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> Sales</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       )) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.30</span>) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ventas frente a descuentos"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>modelo_sales <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  Sales <span class="sc">~</span> Discount,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> superstore,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(modelo_sales, <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">posterior_interval</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  modelo_sales,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="fl">0.95</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_areas</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>(modelo_sales),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">pars =</span> <span class="st">"Discount"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="fl">0.95</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">seq</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(superstore<span class="sc">$</span>Discount),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(superstore<span class="sc">$</span>Discount),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">100</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>predicciones <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  modelo_sales,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> newdata</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> newdata <span class="sc">|&gt;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">media =</span> <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, mean),</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">li =</span> <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.025</span>),</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ls =</span> <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.975</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(superstore,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> Discount,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> Sales</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>       )) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.20</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> newdata,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> Discount,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> li,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> ls</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.20</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> newdata,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> media</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="dv">1</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Relación estimada entre descuentos y ventas"</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
