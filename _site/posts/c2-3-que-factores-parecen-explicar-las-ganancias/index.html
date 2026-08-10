@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-08-09">
+<meta name="description" content="Un modelo bayesiano con Superstore permite explorar cómo descuento, ventas, cantidad y categoría se asocian con la rentabilidad.">
+
+<title>¿Qué factores parecen explicar las ganancias? – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#la-pregunta-de-negocio" id="toc-la-pregunta-de-negocio" class="nav-link active" data-scroll-target="#la-pregunta-de-negocio">La pregunta de negocio</a></li>
+  <li><a href="#comprendiendo-el-problema" id="toc-comprendiendo-el-problema" class="nav-link" data-scroll-target="#comprendiendo-el-problema">Comprendiendo el problema</a></li>
+  <li><a href="#explorando-los-datos" id="toc-explorando-los-datos" class="nav-link" data-scroll-target="#explorando-los-datos">Explorando los datos</a>
+  <ul class="collapse">
+  <li><a href="#cómo-se-distribuyen-las-ganancias" id="toc-cómo-se-distribuyen-las-ganancias" class="nav-link" data-scroll-target="#cómo-se-distribuyen-las-ganancias">¿Cómo se distribuyen las ganancias?</a></li>
+  <li><a href="#cómo-se-relacionan-las-ventas-y-las-ganancias" id="toc-cómo-se-relacionan-las-ventas-y-las-ganancias" class="nav-link" data-scroll-target="#cómo-se-relacionan-las-ventas-y-las-ganancias">¿Cómo se relacionan las ventas y las ganancias?</a></li>
+  <li><a href="#qué-ocurre-con-el-descuento" id="toc-qué-ocurre-con-el-descuento" class="nav-link" data-scroll-target="#qué-ocurre-con-el-descuento">¿Qué ocurre con el descuento?</a></li>
+  </ul></li>
+  <li><a href="#construyendo-el-modelo" id="toc-construyendo-el-modelo" class="nav-link" data-scroll-target="#construyendo-el-modelo">Construyendo el modelo</a></li>
+  <li><a href="#interpretando-los-resultados" id="toc-interpretando-los-resultados" class="nav-link" data-scroll-target="#interpretando-los-resultados">Interpretando los resultados</a>
+  <ul class="collapse">
+  <li><a href="#qué-aprendimos-del-modelo" id="toc-qué-aprendimos-del-modelo" class="nav-link" data-scroll-target="#qué-aprendimos-del-modelo">¿Qué aprendimos del modelo?</a></li>
+  <li><a href="#cuánta-incertidumbre-existe" id="toc-cuánta-incertidumbre-existe" class="nav-link" data-scroll-target="#cuánta-incertidumbre-existe">¿Cuánta incertidumbre existe?</a></li>
+  </ul></li>
+  <li><a href="#visualizando-la-incertidumbre" id="toc-visualizando-la-incertidumbre" class="nav-link" data-scroll-target="#visualizando-la-incertidumbre">Visualizando la incertidumbre</a></li>
+  <li><a href="#qué-ocurre-si-aumentamos-el-descuento" id="toc-qué-ocurre-si-aumentamos-el-descuento" class="nav-link" data-scroll-target="#qué-ocurre-si-aumentamos-el-descuento">¿Qué ocurre si aumentamos el descuento?</a></li>
+  <li><a href="#qué-haría-un-analista-con-esta-información" id="toc-qué-haría-un-analista-con-esta-información" class="nav-link" data-scroll-target="#qué-haría-un-analista-con-esta-información">¿Qué haría un analista con esta información?</a>
+  <ul class="collapse">
+  <li><a href="#revisar-los-descuentos-elevados" id="toc-revisar-los-descuentos-elevados" class="nav-link" data-scroll-target="#revisar-los-descuentos-elevados">1. Revisar los descuentos elevados</a></li>
+  <li><a href="#no-evaluar-una-promoción-solamente-por-sus-ventas" id="toc-no-evaluar-una-promoción-solamente-por-sus-ventas" class="nav-link" data-scroll-target="#no-evaluar-una-promoción-solamente-por-sus-ventas">2. No evaluar una promoción solamente por sus ventas</a></li>
+  <li><a href="#investigar-las-diferencias-entre-categorías" id="toc-investigar-las-diferencias-entre-categorías" class="nav-link" data-scroll-target="#investigar-las-diferencias-entre-categorías">3. Investigar las diferencias entre categorías</a></li>
+  <li><a href="#utilizar-escenarios-no-únicamente-coeficientes" id="toc-utilizar-escenarios-no-únicamente-coeficientes" class="nav-link" data-scroll-target="#utilizar-escenarios-no-únicamente-coeficientes">4. Utilizar escenarios, no únicamente coeficientes</a></li>
+  </ul></li>
+  <li><a href="#limitaciones" id="toc-limitaciones" class="nav-link" data-scroll-target="#limitaciones">Limitaciones</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">Reflexión bayesiana</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a>
+  <ul class="collapse">
+  <li><a href="#cierre" id="toc-cierre" class="nav-link" data-scroll-target="#cierre">Cierre</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">¿Qué factores parecen explicar las ganancias?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Finanzas</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Un modelo bayesiano con Superstore permite explorar cómo descuento, ventas, cantidad y categoría se asocian con la rentabilidad.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 9, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="la-pregunta-de-negocio" class="level1">
+<h1>La pregunta de negocio</h1>
+<p>En una empresa podemos observar que algunos pedidos generan buenas ganancias, mientras otros apenas son rentables o incluso producen pérdidas.</p>
+<p>Pero después de describir lo que está ocurriendo aparece una pregunta más interesante:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué factores parecen estar asociados con las ganancias?</strong></p>
+</blockquote>
+<p>Esta pregunta cambia la forma de mirar los datos.</p>
+<p>Ya no queremos observar solamente si las ganancias aumentan o disminuyen. Queremos analizar varias variables simultáneamente para entender qué asociaciones aparecen cuando tenemos en cuenta el resto de la información disponible.</p>
+<p>Para explorar esta pregunta utilizaremos el dataset <strong>Superstore Sales</strong> y construiremos un modelo de regresión lineal bayesiana.</p>
+<p>El objetivo no será encontrar una fórmula perfecta para explicar la rentabilidad.</p>
+<p>Será algo más útil:</p>
+<p><strong>identificar qué relaciones parecen importantes y qué incertidumbre permanece alrededor de ellas.</strong></p>
+</section>
+<section id="comprendiendo-el-problema" class="level1">
+<h1>Comprendiendo el problema</h1>
+<p>En este análisis nos concentraremos en cuatro variables que podrían estar relacionadas con <code>Profit</code>:</p>
+<ul>
+<li><code>Discount</code>: porcentaje de descuento aplicado al pedido.</li>
+<li><code>Sales</code>: valor monetario de las ventas.</li>
+<li><code>Quantity</code>: cantidad de productos incluidos.</li>
+<li><code>Category</code>: categoría del pedido.</li>
+</ul>
+<p>Nuestra variable de interés será <code>Profit</code>, la ganancia total del pedido.</p>
+<p>Esto es importante porque los coeficientes que obtengamos estarán expresados en relación con esa variable.</p>
+<p>Por ejemplo, si un coeficiente es <code>-3.2</code>, no significa necesariamente que cada producto cueste $3.2. Significa que, bajo las condiciones del modelo, un aumento de una unidad en la variable correspondiente está asociado con un cambio promedio de aproximadamente $3.2 en la ganancia del pedido.</p>
+<p>Antes de construir el modelo, observemos cómo se distribuyen las ganancias y cómo se relacionan visualmente con algunas de estas variables.</p>
+</section>
+<section id="explorando-los-datos" class="level1">
+<h1>Explorando los datos</h1>
+<section id="cómo-se-distribuyen-las-ganancias" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-se-distribuyen-las-ganancias">¿Cómo se distribuyen las ganancias?</h2>
+<p>Primero observemos la distribución completa de <code>Profit</code>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La distribución está fuertemente concentrada alrededor de valores relativamente pequeños de ganancia, pero también aparecen algunos pedidos con ganancias o pérdidas mucho mayores.</p>
+<p>Para observar mejor la zona donde se concentra la mayor parte de los pedidos podemos hacer zoom.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La mayor concentración de pedidos se encuentra alrededor de ganancias relativamente cercanas a cero. Los pedidos con pérdidas o ganancias superiores a unos pocos miles de dólares son mucho menos frecuentes y quedan visualmente alejados de la masa principal de observaciones.</p>
+<p>Esto nos dice algo importante antes de modelar:</p>
+<p><strong>la rentabilidad de los pedidos presenta una variabilidad considerable.</strong></p>
+<p>Por tanto, cuando construyamos el modelo no solamente nos interesará conocer una estimación central. También necesitaremos conocer la incertidumbre alrededor de esa estimación.</p>
+<hr>
+</section>
+<section id="cómo-se-relacionan-las-ventas-y-las-ganancias" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-se-relacionan-las-ventas-y-las-ganancias">¿Cómo se relacionan las ventas y las ganancias?</h2>
+<p>Una primera hipótesis razonable es que los pedidos con mayores ventas podrían generar mayores ganancias.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Existe una relación positiva visible: a medida que aumentan las ventas, también aparecen pedidos con mayores niveles de ganancia.</p>
+<p>Pero la relación no es perfecta.</p>
+<p>Para niveles similares de ventas encontramos pedidos con ganancias muy diferentes e incluso con pérdidas.</p>
+<p>Esto es precisamente lo que hace interesante el problema.</p>
+<p><strong>Las ventas parecen importar, pero no explican por sí solas la rentabilidad.</strong></p>
+<hr>
+</section>
+<section id="qué-ocurre-con-el-descuento" class="level2">
+<h2 class="anchored" data-anchor-id="qué-ocurre-con-el-descuento">¿Qué ocurre con el descuento?</h2>
+<p>El descuento merece especial atención porque representa una decisión comercial que puede modificarse directamente.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La nube de puntos sugiere una relación negativa.</p>
+<p>Con descuentos bajos aparecen pedidos con diferentes niveles de rentabilidad. A medida que el descuento aumenta, se vuelve más frecuente encontrar pedidos con ganancias pequeñas o negativas.</p>
+<p>La relación parece especialmente clara en los niveles altos de descuento.</p>
+<p>Pero este gráfico todavía tiene una limitación importante:</p>
+<p><strong>no nos permite separar el efecto asociado al descuento de otras características del pedido.</strong></p>
+<p>Un pedido con un descuento elevado también puede tener unas ventas determinadas, una cantidad concreta de productos y pertenecer a una categoría específica.</p>
+<p>Necesitamos considerar estas variables simultáneamente.</p>
+</section>
+</section>
+<section id="construyendo-el-modelo" class="level1">
+<h1>Construyendo el modelo</h1>
+<p>Para ello utilizaremos una regresión lineal bayesiana:</p>
+<p>La pregunta que intenta responder el modelo es:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cómo se asocia cada variable con Profit cuando las demás variables del modelo se mantienen constantes?</strong></p>
+</blockquote>
+<p>Esta última parte es fundamental.</p>
+<p>El modelo no está diciendo simplemente que “las ventas producen ganancias” o que “el descuento produce pérdidas”.</p>
+<p>Está realizando comparaciones condicionadas.</p>
+<p>Por ejemplo, para interpretar <code>Discount</code>, imaginamos pedidos similares en ventas, cantidad y categoría, pero con diferentes niveles de descuento.</p>
+<p>Para interpretar <code>Quantity</code>, imaginamos pedidos similares en ventas, descuento y categoría, pero con diferente cantidad de productos.</p>
+<p>Y para interpretar <code>Category</code>, comparamos pedidos similares en las variables numéricas, pero pertenecientes a categorías diferentes.</p>
+</section>
+<section id="interpretando-los-resultados" class="level1">
+<h1>Interpretando los resultados</h1>
+<section id="qué-aprendimos-del-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="qué-aprendimos-del-modelo">¿Qué aprendimos del modelo?</h2>
+<p>Los resultados centrales son:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tuwmllleuu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tuwmllleuu table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tuwmllleuu thead, #tuwmllleuu tbody, #tuwmllleuu tfoot, #tuwmllleuu tr, #tuwmllleuu td, #tuwmllleuu th {
+  border-style: none;
+}
+
+#tuwmllleuu p {
+  margin: 0;
+  padding: 0;
+}
+
+#tuwmllleuu .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tuwmllleuu .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tuwmllleuu .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tuwmllleuu .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tuwmllleuu .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tuwmllleuu .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tuwmllleuu .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tuwmllleuu .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tuwmllleuu .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tuwmllleuu .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tuwmllleuu .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tuwmllleuu .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tuwmllleuu .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tuwmllleuu .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tuwmllleuu .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tuwmllleuu .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tuwmllleuu .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tuwmllleuu .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tuwmllleuu .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tuwmllleuu .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tuwmllleuu .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tuwmllleuu .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tuwmllleuu .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tuwmllleuu .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tuwmllleuu .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tuwmllleuu .gt_left {
+  text-align: left;
+}
+
+#tuwmllleuu .gt_center {
+  text-align: center;
+}
+
+#tuwmllleuu .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tuwmllleuu .gt_font_normal {
+  font-weight: normal;
+}
+
+#tuwmllleuu .gt_font_bold {
+  font-weight: bold;
+}
+
+#tuwmllleuu .gt_font_italic {
+  font-style: italic;
+}
+
+#tuwmllleuu .gt_super {
+  font-size: 65%;
+}
+
+#tuwmllleuu .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tuwmllleuu .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tuwmllleuu .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tuwmllleuu .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tuwmllleuu .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tuwmllleuu .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tuwmllleuu .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#tuwmllleuu .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#tuwmllleuu div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Variable" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Variable</th>
+<th id="Media" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Media posterior</th>
+<th id="SD" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Desv. estándar</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Variable">(Intercept)</td>
+<td class="gt_row gt_right" headers="Media">−3.81</td>
+<td class="gt_row gt_right" headers="SD">5.50</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Variable">Discount</td>
+<td class="gt_row gt_right" headers="Media">−229.30</td>
+<td class="gt_row gt_right" headers="SD">9.11</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Variable">Sales</td>
+<td class="gt_row gt_right" headers="Media">0.18</td>
+<td class="gt_row gt_right" headers="SD">0.00</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Variable">Quantity</td>
+<td class="gt_row gt_right" headers="Media">−3.23</td>
+<td class="gt_row gt_right" headers="SD">0.89</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Variable">CategoryOffice Supplies</td>
+<td class="gt_row gt_right" headers="Media">50.25</td>
+<td class="gt_row gt_right" headers="SD">5.07</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Variable">CategoryTechnology</td>
+<td class="gt_row gt_right" headers="Media">41.39</td>
+<td class="gt_row gt_right" headers="SD">6.21</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Variable">sigma</td>
+<td class="gt_row gt_right" headers="Media">198.74</td>
+<td class="gt_row gt_right" headers="SD">1.35</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Variable">mean_PPD</td>
+<td class="gt_row gt_right" headers="Media">28.58</td>
+<td class="gt_row gt_right" headers="SD">2.78</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Variable">log-posterior</td>
+<td class="gt_row gt_right" headers="Media">−67,087.46</td>
+<td class="gt_row gt_right" headers="SD">1.75</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Hay cinco resultados especialmente importantes.</p>
+<section id="descuento" class="level3">
+<h3 class="anchored" data-anchor-id="descuento">Descuento</h3>
+<p>El coeficiente de <code>Discount</code> es aproximadamente <strong>−229.30</strong>.</p>
+<p>Como <code>Discount</code> está expresado como una proporción, pasar de 0 a 1 representa un aumento de 100 puntos porcentuales.</p>
+<p>Por tanto, manteniendo constantes <code>Sales</code>, <code>Quantity</code> y <code>Category</code>, un aumento de 100 puntos porcentuales en el descuento está asociado con aproximadamente <strong>$229 menos de Profit</strong>.</p>
+<p>Una forma mucho más útil de expresarlo es dividir ese cambio entre diez:</p>
+<blockquote class="blockquote">
+<p><strong>Cada 10 puntos porcentuales adicionales de descuento están asociados con aproximadamente $22.9 menos de ganancia por pedido, manteniendo constantes las demás variables del modelo.</strong></p>
+</blockquote>
+<p>Esto no significa que cada producto pierda $22.9.</p>
+<p>Tampoco significa que el modelo haya demostrado que aumentar el descuento causa exactamente esa pérdida.</p>
+<p>Es una asociación entre el nivel de descuento y la ganancia total del pedido, condicionada por las otras variables incluidas en el modelo.</p>
+<hr>
+</section>
+<section id="ventas" class="level3">
+<h3 class="anchored" data-anchor-id="ventas">Ventas</h3>
+<p>El coeficiente de <code>Sales</code> es aproximadamente <strong>0.185</strong>.</p>
+<p>Esto indica que, manteniendo constantes <code>Discount</code>, <code>Quantity</code> y <code>Category</code>, un aumento de un dólar en <code>Sales</code> está asociado con un aumento promedio de aproximadamente <strong>$0.185 en Profit</strong>.</p>
+<p>Es tentador convertir este número directamente en un “margen de utilidad del 18.5%”.</p>
+<p>Sin embargo, esa interpretación sería demasiado fuerte.</p>
+<p>El coeficiente representa una <strong>asociación parcial dentro de este modelo</strong>, no necesariamente el margen contable de la empresa.</p>
+<p>Por ejemplo, no debemos afirmar que la empresa tiene un margen de utilidad del 18.5% simplemente porque el coeficiente de <code>Sales</code> sea 0.185.</p>
+<hr>
+</section>
+<section id="quantity" class="level3">
+<h3 class="anchored" data-anchor-id="quantity">Quantity</h3>
+<p>El coeficiente de <code>Quantity</code> es aproximadamente <strong>−3.23</strong>.</p>
+<p>La interpretación es:</p>
+<blockquote class="blockquote">
+<p>Manteniendo constantes <code>Sales</code>, <code>Discount</code> y <code>Category</code>, una unidad adicional de <code>Quantity</code> está asociada con aproximadamente <strong>$3.23 menos de Profit por pedido</strong>.</p>
+</blockquote>
+<p>Esto puede resultar poco intuitivo.</p>
+<p>No significa que vender una unidad adicional tenga automáticamente un costo de $3.23.</p>
+<p>El modelo está comparando pedidos que tienen el mismo nivel de ventas y las mismas características consideradas por el modelo.</p>
+<p>Por eso, la interpretación debe hacerse como una <strong>asociación parcial</strong>.</p>
+<hr>
+</section>
+<section id="category" class="level3">
+<h3 class="anchored" data-anchor-id="category">Category</h3>
+<p>Aquí aparece una característica importante de las variables categóricas.</p>
+<p><code>Furniture</code> es la categoría de referencia. Por eso no aparece como coeficiente independiente.</p>
+<p>Los resultados son:</p>
+<ul>
+<li><code>Office Supplies</code>: aproximadamente <strong>+$50.25</strong> frente a Furniture.</li>
+<li><code>Technology</code>: aproximadamente <strong>+$41.39</strong> frente a Furniture.</li>
+</ul>
+<p>Por tanto, manteniendo constantes <code>Discount</code>, <code>Sales</code> y <code>Quantity</code>, un pedido de Office Supplies está asociado con aproximadamente <strong>$50.25 más de Profit</strong> que un pedido equivalente de Furniture.</p>
+<p>En Technology, la diferencia asociada es de aproximadamente <strong>$41.39</strong> frente a Furniture.</p>
+<p>Estos valores tampoco representan una ganancia adicional por unidad de producto.</p>
+<p>Representan una diferencia asociada con la categoría del pedido, manteniendo constantes las demás variables del modelo.</p>
+<hr>
+</section>
+</section>
+<section id="cuánta-incertidumbre-existe" class="level2">
+<h2 class="anchored" data-anchor-id="cuánta-incertidumbre-existe">¿Cuánta incertidumbre existe?</h2>
+<p>Una estimación puntual nunca cuenta toda la historia.</p>
+<p>Para conocer qué valores de los parámetros son compatibles con nuestra inferencia posterior, calculamos intervalos de credibilidad del 95%.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="sbhcrgocck" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#sbhcrgocck table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#sbhcrgocck thead, #sbhcrgocck tbody, #sbhcrgocck tfoot, #sbhcrgocck tr, #sbhcrgocck td, #sbhcrgocck th {
+  border-style: none;
+}
+
+#sbhcrgocck p {
+  margin: 0;
+  padding: 0;
+}
+
+#sbhcrgocck .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#sbhcrgocck .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#sbhcrgocck .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#sbhcrgocck .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#sbhcrgocck .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#sbhcrgocck .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#sbhcrgocck .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#sbhcrgocck .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#sbhcrgocck .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#sbhcrgocck .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#sbhcrgocck .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#sbhcrgocck .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#sbhcrgocck .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#sbhcrgocck .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#sbhcrgocck .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sbhcrgocck .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#sbhcrgocck .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#sbhcrgocck .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#sbhcrgocck .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sbhcrgocck .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#sbhcrgocck .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sbhcrgocck .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#sbhcrgocck .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sbhcrgocck .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#sbhcrgocck .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#sbhcrgocck .gt_left {
+  text-align: left;
+}
+
+#sbhcrgocck .gt_center {
+  text-align: center;
+}
+
+#sbhcrgocck .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#sbhcrgocck .gt_font_normal {
+  font-weight: normal;
+}
+
+#sbhcrgocck .gt_font_bold {
+  font-weight: bold;
+}
+
+#sbhcrgocck .gt_font_italic {
+  font-style: italic;
+}
+
+#sbhcrgocck .gt_super {
+  font-size: 65%;
+}
+
+#sbhcrgocck .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#sbhcrgocck .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#sbhcrgocck .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#sbhcrgocck .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#sbhcrgocck .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#sbhcrgocck .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#sbhcrgocck .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#sbhcrgocck .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#sbhcrgocck div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Variables" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Variable</th>
+<th id="Variable" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Variable</th>
+<th id="LI" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Límite inferior</th>
+<th id="LS" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Límite superior</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="Variables">1</td>
+<td class="gt_row gt_left" headers="Variable">(Intercept)</td>
+<td class="gt_row gt_right" headers="LI">−14.59</td>
+<td class="gt_row gt_right" headers="LS">6.90</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Variables">2</td>
+<td class="gt_row gt_left" headers="Variable">Discount</td>
+<td class="gt_row gt_right" headers="LI">−247.09</td>
+<td class="gt_row gt_right" headers="LS">−212.42</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Variables">3</td>
+<td class="gt_row gt_left" headers="Variable">Sales</td>
+<td class="gt_row gt_right" headers="LI">0.18</td>
+<td class="gt_row gt_right" headers="LS">0.19</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Variables">4</td>
+<td class="gt_row gt_left" headers="Variable">Quantity</td>
+<td class="gt_row gt_right" headers="LI">−4.95</td>
+<td class="gt_row gt_right" headers="LS">−1.47</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Variables">5</td>
+<td class="gt_row gt_left" headers="Variable">CategoryOffice Supplies</td>
+<td class="gt_row gt_right" headers="LI">39.71</td>
+<td class="gt_row gt_right" headers="LS">59.66</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Variables">6</td>
+<td class="gt_row gt_left" headers="Variable">CategoryTechnology</td>
+<td class="gt_row gt_right" headers="LI">29.17</td>
+<td class="gt_row gt_right" headers="LS">53.53</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Variables">7</td>
+<td class="gt_row gt_left" headers="Variable">sigma</td>
+<td class="gt_row gt_right" headers="LI">196.26</td>
+<td class="gt_row gt_right" headers="LS">201.44</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Estos intervalos son <strong>intervalos de credibilidad posteriores del 95% para los parámetros del modelo</strong>.</p>
+<p>No significan que el 95% de los pedidos futuros tenga que encontrarse dentro de esos límites.</p>
+<p>Tampoco significan que el 95% de la población esté dentro de ellos.</p>
+<p>Lo que expresan es nuestra incertidumbre posterior acerca de cada parámetro.</p>
+<p>Los resultados son especialmente interesantes para cuatro variables.</p>
+<section id="discount" class="level3">
+<h3 class="anchored" data-anchor-id="discount">Discount</h3>
+<p>El intervalo va aproximadamente de <strong>−247.09 a −212.42</strong>.</p>
+<p>Incluso considerando la incertidumbre del modelo, los valores plausibles del coeficiente siguen siendo negativos.</p>
+<p>Traducido a 10 puntos porcentuales de descuento:</p>
+<blockquote class="blockquote">
+<p>La asociación compatible con el modelo está aproximadamente entre <strong>$21.2 y $24.7 menos de Profit por pedido</strong>.</p>
+</blockquote>
+<hr>
+</section>
+<section id="sales" class="level3">
+<h3 class="anchored" data-anchor-id="sales">Sales</h3>
+<p>El intervalo va aproximadamente de <strong>0.178 a 0.191</strong>.</p>
+<p>La asociación estimada es positiva y el intervalo se encuentra muy próximo al valor central de 0.185.</p>
+<p>Esto respalda la idea de que, dentro de este modelo, mayores ventas están asociadas con mayores ganancias.</p>
+<p>Pero nuevamente:</p>
+<p><strong>no debemos convertir automáticamente este coeficiente en un margen de utilidad.</strong></p>
+<hr>
+</section>
+<section id="quantity-1" class="level3">
+<h3 class="anchored" data-anchor-id="quantity-1">Quantity</h3>
+<p>El intervalo va aproximadamente de <strong>−4.95 a −1.47</strong>.</p>
+<p>Todo el intervalo se encuentra por debajo de cero.</p>
+<p>La evidencia posterior es, por tanto, compatible con una asociación negativa entre <code>Quantity</code> y <code>Profit</code>, manteniendo constantes las demás variables.</p>
+<p>En términos prácticos, el modelo sitúa esa asociación aproximadamente entre <strong>$1.47 y $4.95 menos de Profit por unidad adicional</strong>, dependiendo del valor del parámetro considerado plausible.</p>
+<hr>
+</section>
+<section id="category-1" class="level3">
+<h3 class="anchored" data-anchor-id="category-1">Category</h3>
+<p>Para Office Supplies, el intervalo va aproximadamente de <strong>$39.71 a $59.66</strong>.</p>
+<p>Para Technology, va aproximadamente de <strong>$29.17 a $53.53</strong>.</p>
+<p>En ambos casos los intervalos están por encima de cero.</p>
+<p>Esto indica que, dentro de las condiciones del modelo, ambas categorías presentan una asociación positiva con Profit respecto a Furniture.</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="visualizando-la-incertidumbre" class="level1">
+<h1>Visualizando la incertidumbre</h1>
+<p>Una tabla permite conocer los valores, pero un gráfico facilita comparar rápidamente la magnitud y dirección de las asociaciones.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La visualización permite observar inmediatamente que <code>Discount</code> presenta una asociación claramente negativa, mientras que <code>Sales</code> presenta una asociación positiva pequeña.</p>
+<p><code>Quantity</code> también presenta una asociación negativa, aunque de una magnitud mucho menor que la de <code>Discount</code> cuando las variables se encuentran en sus escalas originales.</p>
+<p>Las dos categorías adicionales muestran asociaciones positivas respecto a Furniture.</p>
+<p>Más importante aún, el gráfico permite observar que la incertidumbre no es igual para todas las variables.</p>
+<p>El objetivo de un análisis bayesiano no es esconder esa incertidumbre detrás de un único número.</p>
+<p>Es hacerla visible.</p>
+</section>
+<section id="qué-ocurre-si-aumentamos-el-descuento" class="level1">
+<h1>¿Qué ocurre si aumentamos el descuento?</h1>
+<p>Hasta ahora hemos estudiado los coeficientes individualmente.</p>
+<p>Pero una pregunta empresarial puede ser mucho más concreta:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cómo cambia la ganancia esperada cuando aumentamos el descuento?</strong></p>
+</blockquote>
+<p>Para responderla podemos construir una serie de pedidos hipotéticos.</p>
+<p>Mantendremos constantes las otras variables:</p>
+<ul>
+<li><code>Sales = $54.50</code>, la mediana observada;</li>
+<li><code>Quantity = 3</code>, la mediana observada;</li>
+<li><code>Category = Office Supplies</code>.</li>
+</ul>
+<p>Lo único que cambiaremos será <code>Discount</code>.</p>
+<p>Ahora podemos visualizar las ganancias esperadas.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La relación es clara.</p>
+<p>Para este pedido hipotético —con ventas de $54.50, tres unidades y categoría Office Supplies— la ganancia esperada disminuye de forma aproximadamente lineal a medida que aumenta el descuento.</p>
+<p>Con 0% de descuento, la ganancia esperada se encuentra alrededor de <strong>$77</strong>.</p>
+<p>Alrededor del 20% de descuento, la ganancia esperada se sitúa aproximadamente en <strong>$31</strong>.</p>
+<p>Con descuentos cercanos al 50%, la ganancia esperada pasa a terreno negativo.</p>
+<p>Y alrededor del 80%, la pérdida esperada se encuentra aproximadamente en <strong>$107</strong>.</p>
+<p>La banda alrededor de la línea representa la incertidumbre posterior de estas ganancias esperadas.</p>
+<p>En este caso hemos utilizado los cuantiles 5% y 95%, por lo que se trata de un <strong>intervalo posterior del 90%</strong>.</p>
+<p>La banda permanece relativamente estrecha porque estamos propagando principalmente la incertidumbre de los parámetros del modelo mediante <code>posterior_epred()</code>.</p>
+<p>No estamos representando aquí toda la variabilidad que tendría un pedido individual.</p>
+</section>
+<section id="qué-haría-un-analista-con-esta-información" class="level1">
+<h1>¿Qué haría un analista con esta información?</h1>
+<p>Este análisis no debería terminar con una tabla de coeficientes.</p>
+<p>La pregunta importante es qué podemos hacer con la evidencia.</p>
+<section id="revisar-los-descuentos-elevados" class="level2">
+<h2 class="anchored" data-anchor-id="revisar-los-descuentos-elevados">1. Revisar los descuentos elevados</h2>
+<p>La asociación negativa entre <code>Discount</code> y <code>Profit</code> es una de las señales más claras del modelo.</p>
+<p>Los descuentos elevados parecen estar asociados con una reducción importante de la rentabilidad.</p>
+<p>Esto no significa que debamos eliminar los descuentos.</p>
+<p>Significa que los descuentos altos deberían analizarse como una decisión que necesita justificación económica.</p>
+<hr>
+</section>
+<section id="no-evaluar-una-promoción-solamente-por-sus-ventas" class="level2">
+<h2 class="anchored" data-anchor-id="no-evaluar-una-promoción-solamente-por-sus-ventas">2. No evaluar una promoción solamente por sus ventas</h2>
+<p>Una promoción puede aumentar las ventas y, al mismo tiempo, reducir la rentabilidad.</p>
+<p>Nuestro modelo muestra precisamente por qué observar <code>Sales</code> de forma aislada puede resultar insuficiente.</p>
+<p>La pregunta empresarial no debería ser solamente:</p>
+<blockquote class="blockquote">
+<p>“¿Cuánto vendimos?”</p>
+</blockquote>
+<p>También debería ser:</p>
+<blockquote class="blockquote">
+<p>“¿Qué nivel de ganancia quedó después de vender?”</p>
+</blockquote>
+<hr>
+</section>
+<section id="investigar-las-diferencias-entre-categorías" class="level2">
+<h2 class="anchored" data-anchor-id="investigar-las-diferencias-entre-categorías">3. Investigar las diferencias entre categorías</h2>
+<p>El modelo encuentra asociaciones positivas de Office Supplies y Technology respecto a Furniture.</p>
+<p>Esto puede ser una señal para investigar con mayor profundidad las diferencias de rentabilidad entre categorías.</p>
+<p>Sin embargo, no deberíamos convertir inmediatamente esta asociación en una política comercial.</p>
+<p>Podrían existir otras variables no incluidas en el modelo que expliquen parte de estas diferencias.</p>
+<hr>
+</section>
+<section id="utilizar-escenarios-no-únicamente-coeficientes" class="level2">
+<h2 class="anchored" data-anchor-id="utilizar-escenarios-no-únicamente-coeficientes">4. Utilizar escenarios, no únicamente coeficientes</h2>
+<p>El gráfico de predicciones resulta especialmente útil para la toma de decisiones porque transforma un coeficiente abstracto como <code>−229</code> en una pregunta empresarial más comprensible:</p>
+<blockquote class="blockquote">
+<p>“¿Qué ganancia esperaríamos para un pedido típico si aumentamos el descuento?”</p>
+</blockquote>
+<p>Esta forma de comunicar los resultados suele ser mucho más útil para una persona que necesita tomar decisiones que una lista de coeficientes.</p>
+</section>
+</section>
+<section id="limitaciones" class="level1">
+<h1>Limitaciones</h1>
+<p>Este modelo representa una primera aproximación.</p>
+<p>Incluye cuatro variables explicativas, pero la rentabilidad de un pedido puede depender de muchos otros factores.</p>
+<p>Por ejemplo, podrían existir diferencias relacionadas con productos específicos, clientes, regiones, fechas, costos, promociones o características que no hemos incorporado.</p>
+<p>Además, estamos estudiando asociaciones observadas en los datos.</p>
+<p>Por ello, no podemos afirmar que el modelo haya demostrado que aumentar el descuento <strong>cause</strong> exactamente una reducción determinada de Profit.</p>
+<p>La interpretación debe mantenerse en términos de asociaciones compatibles con los datos y con la estructura del modelo.</p>
+<p>También debemos recordar que la predicción que mostramos corresponde a un escenario hipotético específico:</p>
+<p><strong>Sales = $54.50, Quantity = 3 y Category = Office Supplies.</strong></p>
+<p>Cambiar esas condiciones produciría otras ganancias esperadas.</p>
+</section>
+<section id="reflexión-bayesiana" class="level1">
+<h1>Reflexión bayesiana</h1>
+<p>Este análisis nos permite dar un paso más allá de la simple descripción de los datos.</p>
+<p>Primero observamos que los pedidos presentan una rentabilidad muy variable.</p>
+<p>Después encontramos asociaciones entre esa rentabilidad y variables como ventas, descuento, cantidad y categoría.</p>
+<p>Finalmente transformamos esas asociaciones en escenarios que pueden ser más fáciles de interpretar desde el punto de vista empresarial.</p>
+<p>Pero el modelo no elimina la incertidumbre.</p>
+<p>Tampoco convierte asociaciones en certezas causales.</p>
+<p>Lo que hace es ayudarnos a organizar la evidencia y expresar qué relaciones parecen plausibles, qué magnitudes son compatibles con los datos y qué incertidumbre todavía permanece.</p>
+<p>Esa es una de las principales ventajas del pensamiento bayesiano aplicado al negocio:</p>
+<blockquote class="blockquote">
+<p><strong>No necesitamos fingir que conocemos exactamente el futuro para tomar mejores decisiones. Necesitamos entender qué escenarios son plausibles y cuánta incertidumbre existe alrededor de ellos.</strong></p>
+</blockquote>
+</section>
+<section id="apéndice-código-completo" class="level1">
+<h1>Apéndice — Código completo</h1>
+<p>A continuación se presenta el código completo utilizado durante el análisis, en el mismo orden en que aparece en el artículo.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 0. Cargar las librerías</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Cargar los datos</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"blog_ba/data/superstore_sales.csv"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">guess_max =</span> <span class="dv">10000</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Distribución de las ganancias</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Profit)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">40</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de las ganancias"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ganancia"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de pedidos"</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> Profit)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">40</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">500</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución de las ganancias: zona de mayor concentración"</span>,</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ganancia"</span>,</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Número de pedidos"</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Ventas y ganancias</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Sales,</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.25</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ventas y ganancias"</span>,</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancia"</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Sales,</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.25</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2000</span>, <span class="dv">2000</span>)</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ventas y ganancias: zona de mayor concentración"</span>,</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancia"</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Descuento y ganancias</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Discount,</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Profit</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.20</span>,</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.01</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Descuentos y ganancias"</span>,</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancia"</span></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Preparar Category</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">|&gt;</span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">factor</span>(Category)</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Modelo bayesiano</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>modelo_profit <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a>  Profit <span class="sc">~</span> Discount <span class="sc">+</span> Sales <span class="sc">+</span> Quantity <span class="sc">+</span> Category,</span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> superstore,</span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>modelo_profit</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Resumen del modelo</span></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_profit)</span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">summary</span>(modelo_profit)) <span class="sc">|&gt;</span></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"Variable"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">Media =</span> mean,</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> sd</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>coeficientes</span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="sc">|&gt;</span></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>    Variable,</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>    Media,</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>    SD</span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(Media, SD),</span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>    <span class="at">Media =</span> <span class="st">"Media posterior"</span>,</span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> <span class="st">"Desv. estándar"</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a><span class="co"># 8. Intervalos posteriores</span></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>intervalos <span class="ot">&lt;-</span> <span class="fu">posterior_interval</span>(</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>  modelo_profit,</span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="fl">0.95</span></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>intervalos</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>intervalos <span class="ot">&lt;-</span></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(intervalos) <span class="sc">|&gt;</span></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"Variables"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">LI =</span> <span class="st">`</span><span class="at">2.5%</span><span class="st">`</span>,</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">LS =</span> <span class="st">`</span><span class="at">97.5%</span><span class="st">`</span></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>intervalos</span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>intervalos <span class="sc">|&gt;</span></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(</span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(LI, LS),</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>    <span class="at">decimals =</span> <span class="dv">2</span></span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variables =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">LI =</span> <span class="st">"Límite inferior"</span>,</span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">LS =</span> <span class="st">"Límite superior"</span></span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a><span class="co"># 9. Gráfico de intervalos posteriores</span></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_intervals</span>(</span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>(modelo_profit),</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>  <span class="at">pars =</span> <span class="fu">c</span>(</span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>    <span class="st">"(Intercept)"</span>,</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Discount"</span>,</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Sales"</span>,</span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Quantity"</span>,</span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CategoryOffice Supplies"</span>,</span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>    <span class="st">"CategoryTechnology"</span></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a><span class="co"># 10. Crear escenarios para Discount</span></span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">seq</span>(</span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(superstore<span class="sc">$</span>Discount),</span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(superstore<span class="sc">$</span>Discount),</span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">100</span></span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> <span class="fu">median</span>(superstore<span class="sc">$</span>Sales),</span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> <span class="fu">median</span>(superstore<span class="sc">$</span>Quantity),</span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Office Supplies"</span>,</span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="co"># 11. Predicciones posteriores</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a>predicciones <span class="ot">&lt;-</span></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a>  <span class="fu">posterior_epred</span>(</span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a>    modelo_profit,</span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">newdata =</span> newdata</span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a><span class="co"># 12. Resumir las predicciones</span></span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a>newdata<span class="sc">$</span>media <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a>  predicciones,</span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>,</span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a>  median</span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a>newdata<span class="sc">$</span>li <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a>  predicciones,</span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>,</span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a>  quantile,</span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a>  <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a>newdata<span class="sc">$</span>ls <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a>  predicciones,</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>,</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a>  quantile,</span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a>  <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a><span class="co"># 13. Gráfico de ganancias esperadas</span></span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a>  newdata,</span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Discount,</span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> media</span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> li,</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> ls</span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.20</span></span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="dv">1</span></span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ganancias esperadas según el descuento"</span>,</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ganancia esperada"</span></span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="cierre" class="level2">
+<h2 class="anchored" data-anchor-id="cierre">Cierre</h2>
+<p>Esta entrada da un paso importante respecto a las anteriores: <strong>ya no solamente describimos qué está ocurriendo en Superstore; comenzamos a preguntar qué variables están asociadas con lo que observamos</strong>.</p>
+<p>Y, sobre todo, lo hacemos sin convertir el modelo en el protagonista.</p>
+<p>El protagonista sigue siendo la decisión empresarial: <strong>cómo entender mejor la rentabilidad y qué información deberíamos considerar antes de modificar descuentos, evaluar categorías o interpretar el crecimiento de las ventas.</strong></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
