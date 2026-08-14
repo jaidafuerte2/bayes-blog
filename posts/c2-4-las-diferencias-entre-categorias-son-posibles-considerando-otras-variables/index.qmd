@@ -123,7 +123,7 @@ ggplot(
 
 La primera impresión está dominada por algunos valores extremos.
 
-Technology presenta una dispersión considerable, con operaciones que superan los **8.000 dólares de ganancia** y pérdidas superiores a los **6.000 dólares**.
+Technology presenta una dispersión considerable, con operaciones que superan los **8.000 dólares de ganancia** y pérdidas superiores a los **5.000 dólares**.
 
 Office Supplies también presenta una dispersión importante, con algunos valores extremos tanto positivos como negativos.
 
@@ -156,7 +156,7 @@ ggplot(
 
 El zoom permite observar mejor las diferencias centrales.
 
-La mediana de Technology se encuentra alrededor de **50 dólares**, mientras que Furniture y Office Supplies presentan medianas cercanas a **10 dólares**.
+La mediana de Technology se encuentra alrededor de **25 dólares**, mientras que Furniture y Office Supplies presentan medianas cercanas a **10 dólares**.
 
 También observamos una mayor presencia de valores negativos dentro de la distribución central de Furniture.
 
@@ -416,7 +416,7 @@ medianas <- apply(
     median 
 )
 
-tabla_posterior %>% 
+tabla_posterior <- tabla_posterior %>% 
   mutate( 
       Mediana = medianas 
   )
