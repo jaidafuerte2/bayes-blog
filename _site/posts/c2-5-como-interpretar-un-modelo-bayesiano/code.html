@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>index – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">index</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>draws <span class="ot">&lt;-</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../../R/col2-5/draws.rds"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pred_categoria <span class="ot">&lt;-</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../../R/col2-5/pred_categoria.rds"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pred_descuento <span class="ot">&lt;-</span> </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../../R/col2-5/pred_descuento.rds"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pred_escenarios <span class="ot">&lt;-</span> </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../../R/col2-5/pred_escenarios.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+This is bayesplot version 1.15.0
+
+- Online documentation and vignettes at mc-stan.org/bayesplot
+
+- bayesplot theme set to bayesplot::theme_default()
+
+   * Does _not_ affect other ggplot2 plots
+
+   * See ?bayesplot_theme_set for details on theme setting
+
+This is posterior version 1.7.0
+
+
+Attaching package: 'posterior'
+
+
+The following object is masked from 'package:bayesplot':
+
+    rhat
+
+
+The following objects are masked from 'package:stats':
+
+    mad, sd, var
+
+
+The following objects are masked from 'package:base':
+
+    %in%, match
+
+
+Rows: 9994 Columns: 21
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (16): Order ID, Order Date, Ship Date, Ship Mode, Customer ID, Customer ...
+dbl  (5): Row ID, Sales, Quantity, Discount, Profit
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">factor</span>(Category)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(Profit, Discount, Sales, Quantity, Category)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>variables_modelo <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Discount"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Sales"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Quantity"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CategoryOffice Supplies"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CategoryTechnology"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> draws <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(variables_modelo)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Valor"</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> coeficientes <span class="sc">%&gt;%</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Variable) <span class="sc">%&gt;%</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mediana =</span> <span class="fu">median</span>(Valor),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Inferior =</span> <span class="fu">quantile</span>(Valor, <span class="fl">0.025</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">Superior =</span> <span class="fu">quantile</span>(Valor, <span class="fl">0.975</span>),</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> coeficientes <span class="sc">%&gt;%</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">recode</span>(</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>      Variable,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Discount"</span> <span class="ot">=</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Sales"</span> <span class="ot">=</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Quantity"</span> <span class="ot">=</span> <span class="st">"Cantidad"</span>,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CategoryOffice Supplies"</span> <span class="ot">=</span> <span class="st">"Office Supplies"</span>,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CategoryTechnology"</span> <span class="ot">=</span> <span class="st">"Technology"</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  coeficientes,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Mediana,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(Variable, Mediana)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbarh</span>(</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmin =</span> Inferior,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmax =</span> Superior</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="fl">0.15</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Efectos estimados sobre Profit"</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Mediana posterior e intervalo de credibilidad del 95%"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Cambio plausible en Profit"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `geom_errorbarh()` was deprecated in ggplot2 4.0.0.
+ℹ Please use the `orientation` argument of `geom_errorbar()` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`height` was translated to `width`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="code_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ventas_mediana <span class="ot">&lt;-</span> <span class="fu">median</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  superstore<span class="sc">$</span>Sales,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>cantidad_mediana <span class="ot">&lt;-</span> <span class="fu">median</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  superstore<span class="sc">$</span>Quantity,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>cantidad_mediana</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>newdata_descuento <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">seq</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(superstore<span class="sc">$</span>Discount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(superstore<span class="sc">$</span>Discount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">100</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Office Supplies"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>pred_descuento[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          
+iterations        1        2        3        4        5        6
+      [1,] 47.11488 45.34460 43.57433 41.80405 40.03378 38.26350
+      [2,] 52.32150 50.37442 48.42733 46.48025 44.53317 42.58609
+      [3,] 43.72267 41.99275 40.26284 38.53292 36.80301 35.07309
+      [4,] 51.22240 49.26736 47.31231 45.35726 43.40222 41.44717
+      [5,] 47.13263 45.39583 43.65902 41.92222 40.18541 38.44860
+      [6,] 47.06177 45.14123 43.22068 41.30013 39.37959 37.45904</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pred_descuento_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> newdata_descuento<span class="sc">$</span>Discount,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>pred_descuento_resumen</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 100 × 4
+   Discount Mediana Inferior Superior
+      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+ 1  0          46.9     41.9     51.4
+ 2  0.00808    45.0     40.1     49.5
+ 3  0.0162     43.1     38.3     47.6
+ 4  0.0242     41.3     36.5     45.8
+ 5  0.0323     39.4     34.8     43.9
+ 6  0.0404     37.6     32.9     42.1
+ 7  0.0485     35.7     31.1     40.2
+ 8  0.0566     33.9     29.3     38.2
+ 9  0.0646     32.0     27.5     36.4
+10  0.0727     30.2     25.6     34.5
+# ℹ 90 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  pred_descuento_resumen,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Discount <span class="sc">*</span> <span class="dv">100</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.2</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Profit esperado bajo distintos niveles de descuento"</span>,</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Ventas y cantidad mantenidas en valores representativos"</span>,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento (%)"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="code_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>escenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Escenario =</span> <span class="fu">c</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento bajo"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento medio"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento alto"</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">c</span>(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.00</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.20</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.40</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Office Supplies"</span>,</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>pred_escenarios</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          
+iterations        1             2         3
+      [1,] 47.11488  3.3005730433 -40.51373
+      [2,] 52.32150  4.1312249908 -44.05905
+      [3,] 43.72267  0.9072544535 -41.90816
+      [4,] 51.22240  2.8350056062 -45.55239
+      [5,] 47.13263  4.1467033211 -38.83922
+      [6,] 47.06177 -0.4717351360 -48.00524
+      [7,] 46.04750  0.4879870003 -45.07153
+      [8,] 42.34126 -1.2429492551 -44.82716
+      [9,] 42.43512 -1.6791294963 -45.79338
+     [10,] 43.76033  0.8165736637 -42.12718
+     [11,] 47.16096 -0.8990571702 -48.95907
+     [12,] 46.91624  2.3929895638 -42.13026
+     [13,] 49.33095  3.8810291248 -41.56889
+     [14,] 46.34556 -2.0737297263 -50.49302
+     [15,] 47.16581  3.4699931199 -40.22582
+     [16,] 48.88385  3.8036551279 -41.27654
+     [17,] 51.48939  5.3866975299 -40.71600
+     [18,] 47.97591  2.2880130405 -43.39988
+     [19,] 50.55711  6.6062191438 -37.34467
+     [20,] 43.76056 -2.6219555372 -49.00447
+     [21,] 45.42501 -0.6037691557 -46.63255
+     [22,] 43.78356 -2.1630199298 -48.10960
+     [23,] 46.21919  1.1425319918 -43.93412
+     [24,] 46.96896 -0.2031710631 -47.37530
+     [25,] 50.20700  5.5537682830 -39.09946
+     [26,] 42.79496 -2.8353025068 -48.46556
+     [27,] 45.40922 -0.5300039229 -46.46923
+     [28,] 44.73796  1.8609966171 -41.01596
+     [29,] 43.87015 -1.5044454393 -46.87904
+     [30,] 48.64009  2.7818665150 -43.07636
+     [31,] 46.54955  1.0132287844 -44.52309
+     [32,] 46.41267  0.0910645341 -46.23054
+     [33,] 48.03535  2.9495818340 -42.13619
+     [34,] 52.29199  7.3783641633 -37.53526
+     [35,] 49.42525  1.3729751088 -46.67930
+     [36,] 51.86888  3.3121796567 -45.24452
+     [37,] 47.85726  1.4458060477 -44.96564
+     [38,] 49.28828  3.7507296178 -41.78682
+     [39,] 48.40936  4.4922623413 -39.42484
+     [40,] 45.58796  1.1837614271 -43.22044
+     [41,] 45.84440  1.8232383604 -42.19792
+     [42,] 49.68515  1.4730361699 -46.73908
+     [43,] 45.57258  2.9933109524 -39.58595
+     [44,] 44.48993 -4.6988953720 -53.88772
+     [45,] 37.74810 -7.2135167759 -52.17513
+     [46,] 38.00244 -7.4550581278 -52.91256
+     [47,] 44.71121 -1.1151448077 -46.94150
+     [48,] 44.93043 -1.4236756971 -47.77778
+     [49,] 45.42070 -0.8369935704 -47.09469
+     [50,] 41.49719 -4.0674290219 -49.63204
+     [51,] 48.19870  1.1884564607 -45.82179
+     [52,] 44.98426 -1.1300352499 -47.24433
+     [53,] 50.05251  3.7060436742 -42.64042
+     [54,] 48.47787  0.1849174279 -48.10803
+     [55,] 45.91769  3.0114533891 -39.89479
+     [56,] 44.61560 -0.0310181877 -44.67763
+     [57,] 42.99320 -3.2097041396 -49.41260
+     [58,] 48.23551  3.6757610049 -40.88398
+     [59,] 48.63580  1.7779882279 -45.07983
+     [60,] 44.64547 -1.3069805161 -47.25943
+     [61,] 47.22451  1.5713522861 -44.08181
+     [62,] 47.58468 -0.4958537591 -48.57638
+     [63,] 42.88231 -0.5790811242 -44.04047
+     [64,] 50.53461  2.6884478369 -45.15771
+     [65,] 43.37556 -0.6997713554 -44.77511
+     [66,] 46.63720 -0.0241982539 -46.68560
+     [67,] 46.24222  0.1012273588 -46.03977
+     [68,] 46.42442  0.8908422617 -44.64274
+     [69,] 47.74959  2.5291625850 -42.69126
+     [70,] 45.06909 -0.2789159486 -45.62692
+     [71,] 49.61072  2.4342938464 -44.74213
+     [72,] 46.53754  1.1458358879 -44.24586
+     [73,] 47.21170 -0.1361303640 -47.48396
+     [74,] 46.65426 -0.1151449931 -46.88455
+     [75,] 49.52318  1.2077840775 -47.10762
+     [76,] 43.42637 -0.3287690690 -44.08391
+     [77,] 49.12092  1.5897288026 -45.94146
+     [78,] 43.68523 -3.2581854445 -50.20160
+     [79,] 49.66514  3.8345975145 -41.99595
+     [80,] 47.03745 -0.0864609055 -47.21037
+     [81,] 44.48402 -0.9450268111 -46.37408
+     [82,] 45.07541 -1.9694854777 -49.01438
+     [83,] 47.12151  2.4352521321 -42.25101
+     [84,] 40.26718 -4.6297696150 -49.52672
+     [85,] 52.25881  2.5877717318 -47.08327
+     [86,] 49.08539 -1.6603273765 -52.40604
+     [87,] 43.81245  0.5192157517 -42.77402
+     [88,] 48.53752  0.4846580317 -47.56820
+     [89,] 45.75988  1.0459065966 -43.66806
+     [90,] 47.28182  1.3723738365 -44.53708
+     [91,] 47.92886  1.7035779321 -44.52170
+     [92,] 49.76548  3.2729232132 -43.21964
+     [93,] 41.85016 -0.9793618790 -43.80888
+     [94,] 42.06135 -1.9557059557 -45.97276
+     [95,] 48.20843 -0.3072234061 -48.82288
+     [96,] 49.56086  6.6644676943 -36.23192
+     [97,] 51.02218  1.8754599249 -47.27126
+     [98,] 49.43397  1.7412240580 -45.95152
+     [99,] 49.95959  0.7529500544 -48.45369
+    [100,] 49.72688  0.3456348188 -49.03561
+    [101,] 43.58190 -0.1738062151 -43.92951
+    [102,] 47.64250  1.5792323171 -44.48404
+    [103,] 45.43727 -0.0707767982 -45.57883
+    [104,] 44.20522 -1.1218342909 -46.44889
+    [105,] 42.22672 -2.4000086363 -47.02674
+    [106,] 45.08361  1.3981393141 -42.28733
+    [107,] 45.36083  0.3287947291 -44.70324
+    [108,] 48.28104  3.5120238425 -41.25699
+    [109,] 47.51169 -1.6818999887 -50.87549
+    [110,] 50.76024  2.0972503300 -46.56573
+    [111,] 44.13576 -0.9527791810 -46.04132
+    [112,] 41.88396 -2.3590575916 -46.60207
+    [113,] 48.89663  4.1866874539 -40.52325
+    [114,] 46.45594  3.5658631860 -39.32421
+    [115,] 47.89186  3.0822299318 -41.72740
+    [116,] 43.21319 -0.0747739520 -43.36274
+    [117,] 43.63686 -3.1415061665 -49.91988
+    [118,] 45.65270 -0.4544194776 -46.56154
+    [119,] 48.00713 -0.8118757777 -49.63089
+    [120,] 47.91754  2.0405369903 -43.83647
+    [121,] 44.17780 -2.4699059940 -49.11761
+    [122,] 44.63639 -1.4360357495 -47.50847
+    [123,] 49.67215  1.3554432997 -46.96126
+    [124,] 43.56666 -0.9138572155 -45.39437
+    [125,] 47.44614  4.0410685603 -39.36400
+    [126,] 45.60746  2.0286137044 -41.55023
+    [127,] 46.20538 -0.6269817702 -47.45935
+    [128,] 45.86917  0.0353599987 -45.79845
+    [129,] 47.40345  0.8103564107 -45.78274
+    [130,] 45.08185  1.5823642238 -41.91712
+    [131,] 46.12849  1.4509539231 -43.22658
+    [132,] 45.31585 -2.2828595823 -49.88157
+    [133,] 45.21664  1.4959783026 -42.22469
+    [134,] 44.95528 -1.0519138575 -47.05911
+    [135,] 46.55349  0.5381067323 -45.47727
+    [136,] 44.16957 -0.5147393624 -45.19905
+    [137,] 45.91409  0.0781835204 -45.75773
+    [138,] 40.22758 -5.2381704963 -50.70393
+    [139,] 52.05250  5.7637813353 -40.52493
+    [140,] 52.78752  5.9736113362 -40.84030
+    [141,] 44.48590 -0.7367187958 -45.95934
+    [142,] 48.88690  1.3345269086 -46.21785
+    [143,] 47.24003  3.5258833214 -40.18826
+    [144,] 49.60976  1.7604068654 -46.08894
+    [145,] 46.90955  3.1586085232 -40.59233
+    [146,] 45.34724 -3.1500195351 -51.64728
+    [147,] 49.27332  4.0763052241 -41.12071
+    [148,] 44.62059 -0.4254694695 -45.47153
+    [149,] 46.16803  1.5541076380 -43.05982
+    [150,] 47.08349  2.0005973213 -43.08229
+    [151,] 47.30715  1.9130937065 -43.48096
+    [152,] 43.23847 -3.0077813730 -49.25403
+    [153,] 43.69454 -0.8810329639 -45.45661
+    [154,] 46.33535 -0.5253279807 -47.38601
+    [155,] 47.61766  2.9179187824 -41.78183
+    [156,] 48.05217  4.0703996682 -39.91137
+    [157,] 49.05490  0.6306915602 -47.79351
+    [158,] 49.46719  2.1779588038 -45.11127
+    [159,] 43.47226 -1.0235908021 -45.51944
+    [160,] 47.65724  2.7232135648 -42.21081
+    [161,] 43.99365 -0.8326779314 -45.65901
+    [162,] 44.44050  3.0672076664 -38.30609
+    [163,] 56.07330  6.4725952959 -43.12811
+    [164,] 41.75459 -0.2146148177 -42.18381
+    [165,] 48.67055 -0.6154944231 -49.90154
+    [166,] 46.33386  0.2923950781 -45.74907
+    [167,] 49.08487  3.9202829342 -41.24431
+    [168,] 44.96050  0.4656162284 -44.02927
+    [169,] 49.19138  4.7953131659 -39.60075
+    [170,] 46.93200  1.1598794307 -44.61224
+    [171,] 51.82764  5.9837599246 -39.86012
+    [172,] 52.95121  5.5785824793 -41.79404
+    [173,] 51.62043  4.7768683681 -42.06670
+    [174,] 46.39249  1.8484846281 -42.69552
+    [175,] 44.27211  1.0469391864 -42.17824
+    [176,] 47.67303 -0.5644056276 -48.80184
+    [177,] 49.24831  1.6084539604 -46.03140
+    [178,] 48.71693  1.0741476267 -46.56863
+    [179,] 45.26296  1.0248301072 -43.21330
+    [180,] 49.69982  1.9949595449 -45.70990
+    [181,] 47.23977 -1.1228406660 -49.48545
+    [182,] 46.59996 -1.8148539751 -50.22967
+    [183,] 45.56304 -2.1419940416 -49.84702
+    [184,] 48.37063  0.3875915475 -47.59545
+    [185,] 45.97698  2.4488178079 -41.07934
+    [186,] 43.74826 -0.4562213930 -44.66070
+    [187,] 43.77373  1.3228675646 -41.12800
+    [188,] 52.39163  3.3858852019 -45.61986
+    [189,] 47.67144 -0.6685641097 -49.00857
+    [190,] 39.97121 -3.5134778039 -46.99817
+    [191,] 50.70266  1.3148439343 -48.07297
+    [192,] 49.48132  3.1266553696 -43.22801
+    [193,] 44.63444 -0.6279705924 -45.89038
+    [194,] 49.44921  5.4043323874 -38.64054
+    [195,] 41.43433 -1.3951113692 -44.22455
+    [196,] 47.88106  0.8553222250 -46.17041
+    [197,] 44.63785 -0.0859621299 -44.80977
+    [198,] 39.38116 -8.3064932658 -55.99414
+    [199,] 42.93833 -4.1581668098 -51.25466
+    [200,] 43.38558 -0.5020297898 -44.38964
+    [201,] 43.52829 -0.5545219419 -44.63734
+    [202,] 45.38068  2.2852759760 -40.81012
+    [203,] 47.96914 -1.3377796793 -50.64470
+    [204,] 46.27295  2.0780982861 -42.11676
+    [205,] 44.83327 -0.6841837022 -46.20164
+    [206,] 51.16914  4.3421151399 -42.48491
+    [207,] 40.88132 -4.1198114868 -49.12094
+    [208,] 45.86813  1.2690217751 -43.33009
+    [209,] 45.72630 -2.0899398489 -49.90618
+    [210,] 42.41649 -2.0720700432 -46.56063
+    [211,] 42.89865 -1.4240902380 -45.74683
+    [212,] 44.74417 -4.0136921929 -52.77155
+    [213,] 45.95093  2.5796917568 -40.79154
+    [214,] 45.94280  1.8854852754 -42.17183
+    [215,] 47.28550 -2.4383535264 -52.16220
+    [216,] 46.21214 -0.2581074211 -46.72836
+    [217,] 48.55743  5.2378183337 -38.08180
+    [218,] 48.58493 -0.5392646375 -49.66346
+    [219,] 47.49068  5.2951841144 -36.90032
+    [220,] 46.51430  1.8712080382 -42.77188
+    [221,] 53.90981  6.9579697301 -39.99387
+    [222,] 40.93499 -2.1503367885 -45.23566
+    [223,] 51.38084  5.2202372518 -40.94037
+    [224,] 49.08487  3.3823699570 -42.32013
+    [225,] 43.81538 -2.2852308998 -48.38585
+    [226,] 50.01323  4.4273852533 -41.15846
+    [227,] 48.29335  3.6778332849 -40.93768
+    [228,] 44.45885 -4.2656661240 -52.99018
+    [229,] 43.02171 -2.4202865747 -47.86228
+    [230,] 46.81821 -0.4061378370 -47.63049
+    [231,] 43.40715 -1.2401516178 -45.88746
+    [232,] 49.42495  5.0681952806 -39.28856
+    [233,] 48.11397  3.5284291701 -41.05712
+    [234,] 50.64574  2.6760392184 -45.29366
+    [235,] 46.88425  1.7583827049 -43.36749
+    [236,] 48.07393  1.8352530413 -44.40343
+    [237,] 49.50353  3.1480489361 -43.20743
+    [238,] 46.15064  2.1271843745 -41.89627
+    [239,] 50.99619  3.9219033415 -43.15238
+    [240,] 48.54694  3.7661879125 -41.01457
+    [241,] 47.60356  1.8585069599 -43.88655
+    [242,] 46.26563  1.4300922930 -43.40545
+    [243,] 47.27561  1.4015113101 -44.47259
+    [244,] 44.75941  1.1035432453 -42.55233
+    [245,] 50.53979  2.4518963517 -45.63600
+    [246,] 48.49616  1.0105789965 -46.47500
+    [247,] 42.55924 -4.0309280204 -50.62110
+    [248,] 43.42222 -3.5647743582 -50.55177
+    [249,] 46.08027  1.0528852642 -43.97450
+    [250,] 49.63868  2.9898711304 -43.65894
+    [251,] 44.74914 -0.2647864390 -45.27871
+    [252,] 46.12892  1.6044845037 -42.91995
+    [253,] 45.51020  1.3100018942 -42.89020
+    [254,] 50.03818  4.0725877201 -41.89301
+    [255,] 46.92969  2.4926735607 -41.94435
+    [256,] 49.30791  3.6681739921 -41.97157
+    [257,] 48.60221  1.3619585508 -45.87829
+    [258,] 46.29263  0.6225253793 -45.04758
+    [259,] 50.52801  2.0402906038 -46.44743
+    [260,] 45.46320  1.1209384444 -43.22132
+    [261,] 47.80889  2.3203848488 -43.16812
+    [262,] 48.80539  2.4689487727 -43.86750
+    [263,] 42.71284 -2.1678474941 -47.04853
+    [264,] 40.15466 -3.8638556811 -47.88237
+    [265,] 46.17385  0.3044765776 -45.56490
+    [266,] 42.30986 -3.8994889572 -50.10884
+    [267,] 46.72246 -0.4510009544 -47.62446
+    [268,] 52.46222  2.0367446932 -48.38873
+    [269,] 44.17031  2.2983441689 -39.57362
+    [270,] 48.26834  2.4616100646 -43.34512
+    [271,] 47.27790 -0.2174291777 -47.71276
+    [272,] 54.16799  5.8056795924 -42.55663
+    [273,] 40.89116 -3.5209834659 -47.93313
+    [274,] 50.11157  4.2491274040 -41.61332
+    [275,] 47.57334  0.2411151502 -47.09111
+    [276,] 44.45920  0.0466254723 -44.36595
+    [277,] 50.74686  2.2531931511 -46.24047
+    [278,] 41.63380 -3.4591261372 -48.55205
+    [279,] 46.09134 -1.0330537899 -48.15745
+    [280,] 51.27764  3.9914632529 -43.29471
+    [281,] 45.07793 -2.3638328830 -49.80559
+    [282,] 53.57730  5.1324058759 -43.31249
+    [283,] 39.69058 -6.1144315182 -51.91944
+    [284,] 44.87821 -2.1770973823 -49.23241
+    [285,] 41.65965 -2.6909471075 -47.04155
+    [286,] 45.77683 -4.3969460720 -54.57072
+    [287,] 42.84629  0.7429940651 -41.36030
+    [288,] 41.15709 -2.0237293628 -45.20455
+    [289,] 44.64456  1.3323404693 -41.97988
+    [290,] 45.64719  1.7917367224 -42.06371
+    [291,] 51.00866  5.1186577596 -40.77134
+    [292,] 45.26757 -1.6000401462 -48.46765
+    [293,] 46.46583  2.1160355283 -42.23376
+    [294,] 45.04232 -2.3919386565 -49.82620
+    [295,] 48.53435  4.4840745968 -39.56620
+    [296,] 47.21472  0.0429841220 -47.12875
+    [297,] 47.82040  2.7279564266 -42.36448
+    [298,] 42.88950  0.3582849092 -42.17293
+    [299,] 43.20582 -2.3396921531 -47.88520
+    [300,] 48.15439  0.9674301320 -46.21953
+    [301,] 46.19382  1.4827190762 -43.22838
+    [302,] 47.26914  1.0257971546 -45.21754
+    [303,] 45.45214  0.0386140031 -45.37491
+    [304,] 42.13452 -3.4696936185 -49.07391
+    [305,] 47.69648  1.3483674521 -44.99975
+    [306,] 49.27917  2.9739157480 -43.33134
+    [307,] 43.87842 -1.6731098386 -47.22464
+    [308,] 50.16993  2.5578054792 -45.05432
+    [309,] 49.53157  3.7261460602 -42.07927
+    [310,] 46.94336 -0.7258490013 -48.39506
+    [311,] 46.61464 -0.9235539148 -48.46175
+    [312,] 49.20524  0.8471016331 -47.51104
+    [313,] 49.26048  4.4030770319 -40.45433
+    [314,] 48.44604  3.2185084352 -42.00902
+    [315,] 42.23658 -3.9700490191 -50.17668
+    [316,] 49.15588  3.3669035763 -42.42208
+    [317,] 46.83167  0.0009207518 -46.82982
+    [318,] 48.14929  3.6658068909 -40.81768
+    [319,] 49.42723  2.2729883006 -44.88125
+    [320,] 47.71121  2.0074041688 -43.69640
+    [321,] 43.45545 -4.4762155237 -52.40789
+    [322,] 47.21963  1.3975746596 -44.42448
+    [323,] 45.81912 -0.2267854692 -46.27269
+    [324,] 47.27333  1.0958040345 -45.08172
+    [325,] 45.43835 -2.6412006356 -50.72075
+    [326,] 47.07592  1.5671745643 -43.94157
+    [327,] 47.64451  2.4545492912 -42.73541
+    [328,] 46.84263 -0.0988053667 -47.04024
+    [329,] 47.58139  0.7477338509 -46.08592
+    [330,] 45.94110 -0.0142678648 -45.96963
+    [331,] 49.75261  2.7827861961 -44.18704
+    [332,] 46.13559  0.4079124821 -45.31977
+    [333,] 50.99732  4.5087621703 -41.97979
+    [334,] 39.59183 -5.1622511896 -49.91634
+    [335,] 45.94467 -0.9683727342 -47.88142
+    [336,] 40.43771 -3.0586699731 -46.55505
+    [337,] 41.04915 -2.3522251571 -45.75360
+    [338,] 49.23553  1.5007065599 -46.23411
+    [339,] 38.79867 -5.3473869401 -49.49344
+    [340,] 41.04268 -4.3013602274 -49.64540
+    [341,] 40.54794 -4.3489780521 -49.24589
+    [342,] 53.70002  5.9458424861 -41.80833
+    [343,] 44.97069  1.2485965278 -42.47350
+    [344,] 47.81301 -1.9578583768 -51.72873
+    [345,] 47.24931  3.4716867750 -40.30593
+    [346,] 43.71874 -0.6292160448 -44.97717
+    [347,] 44.46906 -0.4744542589 -45.41797
+    [348,] 47.32337 -1.1619130576 -49.64720
+    [349,] 47.02761  2.6993139461 -41.62898
+    [350,] 44.88648 -3.2968695592 -51.48022
+    [351,] 44.69894  1.6704735488 -41.35799
+    [352,] 47.93018 -0.1263791888 -48.18294
+    [353,] 51.79922  6.8095236724 -38.18018
+    [354,] 44.22217 -2.3494531530 -48.92107
+    [355,] 48.38287  0.3011479859 -47.78058
+    [356,] 45.74342  0.5412193907 -44.66098
+    [357,] 42.68360 -1.6096421077 -45.90288
+    [358,] 47.72610  0.0170017958 -47.69209
+    [359,] 44.10970 -0.9014252240 -45.91255
+    [360,] 49.25142  3.8649622271 -41.52149
+    [361,] 44.40904 -1.8356594813 -48.08036
+    [362,] 43.70753 -3.3174015074 -50.34233
+    [363,] 48.37272  3.0730810986 -42.22656
+    [364,] 49.97253  1.9660898294 -46.04035
+    [365,] 46.81564 -4.1926331290 -55.20090
+    [366,] 46.22747  4.6237869243 -36.97990
+    [367,] 42.99042  1.5673588182 -39.85570
+    [368,] 50.07468 -0.0512713266 -50.17722
+    [369,] 51.35894  3.5941906645 -44.17055
+    [370,] 47.39093  3.2510135861 -40.88891
+    [371,] 43.65279 -2.6177632874 -48.88832
+    [372,] 48.62526  3.0988338298 -42.42759
+    [373,] 45.16759 -1.4895366143 -48.14666
+    [374,] 47.72810  1.8249157728 -44.07827
+    [375,] 48.88871  2.8406110542 -43.20749
+    [376,] 46.46968  0.8197195158 -44.83024
+    [377,] 43.54949 -0.9591867641 -45.46786
+    [378,] 44.30894 -0.0546052055 -44.41815
+    [379,] 51.64298  6.0121038113 -39.61877
+    [380,] 46.71787  2.0056290263 -42.70661
+    [381,] 47.42215  1.9869649363 -43.44822
+    [382,] 48.17259  1.5059979002 -45.16060
+    [383,] 45.70866  0.1295237709 -45.44961
+    [384,] 46.08023  1.0600372707 -43.96016
+    [385,] 52.37200  4.5817982031 -43.20840
+    [386,] 44.52569  0.5483852174 -43.42892
+    [387,] 45.94472 -0.8150736975 -47.57487
+    [388,] 47.01326  3.6177501413 -39.77776
+    [389,] 42.84606 -4.0580289198 -50.96211
+    [390,] 44.82488 -2.1653560169 -49.15559
+    [391,] 44.96558  0.2898387695 -44.38590
+    [392,] 49.05665 -0.1245160527 -49.30568
+    [393,] 42.78330 -0.2883815754 -43.36006
+    [394,] 44.44270 -1.3042805750 -47.05127
+    [395,] 46.24349  0.0644510843 -46.11459
+    [396,] 41.88885 -3.7724222271 -49.43370
+    [397,] 45.48149  0.7121639425 -44.05716
+    [398,] 47.31888  0.5063349577 -46.30621
+    [399,] 47.29814  0.1911240235 -46.91589
+    [400,] 44.43914  0.1243474325 -44.19044
+    [401,] 48.85029  1.1459388181 -46.55841
+    [402,] 49.89781  1.6630561947 -46.57170
+    [403,] 45.74244  3.0900965251 -39.56225
+    [404,] 45.67035 -1.5642555882 -48.79887
+    [405,] 44.18611 -1.6656399280 -47.51739
+    [406,] 44.64356 -0.4166177983 -45.47680
+    [407,] 46.27308  0.3135226086 -45.64604
+    [408,] 44.97696 -0.5467302488 -46.07042
+    [409,] 49.85879  1.0266569557 -47.80547
+    [410,] 50.62701  1.6875430890 -47.25192
+    [411,] 43.16372 -2.8437697639 -48.85126
+    [412,] 50.34127  4.4232338867 -41.49480
+    [413,] 50.73489  2.5707724893 -45.59334
+    [414,] 42.15143 -1.5425048185 -45.23644
+    [415,] 47.92478  0.8100043558 -46.30478
+    [416,] 41.90084 -3.6569613213 -49.21477
+    [417,] 46.84066  1.2608033141 -44.31905
+    [418,] 45.44088 -2.4143738834 -50.26962
+    [419,] 48.23058  3.2448468198 -41.74088
+    [420,] 49.17665  2.5607788430 -44.05509
+    [421,] 46.78658  0.5446666902 -45.69725
+    [422,] 42.22828 -0.0096304172 -42.24754
+    [423,] 48.43978  1.5080300946 -45.42372
+    [424,] 49.54760  0.7564718538 -48.03466
+    [425,] 48.04640  1.2784296013 -45.48954
+    [426,] 51.45838  6.7682470728 -37.92189
+    [427,] 54.04640  6.8088279522 -40.42874
+    [428,] 49.32622  4.3224699729 -40.68128
+    [429,] 42.00999 -4.1234898307 -50.25697
+    [430,] 48.73948  4.4429576610 -39.85357
+    [431,] 43.63009 -2.0874479767 -47.80499
+    [432,] 44.73093  0.5087940695 -43.71334
+    [433,] 47.80112  4.2688514048 -39.26341
+    [434,] 46.12542 -2.5598947207 -51.24521
+    [435,] 46.47059 -0.9021492293 -48.27489
+    [436,] 45.16259 -0.0632438202 -45.28907
+    [437,] 39.95193 -2.7882734077 -45.52848
+    [438,] 55.46258  5.9622055823 -43.53817
+    [439,] 45.09572  2.4766327277 -40.14245
+    [440,] 46.06063 -3.0507114455 -52.16205
+    [441,] 41.57696 -0.3305074193 -42.23797
+    [442,] 42.91473 -2.0112763593 -46.93728
+    [443,] 48.06211  3.2047240896 -41.65266
+    [444,] 47.67133  2.5465769929 -42.57818
+    [445,] 49.91035  1.5983557611 -46.71364
+    [446,] 47.15059 -1.4199344358 -49.99046
+    [447,] 44.20335  0.8244452627 -42.55446
+    [448,] 41.72708 -0.9266491872 -43.58037
+    [449,] 47.37167 -0.9120929260 -49.19585
+    [450,] 48.26206  1.5381698226 -45.18572
+    [451,] 46.93542  1.0892190598 -44.75698
+    [452,] 51.10561  4.1280349852 -42.84954
+    [453,] 44.87587  0.3249572788 -44.22596
+    [454,] 48.87126  0.4038564852 -48.06355
+    [455,] 48.10692  0.6077525157 -46.89141
+    [456,] 45.44735 -3.3008586060 -52.04907
+    [457,] 46.54213 -2.7266516889 -51.99543
+    [458,] 51.13745  2.2958215177 -46.54581
+    [459,] 48.06180  2.5555743530 -42.95065
+    [460,] 47.98759  0.8319573131 -46.32368
+    [461,] 46.03924 -0.0868542372 -46.21295
+    [462,] 45.34302  0.2785995328 -44.78582
+    [463,] 45.63094 -0.3767299130 -46.38440
+    [464,] 42.30510 -3.5118549842 -49.32881
+    [465,] 47.06893  2.3299247794 -42.40908
+    [466,] 50.46366  1.8693473572 -46.72496
+    [467,] 43.06025 -2.2325743328 -47.52540
+    [468,] 44.69461  0.6533751648 -43.38786
+    [469,] 50.32448  5.8687651044 -38.58695
+    [470,] 42.82681 -5.4633415945 -53.75350
+    [471,] 43.41246 -1.9701450853 -47.35275
+    [472,] 40.87061 -4.3076761644 -49.48596
+    [473,] 41.04722 -6.0930163703 -53.23325
+    [474,] 44.53685 -3.0360782936 -50.60901
+    [475,] 42.35940 -2.5466111111 -47.45263
+    [476,] 45.84331 -0.6812198770 -47.20575
+    [477,] 44.56112 -0.4723375146 -45.50579
+    [478,] 48.37711  2.1942711456 -43.98857
+    [479,] 44.77664 -1.8731695259 -48.52298
+    [480,] 47.95643  0.1329371320 -47.69055
+    [481,] 44.84573 -1.1422705509 -47.13027
+    [482,] 47.41092  1.2311349317 -44.94865
+    [483,] 46.94836  2.1705119900 -42.60733
+    [484,] 45.14495  1.2695770999 -42.60580
+    [485,] 48.88809  2.9208308999 -43.04643
+    [486,] 49.92303  4.0493755886 -41.82428
+    [487,] 43.31386  0.7445499622 -41.82476
+    [488,] 46.29459  2.0351990531 -42.22420
+    [489,] 46.14663 -0.5161826471 -47.17899
+    [490,] 47.28158  2.3854273285 -42.51073
+    [491,] 43.60414 -1.1998992840 -46.00394
+    [492,] 45.11119  0.9578966419 -43.19540
+    [493,] 49.19173  1.9020626454 -45.38761
+    [494,] 44.94369  1.0134130998 -42.91687
+    [495,] 46.20754  1.5737286957 -43.06008
+    [496,] 47.09360 -0.3607993310 -47.81519
+    [497,] 43.94530  0.3878498378 -43.16960
+    [498,] 43.25236 -0.0879370693 -43.42823
+    [499,] 45.90143 -2.5593564062 -51.02014
+    [500,] 47.93701  4.0900550752 -39.75690
+    [501,] 43.43626 -1.7535141864 -46.94329
+    [502,] 43.57509 -0.5660288847 -44.70715
+    [503,] 50.26006  3.0769806093 -44.10609
+    [504,] 49.01849  4.8203183385 -39.37785
+    [505,] 49.90206  1.3290717183 -47.24392
+    [506,] 47.99106  2.9450061243 -42.10105
+    [507,] 50.65792  4.4452693355 -41.76738
+    [508,] 47.96250  1.5871268730 -44.78825
+    [509,] 47.00567  1.5264703198 -43.95273
+    [510,] 47.27980 -0.6507723066 -48.58135
+    [511,] 45.80604  0.8379221316 -44.13019
+    [512,] 48.13211  0.8092694434 -46.51357
+    [513,] 51.03415  4.5022774090 -42.02959
+    [514,] 45.46998  0.3804480093 -44.70909
+    [515,] 47.67374  1.0442705428 -45.58520
+    [516,] 43.43788 -1.4992690744 -46.43641
+    [517,] 43.21850 -1.7944047425 -46.80731
+    [518,] 45.87729 -0.5425612052 -46.96241
+    [519,] 52.35716  8.1466286958 -36.06391
+    [520,] 44.96389 -4.7612125978 -54.48631
+    [521,] 41.66126 -1.0587558620 -43.77877
+    [522,] 46.39180 -0.2095623091 -46.81092
+    [523,] 46.72295  2.6989645797 -41.32502
+    [524,] 46.78385 -0.9343842798 -48.65262
+    [525,] 47.77793 -1.1523405006 -50.08261
+    [526,] 47.69110  4.7473235779 -38.19645
+    [527,] 46.19961  4.3246641393 -37.55029
+    [528,] 50.93601  4.9088061806 -41.11840
+    [529,] 46.55412  0.9975869890 -44.55895
+    [530,] 51.20421  6.2490971866 -38.70602
+    [531,] 47.63510  0.5209435594 -46.59321
+    [532,] 48.83768 -2.9346336224 -54.70695
+    [533,] 42.94056  3.0652777331 -36.81001
+    [534,] 42.24408 -2.9272338582 -48.09855
+    [535,] 53.50392  4.9948035273 -43.51431
+    [536,] 45.61290  3.2066901591 -39.19952
+    [537,] 48.70759  1.7883946553 -45.13080
+    [538,] 46.54182  0.1610221132 -46.21978
+    [539,] 43.63916 -2.7642534721 -49.16767
+    [540,] 47.45208  0.1162378876 -47.21961
+    [541,] 42.94096 -1.9445632988 -46.83009
+    [542,] 47.71928  0.5182900149 -46.68270
+    [543,] 46.28107  0.2293977843 -45.82228
+    [544,] 45.19029  1.2938245088 -42.60264
+    [545,] 44.43008 -4.0411329110 -52.51235
+    [546,] 42.82159 -2.7585691333 -48.33873
+    [547,] 44.40685 -0.8254903235 -46.05783
+    [548,] 46.25977  1.2930711658 -43.67362
+    [549,] 46.38343  2.1028574097 -42.17771
+    [550,] 44.41070 -0.8801866481 -46.17108
+    [551,] 43.99246 -2.5815303022 -49.15552
+    [552,] 44.18231  1.7323101097 -40.71769
+    [553,] 43.51554  0.1532708828 -43.20900
+    [554,] 44.51611 -1.3311558095 -47.17843
+    [555,] 48.53387  3.4218384425 -41.69019
+    [556,] 48.82503  2.6973117779 -43.43041
+    [557,] 50.16679  1.2640323405 -47.63873
+    [558,] 42.20876 -0.3844001913 -42.97756
+    [559,] 49.83329  2.2469500323 -45.33939
+    [560,] 48.35349  0.7549258473 -46.84364
+    [561,] 48.13425  0.8368261061 -46.46060
+    [562,] 48.86572  4.3748953105 -40.11593
+    [563,] 49.07459  0.7173268947 -47.63993
+    [564,] 47.86335  3.3192637818 -41.22482
+    [565,] 46.41436  2.8354017018 -40.74356
+    [566,] 47.23757  3.6803118641 -39.87694
+    [567,] 45.82785  1.8821150986 -42.06362
+    [568,] 50.51701  3.0277189960 -44.46157
+    [569,] 46.51281  2.8850791809 -40.74265
+    [570,] 45.55987 -0.8663892472 -47.29265
+    [571,] 48.49689  2.6602395691 -43.17641
+    [572,] 48.07292  4.1643886404 -39.74414
+    [573,] 50.59665  2.8992914423 -44.79807
+    [574,] 49.45656  6.6343345133 -36.18789
+    [575,] 47.76430  1.8590567492 -44.04618
+    [576,] 53.37088  5.5859826821 -42.19892
+    [577,] 51.37436  4.1041949778 -43.16597
+    [578,] 43.08342 -1.4132943610 -45.91001
+    [579,] 50.05643  1.8823864231 -46.29166
+    [580,] 43.89161 -0.8148980992 -45.52141
+    [581,] 49.68145  4.9005085278 -39.88043
+    [582,] 47.02504 -1.3853818559 -49.79581
+    [583,] 45.94965  2.7663346657 -40.41698
+    [584,] 48.28314  2.1788240688 -43.92549
+    [585,] 45.49195  0.3602994787 -44.77135
+    [586,] 46.54267  0.0026436582 -46.53738
+    [587,] 50.09242  2.4908337460 -45.11075
+    [588,] 51.02756  0.5022650312 -50.02302
+    [589,] 49.97327  3.1107168004 -43.75184
+    [590,] 49.06956  5.4142863793 -38.24099
+    [591,] 44.20818 -3.3591408877 -50.92646
+    [592,] 51.90587  6.1643645654 -39.57714
+    [593,] 44.82517 -0.8220771710 -46.46933
+    [594,] 47.83494  3.0937724482 -41.64739
+    [595,] 45.69909  2.3665698484 -40.96595
+    [596,] 44.67770 -4.0312180760 -52.74013
+    [597,] 45.05766  1.0300191754 -42.99762
+    [598,] 51.09920  3.2797288901 -44.53974
+    [599,] 51.41482  5.2027756055 -41.00926
+    [600,] 47.24550  1.0603625322 -45.12477
+    [601,] 51.25383  2.9699165655 -45.31399
+    [602,] 42.09417 -1.1749293398 -44.44403
+    [603,] 47.42733  0.5465537304 -46.33422
+    [604,] 47.48213  2.3246225388 -42.83288
+    [605,] 46.40147  1.3259213522 -43.74963
+    [606,] 49.37963  3.7735448626 -41.83254
+    [607,] 43.91314 -0.3032164736 -44.51957
+    [608,] 43.57286 -0.1800328957 -43.93292
+    [609,] 47.83515  1.0262093772 -45.78273
+    [610,] 48.36003  1.0515734293 -46.25688
+    [611,] 44.34625 -1.5168075302 -47.37987
+    [612,] 46.57908 -0.4364098148 -47.45190
+    [613,] 45.23852  1.9146532806 -41.40921
+    [614,] 49.51475  2.0422287780 -45.43029
+    [615,] 43.12071 -2.0195400164 -47.15979
+    [616,] 45.70256  0.0905365829 -45.52148
+    [617,] 46.34786 -0.3046294861 -46.95712
+    [618,] 44.90088  2.2198815651 -40.46111
+    [619,] 46.59744 -0.5214934307 -47.64043
+    [620,] 46.21180 -1.5301298026 -49.27206
+    [621,] 43.85260  0.3724915952 -43.10762
+    [622,] 45.99157 -0.6676362556 -47.32684
+    [623,] 46.18675 -0.0735465620 -46.33384
+    [624,] 47.12688  1.3864093265 -44.35406
+    [625,] 46.56398  1.4054674814 -43.75304
+    [626,] 45.13356 -0.7691159083 -46.67179
+    [627,] 50.28092  3.6336448989 -43.01363
+    [628,] 46.35316 -0.9003080174 -48.15378
+    [629,] 46.76509  1.7607074777 -43.24368
+    [630,] 43.52597  1.0413315688 -41.44331
+    [631,] 44.86747 -4.5767481866 -54.02097
+    [632,] 45.91447  0.5991566767 -44.71615
+    [633,] 47.75109  1.0386566776 -45.67378
+    [634,] 43.69991 -0.1504696490 -44.00085
+    [635,] 49.16747  1.3223324135 -46.52281
+    [636,] 45.58717  1.4223685214 -42.74244
+    [637,] 48.98874  0.7379223057 -47.51289
+    [638,] 48.47667  3.3537258658 -41.76922
+    [639,] 46.06179  1.5817865387 -42.89822
+    [640,] 49.00364  4.9136924862 -39.17625
+    [641,] 48.31422  3.0150076966 -42.28421
+    [642,] 43.71262 -2.5310951593 -48.77481
+    [643,] 44.87873  1.3100419240 -42.25865
+    [644,] 49.94222  3.8368167811 -42.26859
+    [645,] 48.03906  2.3130100810 -43.41304
+    [646,] 48.52171  3.9715224339 -40.57866
+    [647,] 47.86973  2.3820470597 -43.10563
+    [648,] 47.25580  1.5608029855 -44.13419
+    [649,] 45.74208 -0.9939756523 -47.73003
+    [650,] 45.78153 -1.8543540499 -49.49024
+    [651,] 45.69412  0.6461874516 -44.40175
+    [652,] 46.09871 -1.7562266033 -49.61116
+    [653,] 47.18368  0.6887134728 -45.80625
+    [654,] 45.18410  0.2861202715 -44.61186
+    [655,] 47.82964 -0.7833500676 -49.39634
+    [656,] 40.37252 -5.0458566829 -50.46423
+    [657,] 49.70062  3.4154457792 -42.86973
+    [658,] 43.55171 -1.9719481245 -47.49561
+    [659,] 46.56505  0.5496474324 -45.46576
+    [660,] 48.31998  0.8719591641 -46.57606
+    [661,] 43.10642 -3.3405410392 -49.78750
+    [662,] 48.66710  3.1173281342 -42.43244
+    [663,] 47.36891  1.0846866239 -45.19954
+    [664,] 46.15880  0.9026690897 -44.35346
+    [665,] 47.79233  1.7246731524 -44.34298
+    [666,] 51.08134  5.2609189656 -40.55950
+    [667,] 44.29198 -1.0045961511 -46.30117
+    [668,] 44.87855 -0.2300272591 -45.33860
+    [669,] 48.18167  1.7908664821 -44.59994
+    [670,] 42.98271 -3.1200287144 -49.22277
+    [671,] 48.80541  3.7502429962 -41.30493
+    [672,] 44.51545 -3.0507527868 -50.61695
+    [673,] 48.17357  4.3948736858 -39.38383
+    [674,] 48.43599  4.9782904958 -38.47941
+    [675,] 51.19147  3.5479709714 -44.09553
+    [676,] 46.87643  4.4367474520 -38.00294
+    [677,] 46.58233  2.0833305888 -42.41567
+    [678,] 49.41604  1.7280017733 -45.96003
+    [679,] 46.75809  0.2810567641 -46.19597
+    [680,] 50.16942  3.8183962358 -42.53263
+    [681,] 44.58205 -0.6785157607 -45.93909
+    [682,] 50.89663  4.1187867946 -42.65906
+    [683,] 46.17836  0.1391741500 -45.90001
+    [684,] 47.26739  2.6918473609 -41.88370
+    [685,] 45.99111 -0.1211392111 -46.23338
+    [686,] 52.67259  3.9005782642 -44.87143
+    [687,] 43.00096 -1.7956385946 -46.59224
+    [688,] 51.69843  5.5705900660 -40.55725
+    [689,] 46.70723  2.6647112007 -41.37780
+    [690,] 46.88576 -0.7287213656 -48.34321
+    [691,] 45.25091  0.6579112884 -43.93509
+    [692,] 44.77388 -0.2637084938 -45.30129
+    [693,] 47.33415  0.5982842648 -46.13758
+    [694,] 42.59160 -2.6932114598 -47.97802
+    [695,] 45.71304  3.5314268057 -38.65018
+    [696,] 50.19247  4.8943635812 -40.40374
+    [697,] 43.90749 -1.7803771748 -47.46825
+    [698,] 43.40381 -2.3398483499 -48.08351
+    [699,] 54.59596  8.3936731666 -37.80862
+    [700,] 49.15579  4.1928702087 -40.77005
+    [701,] 49.11571  5.4707043535 -38.17430
+    [702,] 53.04223  6.0274494894 -40.98733
+    [703,] 52.84671  4.6246862760 -43.59733
+    [704,] 45.14613  2.3806656717 -40.38480
+    [705,] 42.03049  0.0048100720 -42.02087
+    [706,] 51.15555  5.9437153162 -39.26812
+    [707,] 49.33554  4.2653597071 -40.80482
+    [708,] 50.25526  5.1320171183 -39.99123
+    [709,] 48.81631  3.0267825880 -42.76275
+    [710,] 44.61502 -0.9337010470 -46.48242
+    [711,] 49.95576  2.3737865009 -45.20819
+    [712,] 45.02416  0.6514896606 -43.72118
+    [713,] 45.77232  0.2666333255 -45.23905
+    [714,] 46.57788  0.2046328590 -46.16861
+    [715,] 47.94786  3.6677369640 -40.61239
+    [716,] 47.86263  2.5666145614 -42.72940
+    [717,] 45.81639 -0.6059637284 -47.02832
+    [718,] 47.76816  2.5677127162 -42.63274
+    [719,] 46.30780  3.4401510069 -39.42750
+    [720,] 52.24056  3.5952133315 -45.05014
+    [721,] 45.55269  1.7473031521 -42.05809
+    [722,] 49.10964  3.6807433456 -41.74816
+    [723,] 50.61905  2.4696937124 -45.67966
+    [724,] 46.30176  2.9225480525 -40.45667
+    [725,] 42.76486 -5.8370448598 -54.43895
+    [726,] 46.32295  2.8204434278 -40.68206
+    [727,] 41.56959 -6.7822405459 -55.13407
+    [728,] 50.23569  6.2598174594 -37.71605
+    [729,] 51.23956  3.8748851524 -43.48979
+    [730,] 42.26969 -2.5194623042 -47.30862
+    [731,] 50.24900  3.2654346415 -43.71813
+    [732,] 49.69233  3.0879194009 -43.51649
+    [733,] 44.76908 -0.2502787166 -45.26964
+    [734,] 51.49989  3.1676485039 -45.16460
+    [735,] 38.64784 -5.1434879192 -48.93481
+    [736,] 50.00386  3.5169214065 -42.97002
+    [737,] 49.93036  8.2950596917 -33.34024
+    [738,] 55.85701  8.0118969054 -39.83322
+    [739,] 42.12373 -1.0815482888 -44.28683
+    [740,] 48.74631 -0.1821655091 -49.11064
+    [741,] 43.01105  0.4122300833 -42.18659
+    [742,] 41.68613 -3.3024765540 -48.29108
+    [743,] 42.60828 -3.0252601317 -48.65880
+    [744,] 46.33770  1.2046158703 -43.92847
+    [745,] 49.37054  3.3743252610 -42.62189
+    [746,] 44.60024 -0.2538001594 -45.10784
+    [747,] 47.51763 -0.2372373941 -47.99210
+    [748,] 44.34172  0.2715534204 -43.79862
+    [749,] 47.80367  3.0860585122 -41.63155
+    [750,] 47.69649  0.9593797807 -45.77773
+    [751,] 47.50708  3.5685525524 -40.36998
+    [752,] 48.99354  5.6908241973 -37.61190
+    [753,] 43.32969 -1.0295326724 -45.38876
+    [754,] 50.73426  4.7259852030 -41.28229
+    [755,] 49.52780  4.2603231531 -41.00715
+    [756,] 48.56031  1.8074239331 -44.94546
+    [757,] 47.80665  2.1617658199 -43.48312
+    [758,] 42.67608 -2.1386571445 -46.95339
+    [759,] 51.39786  4.9753356720 -41.44719
+    [760,] 49.21407  3.3370914823 -42.53988
+    [761,] 49.85043  4.2907806850 -41.26887
+    [762,] 52.14313  4.6040978200 -42.93493
+    [763,] 51.44157  4.1675181453 -43.10653
+    [764,] 50.09817  3.4634161755 -43.17134
+    [765,] 49.13507  3.8289517925 -41.47717
+    [766,] 47.81688  2.2624846022 -43.29191
+    [767,] 48.40308  4.4428535724 -39.51737
+    [768,] 46.64400  2.8424547037 -40.95909
+    [769,] 49.79215  3.5023270803 -42.78749
+    [770,] 52.85790  4.1188466479 -44.62021
+    [771,] 53.37008  6.1676203364 -41.03484
+    [772,] 51.23113  6.5370834950 -38.15696
+    [773,] 43.29634 -2.7948645169 -48.88606
+    [774,] 48.10209  2.4175032564 -43.26708
+    [775,] 48.57878  4.6257700490 -39.32724
+    [776,] 47.70127 -2.7709591638 -53.24319
+    [777,] 48.20261  6.8623768986 -34.47785
+    [778,] 52.62500  2.3647602222 -47.89548
+    [779,] 38.30777 -4.5803420107 -47.46846
+    [780,] 50.85032  1.8340580496 -47.18221
+    [781,] 41.88945 -0.0123641857 -41.91418
+    [782,] 41.15945 -2.9147507564 -46.98895
+    [783,] 49.24087  1.7606878020 -45.71949
+    [784,] 50.74760  3.4949086778 -43.75778
+    [785,] 42.14821 -0.6067876612 -43.36179
+    [786,] 55.23883  7.2780602149 -40.68271
+    [787,] 47.71943  1.9453964980 -43.82863
+    [788,] 48.16331  3.5506354307 -41.06204
+    [789,] 48.47823  1.5408912208 -45.39645
+    [790,] 51.27175  5.1834115729 -40.90493
+    [791,] 47.05961 -1.2153811974 -49.49037
+    [792,] 49.00082  3.3070367260 -42.38675
+    [793,] 43.65562 -2.9010611097 -49.45774
+    [794,] 51.21203  2.0769838842 -47.05806
+    [795,] 41.42451 -3.6790465078 -48.78260
+    [796,] 46.75740  2.1231510097 -42.51110
+    [797,] 44.48478 -0.7534237797 -45.99163
+    [798,] 50.18868  4.9550952625 -40.27848
+    [799,] 49.24813  3.1244712193 -42.99919
+    [800,] 50.89956  5.4969568418 -39.90565
+    [801,] 46.15655  1.1227509252 -43.91104
+    [802,] 50.03371  3.4671224649 -43.09946
+    [803,] 48.19887  3.3837689406 -41.43133
+    [804,] 53.62461  6.7227603319 -40.17909
+    [805,] 48.74327  1.2077005713 -46.32787
+    [806,] 46.32464  2.1871127057 -41.95041
+    [807,] 47.14268  0.9729945091 -45.19669
+    [808,] 46.99370  1.5734602661 -43.84678
+    [809,] 45.07350 -3.5066417999 -52.08679
+    [810,] 44.74025 -0.2522875569 -45.24483
+    [811,] 44.88072 -0.5992163972 -46.07915
+    [812,] 47.16023 -0.2673745825 -47.69498
+    [813,] 49.67282  2.2535769955 -45.16567
+    [814,] 48.26257  4.8095685700 -38.64343
+    [815,] 50.63753  3.8991480134 -42.83923
+    [816,] 50.22836  4.0382512563 -42.15186
+    [817,] 43.48508 -2.0765180468 -47.63811
+    [818,] 47.99623  1.8625127988 -44.27120
+    [819,] 42.81116 -1.2875950493 -45.38635
+    [820,] 43.20864 -0.8049891880 -44.81862
+    [821,] 50.94981  2.7677023279 -45.41440
+    [822,] 43.11092 -3.9139587259 -50.93884
+    [823,] 48.31808  3.1034077078 -42.11127
+    [824,] 45.93732 -0.4956756214 -46.92867
+    [825,] 46.33564  2.1546560475 -42.02633
+    [826,] 47.01703  1.7252921746 -43.56644
+    [827,] 51.42810  6.5916585220 -38.24478
+    [828,] 52.30798  5.3721209996 -41.56374
+    [829,] 46.75187  1.8307538338 -43.09036
+    [830,] 49.09982  4.8718469255 -39.35613
+    [831,] 44.27202 -3.9184925412 -52.10900
+    [832,] 45.27696 -0.8652627738 -47.00748
+    [833,] 44.74443 -1.2271710651 -47.19877
+    [834,] 48.65885  1.6408510057 -45.37715
+    [835,] 49.54197  6.0376920445 -37.46659
+    [836,] 46.13931 -0.8955933332 -47.93049
+    [837,] 50.23864  4.0474839839 -42.14367
+    [838,] 50.74747  4.4212196387 -41.90503
+    [839,] 46.31253  2.6245973360 -41.06334
+    [840,] 52.09078  3.3831153880 -45.32454
+    [841,] 47.98671  5.4078433602 -37.17102
+    [842,] 47.66540  1.6881595268 -44.28908
+    [843,] 44.63662  0.7861449532 -43.06433
+    [844,] 49.26664  4.1135055365 -41.03962
+    [845,] 45.17440 -1.1544663751 -47.48334
+    [846,] 47.05881  0.5184822591 -46.02185
+    [847,] 47.06651  0.5273815401 -46.01175
+    [848,] 46.13888 -0.5541087885 -47.24709
+    [849,] 45.79825  1.9949646572 -41.80832
+    [850,] 49.96479  2.0729453115 -45.81890
+    [851,] 44.29696  1.5018877998 -41.29318
+    [852,] 44.91058 -1.0166200096 -46.94382
+    [853,] 44.84851 -0.9850428528 -46.81860
+    [854,] 47.25513  0.6086586945 -46.03781
+    [855,] 49.68338  2.4741732271 -44.73504
+    [856,] 44.34772 -1.2663619259 -46.88044
+    [857,] 48.26928  1.1983965657 -45.87248
+    [858,] 48.23147  0.8135169030 -46.60443
+    [859,] 45.23581  0.3918397397 -44.45213
+    [860,] 44.23213 -1.2636285268 -46.75938
+    [861,] 47.64454  1.5308393065 -44.58286
+    [862,] 46.43987  1.2874395030 -43.86499
+    [863,] 51.08568  4.3660977572 -42.35348
+    [864,] 50.52936  5.8879014099 -38.75356
+    [865,] 41.04592 -4.2032036302 -49.45233
+    [866,] 50.65629  3.2772257928 -44.10184
+    [867,] 45.20140 -1.3212193286 -47.84384
+    [868,] 49.77928  4.7284645178 -40.32235
+    [869,] 42.54585 -3.9070018458 -50.35985
+    [870,] 41.39502 -2.6888398027 -46.77270
+    [871,] 48.40573  1.6689101167 -45.06791
+    [872,] 48.63449  2.9321944201 -42.77010
+    [873,] 44.44928 -1.1601751169 -46.76963
+    [874,] 46.01488  1.7614822762 -42.49192
+    [875,] 46.18031  2.7127723434 -40.75477
+    [876,] 51.27777  4.4049119627 -42.46795
+    [877,] 51.03381  3.1737514817 -44.68631
+    [878,] 49.00434  3.5564044522 -41.89153
+    [879,] 48.47707 -0.9400797340 -50.35723
+    [880,] 43.18285  0.9152281505 -41.35239
+    [881,] 44.23470  1.1023247339 -42.03005
+    [882,] 43.48681 -4.2735090933 -52.03382
+    [883,] 49.72981  3.5798894041 -42.57003
+    [884,] 51.89834  7.4166437059 -37.06506
+    [885,] 50.00200  4.4426600361 -41.11668
+    [886,] 49.78714  3.5705302139 -42.64608
+    [887,] 46.08821  1.4239001341 -43.24040
+    [888,] 47.52253  1.0044570436 -45.51361
+    [889,] 49.74719  4.0519400742 -41.64331
+    [890,] 44.54151 -0.7643928224 -46.07029
+    [891,] 45.29051 -0.9004171271 -47.09134
+    [892,] 47.89574  1.8010976584 -44.29355
+    [893,] 48.50402  3.4084762721 -41.68707
+    [894,] 50.89422  2.1309920869 -46.63223
+    [895,] 42.16555 -0.5028762166 -43.17131
+    [896,] 49.16224  0.1914987426 -48.77924
+    [897,] 42.51033  0.0253881049 -42.45955
+    [898,] 50.33493  3.5515021022 -43.23193
+    [899,] 42.04274 -2.3377425300 -46.71823
+    [900,] 51.42795  1.4084988168 -48.61095
+    [901,] 46.62677  2.7035347745 -41.21970
+    [902,] 44.82726 -0.2425584810 -45.31237
+    [903,] 45.47175  0.0676831295 -45.33639
+    [904,] 48.20899  0.0790994525 -48.05079
+    [905,] 46.58236 -2.2323128163 -51.04698
+    [906,] 45.04758  2.3340409566 -40.37950
+    [907,] 49.82352  0.9948491780 -47.83382
+    [908,] 41.23338 -2.7935061894 -46.82040
+    [909,] 44.12517 -6.1960431409 -56.51725
+    [910,] 42.23340 -5.6885223129 -53.61044
+    [911,] 44.62816  0.5313234753 -43.56552
+    [912,] 49.80912  0.5925708009 -48.62397
+    [913,] 47.58530  3.3430282029 -40.89924
+    [914,] 45.87978 -1.1323203638 -48.14442
+    [915,] 47.26270 -1.0480697006 -49.35884
+    [916,] 40.59062 -2.7522786629 -46.09518
+    [917,] 43.80634  0.2936622579 -43.21901
+    [918,] 44.28919 -3.4993389336 -51.28787
+    [919,] 44.12452 -3.5626757651 -51.24987
+    [920,] 46.70313  1.7209638696 -43.26120
+    [921,] 51.56912  1.8838261564 -47.80147
+    [922,] 38.91252 -5.3505630356 -49.61364
+    [923,] 41.40977 -3.9238146956 -49.25740
+    [924,] 46.57339 -1.0918173987 -48.75702
+    [925,] 50.80544  2.0303989957 -46.74464
+    [926,] 51.15323  2.5010049735 -46.15122
+    [927,] 48.85769  2.8325188556 -43.19266
+    [928,] 48.38118  0.8512445529 -46.67869
+    [929,] 46.35172  2.0925086107 -42.16670
+    [930,] 49.91880  0.3322784949 -49.25424
+    [931,] 47.16114  3.9274985894 -39.30614
+    [932,] 48.44165  0.8570179725 -46.72761
+    [933,] 49.10615  1.6220965331 -45.86195
+    [934,] 42.44778 -1.0647002741 -44.57718
+    [935,] 51.36149  5.3802736970 -40.60094
+    [936,] 40.45222 -4.3166954738 -49.08561
+    [937,] 46.51744  0.1939228072 -46.12959
+    [938,] 43.93053 -1.1433354518 -46.21720
+    [939,] 46.53505 -3.2852969597 -53.10565
+    [940,] 45.35224  0.0511638529 -45.24991
+    [941,] 46.65699  0.0097341970 -46.63753
+    [942,] 45.55758  1.2348351591 -43.08791
+    [943,] 47.80197  1.1790595370 -45.44386
+    [944,] 48.12267  2.5460012216 -43.03067
+    [945,] 50.09342  5.5658457029 -38.96173
+    [946,] 47.91388  1.0768987854 -45.76008
+    [947,] 48.67093  3.5083506320 -41.65422
+    [948,] 46.23952 -1.6598724895 -49.55926
+    [949,] 47.47841 -0.6221438515 -48.72270
+    [950,] 46.47419  2.2442959343 -41.98560
+    [951,] 46.91059  2.6834036431 -41.54378
+    [952,] 47.87382  5.7142550855 -36.44531
+    [953,] 49.75775  1.1736894915 -47.41037
+    [954,] 47.08815  3.2275190758 -40.63311
+    [955,] 49.97608  0.0336900176 -49.90870
+    [956,] 43.36574  0.6460146561 -42.07372
+    [957,] 47.78186  0.6746333171 -46.43259
+    [958,] 45.34035 -1.9541583934 -49.24866
+    [959,] 46.52442  2.3063719678 -41.91168
+    [960,] 45.19028  1.0519308965 -43.08642
+    [961,] 46.57380  1.2613889025 -44.05102
+    [962,] 45.47463  1.0613213924 -43.35198
+    [963,] 50.91871  0.5161522135 -49.88640
+    [964,] 41.27130 -0.6069066623 -42.48511
+    [965,] 48.01965 -1.1462870797 -50.31222
+    [966,] 42.65678  0.1408938481 -42.37499
+    [967,] 41.66844 -1.4076937780 -44.48383
+    [968,] 50.99185  1.7828660925 -47.42612
+    [969,] 46.93852  0.3886247765 -46.16127
+    [970,] 47.20174  3.6736485787 -39.85444
+    [971,] 43.18301  1.0623554532 -41.05830
+    [972,] 51.69123  1.7468511882 -48.19752
+    [973,] 41.46040 -2.9243428174 -47.30908
+    [974,] 48.90070  0.9118893155 -47.07693
+    [975,] 45.56404 -1.2032439815 -47.97053
+    [976,] 45.48654  0.4095812582 -44.66738
+    [977,] 45.16332 -1.5547534969 -48.27282
+    [978,] 45.90048 -3.1931556757 -52.28679
+    [979,] 48.69244  4.0881031507 -40.51623
+    [980,] 52.17252  4.8537096313 -42.46510
+    [981,] 44.82974  0.9999879846 -42.82976
+    [982,] 47.40748 -0.1238752105 -47.65523
+    [983,] 45.95135  1.6068391163 -42.73767
+    [984,] 50.16478  0.7886400356 -48.58750
+    [985,] 49.19155  1.4856143123 -46.22032
+    [986,] 48.67223  2.1339794060 -44.40427
+    [987,] 46.46946  1.0808282108 -44.30781
+    [988,] 49.97988  4.6418181683 -40.69625
+    [989,] 47.61628  1.6334073130 -44.34946
+    [990,] 49.87750  2.0803343983 -45.71683
+    [991,] 46.33803  0.8454425098 -44.64714
+    [992,] 41.77991 -4.6141495054 -51.00821
+    [993,] 41.32162 -3.2127541912 -47.74713
+    [994,] 46.54274 -0.1842676494 -46.91127
+    [995,] 47.98866 -1.0070204080 -50.00270
+    [996,] 52.46133  5.5186682196 -41.42399
+    [997,] 48.24134  3.3617536702 -41.51784
+    [998,] 44.59399 -2.2020315680 -48.99805
+    [999,] 48.04435  2.8879762098 -42.26840
+   [1000,] 50.54416  0.4564397078 -49.63128</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>escenarios_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Escenario =</span> escenarios<span class="sc">$</span>Escenario,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>escenarios_resumen</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Escenario       Mediana Inferior Superior
+  &lt;chr&gt;             &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 Descuento bajo    46.9     41.9     51.4 
+2 Descuento medio    1.05    -3.66     5.37
+3 Descuento alto   -45.0    -50.6    -39.4 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  escenarios_resumen,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Escenario,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.15</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Tres escenarios de descuento"</span>,</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Profit esperado e intervalo predictivo central"</span>,</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="code_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>escenarios_categoria <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">levels</span>(superstore<span class="sc">$</span>Category),</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fl">0.10</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>escenarios_categoria</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Category        Discount Sales Quantity
+  &lt;fct&gt;              &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1 Furniture            0.1  54.5        3
+2 Office Supplies      0.1  54.5        3
+3 Technology           0.1  54.5        3</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pred_categoria[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          
+iterations         1        2        3
+      [1,] -29.30029 25.20772 18.87116
+      [2,] -24.61049 28.22636 17.97945
+      [3,] -19.65543 22.31496 21.85027
+      [4,] -21.73595 27.02870 16.09898
+      [5,] -24.85595 25.63967 14.58997
+      [6,] -22.10150 23.29502 17.16567</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>categoria_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> escenarios_categoria<span class="sc">$</span>Category,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>categoria_resumen</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Category        Mediana Inferior Superior
+  &lt;fct&gt;             &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1 Furniture         -26.4   -33.3     -19.2
+2 Office Supplies    23.9    19.4      28.2
+3 Technology         14.9     6.83     23.2</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  categoria_resumen,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Category,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.15</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Profit esperado por categoría"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Mismas ventas, cantidad y descuento"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="code_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

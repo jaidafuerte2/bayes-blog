@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-08-22">
+<meta name="description" content="Aprendemos a traducir una regresión bayesiana sobre Superstore en escenarios de negocio y decisiones, incorporando la incertidumbre.">
+
+<title>¿Cómo interpretar un modelo bayesiano sin perderse en los coeficientes? – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#la-pregunta-de-negocio" id="toc-la-pregunta-de-negocio" class="nav-link active" data-scroll-target="#la-pregunta-de-negocio">La pregunta de negocio</a></li>
+  <li><a href="#comprendiendo-el-problema" id="toc-comprendiendo-el-problema" class="nav-link" data-scroll-target="#comprendiendo-el-problema">Comprendiendo el problema</a></li>
+  <li><a href="#preparando-los-datos" id="toc-preparando-los-datos" class="nav-link" data-scroll-target="#preparando-los-datos">Preparando los datos</a></li>
+  <li><a href="#construyendo-el-modelo" id="toc-construyendo-el-modelo" class="nav-link" data-scroll-target="#construyendo-el-modelo">Construyendo el modelo</a></li>
+  <li><a href="#el-primer-contacto-con-los-coeficientes" id="toc-el-primer-contacto-con-los-coeficientes" class="nav-link" data-scroll-target="#el-primer-contacto-con-los-coeficientes">El primer contacto con los coeficientes</a></li>
+  <li><a href="#qué-significa-cada-coeficiente" id="toc-qué-significa-cada-coeficiente" class="nav-link" data-scroll-target="#qué-significa-cada-coeficiente">¿Qué significa cada coeficiente?</a></li>
+  <li><a href="#el-descuento" id="toc-el-descuento" class="nav-link" data-scroll-target="#el-descuento">El descuento</a></li>
+  <li><a href="#ventas" id="toc-ventas" class="nav-link" data-scroll-target="#ventas">Ventas</a></li>
+  <li><a href="#cantidad" id="toc-cantidad" class="nav-link" data-scroll-target="#cantidad">Cantidad</a></li>
+  <li><a href="#las-categorías" id="toc-las-categorías" class="nav-link" data-scroll-target="#las-categorías">Las categorías</a></li>
+  <li><a href="#visualizando-los-coeficientes" id="toc-visualizando-los-coeficientes" class="nav-link" data-scroll-target="#visualizando-los-coeficientes">Visualizando los coeficientes</a></li>
+  <li><a href="#lo-que-los-coeficientes-todavía-no-nos-cuentan" id="toc-lo-que-los-coeficientes-todavía-no-nos-cuentan" class="nav-link" data-scroll-target="#lo-que-los-coeficientes-todavía-no-nos-cuentan">Lo que los coeficientes todavía no nos cuentan</a></li>
+  <li><a href="#del-coeficiente-al-escenario" id="toc-del-coeficiente-al-escenario" class="nav-link" data-scroll-target="#del-coeficiente-al-escenario">Del coeficiente al escenario</a></li>
+  <li><a href="#construyendo-un-escenario-representativo" id="toc-construyendo-un-escenario-representativo" class="nav-link" data-scroll-target="#construyendo-un-escenario-representativo">Construyendo un escenario representativo</a></li>
+  <li><a href="#observar-toda-la-trayectoria-del-descuento" id="toc-observar-toda-la-trayectoria-del-descuento" class="nav-link" data-scroll-target="#observar-toda-la-trayectoria-del-descuento">Observar toda la trayectoria del descuento</a></li>
+  <li><a href="#qué-significa-posterior_epred" id="toc-qué-significa-posterior_epred" class="nav-link" data-scroll-target="#qué-significa-posterior_epred">¿Qué significa <code>posterior_epred()</code>?</a></li>
+  <li><a href="#visualizando-la-trayectoria-del-profit" id="toc-visualizando-la-trayectoria-del-profit" class="nav-link" data-scroll-target="#visualizando-la-trayectoria-del-profit">Visualizando la trayectoria del Profit</a></li>
+  <li><a href="#tres-decisiones-comerciales-concretas" id="toc-tres-decisiones-comerciales-concretas" class="nav-link" data-scroll-target="#tres-decisiones-comerciales-concretas">Tres decisiones comerciales concretas</a></li>
+  <li><a href="#generando-las-predicciones-de-los-tres-escenarios" id="toc-generando-las-predicciones-de-los-tres-escenarios" class="nav-link" data-scroll-target="#generando-las-predicciones-de-los-tres-escenarios">Generando las predicciones de los tres escenarios</a></li>
+  <li><a href="#comparando-los-tres-escenarios" id="toc-comparando-los-tres-escenarios" class="nav-link" data-scroll-target="#comparando-los-tres-escenarios">Comparando los tres escenarios</a></li>
+  <li><a href="#una-precaución-importante" id="toc-una-precaución-importante" class="nav-link" data-scroll-target="#una-precaución-importante">Una precaución importante</a></li>
+  <li><a href="#y-qué-ocurre-con-las-categorías" id="toc-y-qué-ocurre-con-las-categorías" class="nav-link" data-scroll-target="#y-qué-ocurre-con-las-categorías">¿Y qué ocurre con las categorías?</a></li>
+  <li><a href="#predicciones-por-categoría" id="toc-predicciones-por-categoría" class="nav-link" data-scroll-target="#predicciones-por-categoría">Predicciones por categoría</a></li>
+  <li><a href="#una-primera-lectura-empresarial" id="toc-una-primera-lectura-empresarial" class="nav-link" data-scroll-target="#una-primera-lectura-empresarial">Una primera lectura empresarial</a></li>
+  <li><a href="#del-análisis-a-la-decisión" id="toc-del-análisis-a-la-decisión" class="nav-link" data-scroll-target="#del-análisis-a-la-decisión">Del análisis a la decisión</a></li>
+  <li><a href="#qué-aprendimos-sobre-los-descuentos" id="toc-qué-aprendimos-sobre-los-descuentos" class="nav-link" data-scroll-target="#qué-aprendimos-sobre-los-descuentos">¿Qué aprendimos sobre los descuentos?</a></li>
+  <li><a href="#pero-cuidado-esto-no-significa-que-los-descuentos-causen-pérdidas" id="toc-pero-cuidado-esto-no-significa-que-los-descuentos-causen-pérdidas" class="nav-link" data-scroll-target="#pero-cuidado-esto-no-significa-que-los-descuentos-causen-pérdidas">Pero cuidado: esto no significa que “los descuentos causen pérdidas”</a></li>
+  <li><a href="#qué-aprendimos-sobre-las-categorías" id="toc-qué-aprendimos-sobre-las-categorías" class="nav-link" data-scroll-target="#qué-aprendimos-sobre-las-categorías">¿Qué aprendimos sobre las categorías?</a></li>
+  <li><a href="#una-observación-importante-sobre-las-categorías" id="toc-una-observación-importante-sobre-las-categorías" class="nav-link" data-scroll-target="#una-observación-importante-sobre-las-categorías">Una observación importante sobre las categorías</a></li>
+  <li><a href="#la-incertidumbre-no-desaparece" id="toc-la-incertidumbre-no-desaparece" class="nav-link" data-scroll-target="#la-incertidumbre-no-desaparece">La incertidumbre no desaparece</a></li>
+  <li><a href="#qué-haría-un-analista-con-esta-información" id="toc-qué-haría-un-analista-con-esta-información" class="nav-link" data-scroll-target="#qué-haría-un-analista-con-esta-información">¿Qué haría un analista con esta información?</a></li>
+  <li><a href="#una-lectura-conjunta-del-modelo" id="toc-una-lectura-conjunta-del-modelo" class="nav-link" data-scroll-target="#una-lectura-conjunta-del-modelo">Una lectura conjunta del modelo</a></li>
+  <li><a href="#coeficientes-versus-escenarios" id="toc-coeficientes-versus-escenarios" class="nav-link" data-scroll-target="#coeficientes-versus-escenarios">Coeficientes versus escenarios</a></li>
+  <li><a href="#qué-nos-dice-realmente-este-modelo" id="toc-qué-nos-dice-realmente-este-modelo" class="nav-link" data-scroll-target="#qué-nos-dice-realmente-este-modelo">¿Qué nos dice realmente este modelo?</a></li>
+  <li><a href="#una-recomendación-prudente" id="toc-una-recomendación-prudente" class="nav-link" data-scroll-target="#una-recomendación-prudente">Una recomendación prudente</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">Reflexión bayesiana</a></li>
+  <li><a href="#conclusiones" id="toc-conclusiones" class="nav-link" data-scroll-target="#conclusiones">Conclusiones</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice — Código completo</a></li>
+  <li><a href="#cierre" id="toc-cierre" class="nav-link" data-scroll-target="#cierre">Cierre</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">¿Cómo interpretar un modelo bayesiano sin perderse en los coeficientes?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Comunicación</div>
+    <div class="quarto-category">Visualización</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Aprendemos a traducir una regresión bayesiana sobre Superstore en escenarios de negocio y decisiones, incorporando la incertidumbre.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 22, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="la-pregunta-de-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="la-pregunta-de-negocio">La pregunta de negocio</h2>
+<p>Después de explorar los datos de Superstore y construir nuestros primeros modelos bayesianos, aparece una pregunta inevitable:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué significa realmente un modelo bayesiano para alguien que debe tomar decisiones?</strong></p>
+</blockquote>
+<p>Hasta ahora hemos aprendido a observar los datos y a construir modelos capaces de relacionar distintas variables con la rentabilidad.</p>
+<p>Pero existe una diferencia importante entre <strong>construir un modelo</strong> y <strong>saber utilizarlo</strong>.</p>
+<p>Un modelo puede producir una tabla como esta:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th style="text-align: right;">Mediana</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Discount</td>
+<td style="text-align: right;">-228,9</td>
+</tr>
+<tr class="even">
+<td>Sales</td>
+<td style="text-align: right;">0,18</td>
+</tr>
+<tr class="odd">
+<td>Quantity</td>
+<td style="text-align: right;">-3,2</td>
+</tr>
+<tr class="even">
+<td>Office Supplies</td>
+<td style="text-align: right;">50,4</td>
+</tr>
+<tr class="odd">
+<td>Technology</td>
+<td style="text-align: right;">41,4</td>
+</tr>
+</tbody>
+</table>
+<p>Desde el punto de vista estadístico, esa tabla contiene información importante.</p>
+<p>Desde el punto de vista empresarial, todavía tenemos varias preguntas:</p>
+<ul>
+<li>¿Qué significa realmente un coeficiente de -228,9?</li>
+<li>¿Cuánto importa un aumento del descuento?</li>
+<li>¿Qué significa que <code>Sales</code> tenga un coeficiente positivo?</li>
+<li>¿Qué significa comparar una categoría con otra?</li>
+<li>¿Qué tan seguros podemos estar de estas estimaciones?</li>
+<li>Y, sobre todo, ¿cómo convertimos todo esto en una decisión?</li>
+</ul>
+<p>Este artículo intenta responder precisamente esa última pregunta.</p>
+<p><strong>El objetivo no será aprender otra función de R.</strong></p>
+<p>El objetivo será aprender a pasar de:</p>
+<blockquote class="blockquote">
+<p><strong>coeficientes → incertidumbre → escenarios → decisiones.</strong></p>
+</blockquote>
+<hr>
+</section>
+<section id="comprendiendo-el-problema" class="level2">
+<h2 class="anchored" data-anchor-id="comprendiendo-el-problema">Comprendiendo el problema</h2>
+<p>Nuestro problema empresarial es sencillo de plantear.</p>
+<p>Queremos comprender qué factores parecen estar asociados con la rentabilidad de una orden de Superstore.</p>
+<p>En particular, nos interesa estudiar cuatro variables:</p>
+<ul>
+<li><code>Discount</code>: descuento aplicado.</li>
+<li><code>Sales</code>: ventas de la orden.</li>
+<li><code>Quantity</code>: cantidad de productos.</li>
+<li><code>Category</code>: categoría del producto.</li>
+</ul>
+<p>La variable que queremos comprender es:</p>
+<p><strong><code>Profit</code></strong></p>
+<p>Es decir, la ganancia asociada con cada pedido.</p>
+<p>Podemos representar la pregunta de una manera muy sencilla:</p>
+<pre class="text"><code>                     Discount
+                         │
+                         ▼
+Sales ───────────────► Profit ◄──────────── Quantity
+                         ▲
+                         │
+                      Category</code></pre>
+<p>Esto no significa que estas cuatro variables sean las únicas responsables de la rentabilidad.</p>
+<p>Tampoco significa que una asociación encontrada por el modelo sea necesariamente causal.</p>
+<p>Significa que queremos estudiar <strong>qué relaciones son compatibles con los datos cuando consideramos simultáneamente estas variables</strong>.</p>
+<p>Esta distinción será importante durante todo el análisis.</p>
+<hr>
+</section>
+<section id="preparando-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="preparando-los-datos">Preparando los datos</h2>
+<p>Utilizaremos nuevamente nuestro dataset de Superstore Sales.</p>
+<p>Aquí hacemos dos cosas importantes.</p>
+<p>Primero, convertimos <code>Category</code> en un factor porque representa una variable categórica.</p>
+<p>Segundo, eliminamos las observaciones que no tienen información disponible en alguna de las variables que utilizaremos en el modelo.</p>
+<p>De esta manera, todas las observaciones que llegan al modelo contienen información completa para las variables que necesitamos.</p>
+<hr>
+</section>
+<section id="construyendo-el-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="construyendo-el-modelo">Construyendo el modelo</h2>
+<p>Utilizaremos una regresión lineal bayesiana mediante <code>rstanarm</code>.</p>
+<p>La pregunta que plantea el modelo puede expresarse en lenguaje cotidiano:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cómo cambia el Profit cuando cambian el descuento, las ventas o la cantidad, y cómo difiere entre categorías, teniendo en cuenta simultáneamente las demás variables del modelo?</strong></p>
+</blockquote>
+<p>Esta última parte es fundamental.</p>
+<p>Cuando interpretamos el efecto de <code>Discount</code>, por ejemplo, estamos preguntando qué ocurre cuando cambia el descuento <strong>manteniendo constantes las demás variables incluidas en el modelo</strong>.</p>
+<p>Lo mismo sucede con <code>Sales</code> y <code>Quantity</code>.</p>
+<p>Para <code>Category</code>, estamos comparando categorías bajo condiciones equivalentes de las demás variables.</p>
+<hr>
+</section>
+<section id="el-primer-contacto-con-los-coeficientes" class="level2">
+<h2 class="anchored" data-anchor-id="el-primer-contacto-con-los-coeficientes">El primer contacto con los coeficientes</h2>
+<p>El modelo produjo las siguientes medianas posteriores:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th style="text-align: right;">Mediana posterior</th>
+<th style="text-align: right;">MAD_SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intercept</td>
+<td style="text-align: right;">-3,6</td>
+<td style="text-align: right;">5,5</td>
+</tr>
+<tr class="even">
+<td>Discount</td>
+<td style="text-align: right;">-228,9</td>
+<td style="text-align: right;">9,2</td>
+</tr>
+<tr class="odd">
+<td>Sales</td>
+<td style="text-align: right;">0,18</td>
+<td style="text-align: right;">0,0</td>
+</tr>
+<tr class="even">
+<td>Quantity</td>
+<td style="text-align: right;">-3,2</td>
+<td style="text-align: right;">0,9</td>
+</tr>
+<tr class="odd">
+<td>Office Supplies</td>
+<td style="text-align: right;">50,4</td>
+<td style="text-align: right;">5,0</td>
+</tr>
+<tr class="even">
+<td>Technology</td>
+<td style="text-align: right;">41,4</td>
+<td style="text-align: right;">6,4</td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td style="text-align: right;">198,7</td>
+<td style="text-align: right;">1,3</td>
+</tr>
+</tbody>
+</table>
+<p>No vamos a interpretar esta tabla como si cada número fuera una verdad exacta.</p>
+<p>La mediana es una forma de resumir la distribución posterior.</p>
+<p>Por tanto, <code>Discount = -228,9</code> no significa:</p>
+<blockquote class="blockquote">
+<p>“El verdadero efecto del descuento es exactamente -228,9.”</p>
+</blockquote>
+<p>Significa que <strong>−228,9 es el valor central de los valores del efecto que resultan plausibles según los datos y el modelo</strong>.</p>
+<p>Para comprender mejor esa incertidumbre necesitamos observar la distribución posterior y sus intervalos.</p>
+<hr>
+</section>
+<section id="qué-significa-cada-coeficiente" class="level2">
+<h2 class="anchored" data-anchor-id="qué-significa-cada-coeficiente">¿Qué significa cada coeficiente?</h2>
+<section id="el-intercepto" class="level3">
+<h3 class="anchored" data-anchor-id="el-intercepto">El intercepto</h3>
+<p>El intercepto tiene una mediana posterior de aproximadamente:</p>
+<p><strong>−$3,6</strong></p>
+<p>En términos puramente matemáticos, representa el Profit esperado cuando:</p>
+<ul>
+<li><code>Discount = 0</code>;</li>
+<li><code>Sales = 0</code>;</li>
+<li><code>Quantity = 0</code>;</li>
+<li>y la categoría corresponde a la categoría de referencia, <code>Furniture</code>.</li>
+</ul>
+<p>Pero debemos tener cuidado.</p>
+<p>Ese escenario probablemente <strong>no representa una orden comercial realista</strong>.</p>
+<p>Una orden con cero ventas y cero unidades no es un escenario empresarial particularmente útil.</p>
+<p>Por eso, aunque el intercepto es necesario para construir matemáticamente el modelo, <strong>no será uno de los protagonistas de nuestra interpretación empresarial</strong>.</p>
+<p>Esta es una buena lección:</p>
+<blockquote class="blockquote">
+<p>No todos los coeficientes de un modelo tienen necesariamente la misma utilidad para tomar decisiones.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="el-descuento" class="level2">
+<h2 class="anchored" data-anchor-id="el-descuento">El descuento</h2>
+<p>El coeficiente de <code>Discount</code> tiene una mediana posterior de:</p>
+<p><strong>−228,9</strong></p>
+<p>Aquí aparece una cuestión importante: <code>Discount</code> está expresado como una proporción.</p>
+<p>Por ejemplo:</p>
+<pre class="text"><code>0.00 = 0 %
+0.10 = 10 %
+0.20 = 20 %
+1.00 = 100 %</code></pre>
+<p>Por tanto, una unidad completa de <code>Discount</code> representa un cambio de <strong>100 puntos porcentuales</strong>.</p>
+<p>El coeficiente nos indica que un incremento de una unidad completa en <code>Discount</code> está asociado, según el modelo, con una disminución aproximada de:</p>
+<p><strong>$228,9 de Profit.</strong></p>
+<p>Pero una variación de 100 puntos porcentuales no es una forma particularmente intuitiva de hablar de una política comercial.</p>
+<p>Podemos convertir la misma información a una escala más útil.</p>
+<p>Si dividimos el efecto entre diez:</p>
+<p><strong>−228,9 / 10 ≈ −22,9</strong></p>
+<p>tenemos una interpretación aproximada de:</p>
+<blockquote class="blockquote">
+<p><strong>Cada aumento de 10 puntos porcentuales en el descuento está asociado con una disminución de aproximadamente $22,9 en Profit, manteniendo constantes las demás variables del modelo.</strong></p>
+</blockquote>
+<p>Ahora el resultado comienza a hablar el idioma del negocio.</p>
+<p>Sin embargo, todavía falta algo.</p>
+<p>Una estimación puntual no nos dice cuánta incertidumbre existe alrededor de ella.</p>
+<p>Por eso construiremos un intervalo de credibilidad.</p>
+<hr>
+</section>
+<section id="ventas" class="level2">
+<h2 class="anchored" data-anchor-id="ventas">Ventas</h2>
+<p>El coeficiente de <code>Sales</code> tiene una mediana posterior de aproximadamente:</p>
+<p><strong>0,184</strong></p>
+<p>Esto significa que, manteniendo constantes el descuento, la cantidad y la categoría, un aumento de <strong>$1 en Sales</strong> está asociado con un aumento esperado de aproximadamente:</p>
+<p><strong>$0,184 en Profit.</strong></p>
+<p>Es decir, unos <strong>18,4 centavos</strong>.</p>
+<p>La interpretación debe hacerse con cuidado.</p>
+<p>No estamos diciendo que cada dólar adicional vendido produzca necesariamente exactamente 18,4 centavos de ganancia.</p>
+<p>Estamos describiendo la relación estimada por el modelo <strong>manteniendo constantes las demás variables incluidas</strong>.</p>
+<p>Además, el valor de <code>Sales</code> y <code>Profit</code> están relacionados por la propia estructura económica del pedido, por lo que este coeficiente debe interpretarse como una asociación dentro del modelo, no como una afirmación causal independiente.</p>
+<hr>
+</section>
+<section id="cantidad" class="level2">
+<h2 class="anchored" data-anchor-id="cantidad">Cantidad</h2>
+<p>El coeficiente de <code>Quantity</code> tiene una mediana posterior de:</p>
+<p><strong>−3,2</strong></p>
+<p>Esto significa que, manteniendo constantes:</p>
+<ul>
+<li>descuento;</li>
+<li>ventas;</li>
+<li>categoría;</li>
+</ul>
+<p>una unidad adicional en la cantidad está asociada con una disminución esperada de aproximadamente:</p>
+<p><strong>$3,2 en Profit.</strong></p>
+<p>De nuevo, no estamos diciendo que vender una unidad adicional provoque necesariamente una pérdida de $3,2.</p>
+<p>Estamos describiendo el patrón estimado por el modelo después de controlar por las otras variables incluidas.</p>
+<p>Esta distinción será importante cuando lleguemos a las recomendaciones.</p>
+<hr>
+</section>
+<section id="las-categorías" class="level2">
+<h2 class="anchored" data-anchor-id="las-categorías">Las categorías</h2>
+<p>La categoría de referencia del modelo es <code>Furniture</code>.</p>
+<p>Por tanto, los coeficientes:</p>
+<ul>
+<li><code>Office Supplies = 50,4</code></li>
+<li><code>Technology = 41,4</code></li>
+</ul>
+<p>representan diferencias respecto a <code>Furniture</code>.</p>
+<p>Así, manteniendo constantes:</p>
+<ul>
+<li>descuento;</li>
+<li>ventas;</li>
+<li>cantidad;</li>
+</ul>
+<p>el modelo estima que un pedido de <code>Office Supplies</code> tiene aproximadamente:</p>
+<p><strong>$50,4 más de Profit</strong></p>
+<p>que un pedido equivalente de <code>Furniture</code>.</p>
+<p>Para <code>Technology</code>, la diferencia estimada es de aproximadamente:</p>
+<p><strong>$41,4 más de Profit</strong></p>
+<p>respecto a <code>Furniture</code>.</p>
+<p>Aquí aparece una idea que será muy importante más adelante:</p>
+<blockquote class="blockquote">
+<p><strong>Un coeficiente de categoría no es la rentabilidad esperada de esa categoría.</strong></p>
+</blockquote>
+<p>Es una <strong>diferencia respecto a una categoría de referencia</strong>.</p>
+<p>Para saber cuál sería el Profit esperado de cada categoría en un escenario concreto, tendremos que utilizar las predicciones del modelo.</p>
+<p>Y eso nos llevará del mundo de los coeficientes al mundo de los escenarios.</p>
+<hr>
+</section>
+<section id="visualizando-los-coeficientes" class="level2">
+<h2 class="anchored" data-anchor-id="visualizando-los-coeficientes">Visualizando los coeficientes</h2>
+<p>Para que estas estimaciones sean más fáciles de interpretar, vamos a representar sus distribuciones resumidas mediante sus medianas e intervalos de credibilidad.</p>
+<p>Primero extraemos las muestras posteriores del modelo.</p>
+<p>Los resultados son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th style="text-align: right;">Mediana</th>
+<th style="text-align: right;">Límite inferior</th>
+<th style="text-align: right;">Límite superior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Office Supplies</td>
+<td style="text-align: right;">50,39</td>
+<td style="text-align: right;">39,71</td>
+<td style="text-align: right;">59,66</td>
+</tr>
+<tr class="even">
+<td>Technology</td>
+<td style="text-align: right;">41,44</td>
+<td style="text-align: right;">29,17</td>
+<td style="text-align: right;">53,53</td>
+</tr>
+<tr class="odd">
+<td>Descuento</td>
+<td style="text-align: right;">−228,91</td>
+<td style="text-align: right;">−247,09</td>
+<td style="text-align: right;">−212,42</td>
+</tr>
+<tr class="even">
+<td>Cantidad</td>
+<td style="text-align: right;">−3,23</td>
+<td style="text-align: right;">−4,95</td>
+<td style="text-align: right;">−1,47</td>
+</tr>
+<tr class="odd">
+<td>Ventas</td>
+<td style="text-align: right;">0,184</td>
+<td style="text-align: right;">0,178</td>
+<td style="text-align: right;">0,191</td>
+</tr>
+</tbody>
+</table>
+<p>Ahora podemos visualizarlos.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La línea vertical situada en cero representa un punto de referencia muy sencillo:</p>
+<blockquote class="blockquote">
+<p><strong>cero significa ausencia de efecto estimado.</strong></p>
+</blockquote>
+<p>Podemos observar que los intervalos de las cinco variables quedan claramente a un lado u otro de ese punto.</p>
+<p>El efecto estimado del descuento aparece muy alejado de cero y es negativo.</p>
+<p>El efecto de la cantidad también es negativo, aunque su magnitud es mucho menor.</p>
+<p>El efecto de las ventas es positivo.</p>
+<p>Y las dos categorías presentan diferencias positivas respecto a <code>Furniture</code>.</p>
+<p>Pero el gráfico nos permite ver algo más importante que los signos.</p>
+<p>También podemos observar la <strong>magnitud de la incertidumbre</strong>.</p>
+<p>Por ejemplo, para <code>Discount</code>, el intervalo va aproximadamente desde:</p>
+<p><strong>−247 hasta −212 dólares</strong></p>
+<p>para una unidad completa de cambio en <code>Discount</code>.</p>
+<p>Por tanto, aunque no conocemos un único valor exacto, el conjunto de valores plausibles se encuentra dentro de un rango bastante definido.</p>
+<hr>
+</section>
+<section id="lo-que-los-coeficientes-todavía-no-nos-cuentan" class="level2">
+<h2 class="anchored" data-anchor-id="lo-que-los-coeficientes-todavía-no-nos-cuentan">Lo que los coeficientes todavía no nos cuentan</h2>
+<p>Hasta aquí hemos conseguido responder varias preguntas.</p>
+<p>Sabemos:</p>
+<ul>
+<li>qué variables tienen asociaciones positivas o negativas;</li>
+<li>cuál parece tener mayor magnitud;</li>
+<li>qué diferencias existen respecto a <code>Furniture</code>;</li>
+<li>y qué incertidumbre rodea cada estimación.</li>
+</ul>
+<p>Pero todavía existe un problema.</p>
+<p>Un responsable de negocio difícilmente piensa en:</p>
+<blockquote class="blockquote">
+<p>“¿Qué ocurre si <code>Discount</code> pasa de 0,17 a 0,18?”</p>
+</blockquote>
+<p>Probablemente piensa en:</p>
+<blockquote class="blockquote">
+<p><strong>“¿Qué ocurre con la rentabilidad si ofrecemos un descuento del 0%, 20% o 40%?”</strong></p>
+</blockquote>
+<p>Esa es una pregunta mucho más cercana a una decisión real.</p>
+<p>Y para responderla necesitamos dejar temporalmente la tabla de coeficientes.</p>
+<p>Necesitamos llevar el modelo a <strong>escenarios concretos</strong>.</p>
+<p>Ahí es donde la interpretación bayesiana empieza a resultar especialmente útil.</p>
+<hr>
+</section>
+<section id="del-coeficiente-al-escenario" class="level2">
+<h2 class="anchored" data-anchor-id="del-coeficiente-al-escenario">Del coeficiente al escenario</h2>
+<p>Los coeficientes nos permiten comprender la dirección y magnitud de las relaciones estimadas por el modelo.</p>
+<p>Pero todavía podemos hacer algo más útil.</p>
+<p>Podemos preguntarle al modelo:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué Profit sería plausible bajo determinadas condiciones de negocio?</strong></p>
+</blockquote>
+<p>Esta forma de presentar los resultados suele ser mucho más intuitiva.</p>
+<p>En lugar de decir:</p>
+<blockquote class="blockquote">
+<p>“El coeficiente de <code>Discount</code> es −228,9.”</p>
+</blockquote>
+<p>podemos preguntar:</p>
+<blockquote class="blockquote">
+<p>“¿Qué ocurre con el Profit esperado cuando el descuento pasa de 0% a 20% o a 40%?”</p>
+</blockquote>
+<p>La diferencia parece pequeña, pero cambia completamente la conversación.</p>
+<p>Ya no estamos hablando solamente de parámetros estadísticos.</p>
+<p>Estamos hablando de <strong>escenarios que podrían corresponder a decisiones reales</strong>.</p>
+<hr>
+</section>
+<section id="construyendo-un-escenario-representativo" class="level2">
+<h2 class="anchored" data-anchor-id="construyendo-un-escenario-representativo">Construyendo un escenario representativo</h2>
+<p>Para comparar distintos niveles de descuento necesitamos mantener constantes las demás variables.</p>
+<p>De lo contrario, si cambiáramos simultáneamente descuento, ventas, cantidad y categoría, ya no sabríamos qué parte del cambio en Profit corresponde a cada variable.</p>
+<p>Utilizaremos valores representativos para construir nuestro escenario:</p>
+<ul>
+<li>ventas = mediana de <code>Sales</code>;</li>
+<li>cantidad = mediana de <code>Quantity</code>;</li>
+<li>categoría = <code>Office Supplies</code>.</li>
+</ul>
+<p>Primero calculamos las medianas.</p>
+<p>Los valores obtenidos son:</p>
+<ul>
+<li><strong>Sales = $54,49</strong></li>
+<li><strong>Quantity = 3 unidades</strong></li>
+</ul>
+<p>La mediana resulta útil aquí porque representa un pedido típico sin quedar demasiado influenciada por órdenes extremadamente grandes.</p>
+<hr>
+</section>
+<section id="observar-toda-la-trayectoria-del-descuento" class="level2">
+<h2 class="anchored" data-anchor-id="observar-toda-la-trayectoria-del-descuento">Observar toda la trayectoria del descuento</h2>
+<p>En lugar de estudiar únicamente tres puntos, podemos construir una secuencia de valores de descuento.</p>
+<p>Aquí estamos construyendo una tabla con <strong>100 escenarios posibles de descuento</strong>.</p>
+<p>La única variable que cambia es <code>Discount</code>.</p>
+<p>Las demás permanecen constantes:</p>
+<pre class="text"><code>Sales     = $54,49
+Quantity  = 3
+Category  = Office Supplies</code></pre>
+<p>Esto permite aislar visualmente la relación entre descuento y Profit.</p>
+<hr>
+</section>
+<section id="qué-significa-posterior_epred" class="level2">
+<h2 class="anchored" data-anchor-id="qué-significa-posterior_epred">¿Qué significa <code>posterior_epred()</code>?</h2>
+<p>Ahora utilizamos:</p>
+<p>Esta función utiliza las distribuciones posteriores del modelo para obtener valores plausibles del <strong>Profit esperado</strong> para cada uno de nuestros escenarios.</p>
+<p>La palabra <em>posterior</em> es importante.</p>
+<p>No estamos utilizando únicamente el valor central de cada coeficiente.</p>
+<p>Estamos utilizando la incertidumbre que permanece después de observar los datos.</p>
+<p>Para cada uno de los 100 niveles de descuento obtenemos múltiples valores plausibles de Profit.</p>
+<p>Podemos imaginarlo así:</p>
+<pre class="text"><code>Descuento 0%
+       │
+       ├── Profit plausible
+       ├── Profit plausible
+       ├── Profit plausible
+       ├── ...
+       └── Profit plausible
+
+Descuento 20%
+       │
+       ├── Profit plausible
+       ├── Profit plausible
+       ├── Profit plausible
+       ├── ...
+       └── Profit plausible
+
+Descuento 40%
+       │
+       ├── Profit plausible
+       ├── Profit plausible
+       ├── ...
+       └── Profit plausible</code></pre>
+<p>Esto es una de las ventajas de trabajar con un modelo bayesiano.</p>
+<p>No obtenemos solamente una predicción puntual.</p>
+<p>Obtenemos una distribución de valores plausibles.</p>
+<hr>
+</section>
+<section id="visualizando-la-trayectoria-del-profit" class="level2">
+<h2 class="anchored" data-anchor-id="visualizando-la-trayectoria-del-profit">Visualizando la trayectoria del Profit</h2>
+<p>Después resumimos esas predicciones mediante una mediana y un intervalo de incertidumbre.</p>
+<p>Ahora podemos representar toda la trayectoria.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El gráfico cambia la forma en que podemos leer el modelo.</p>
+<p>Ya no tenemos que interpretar mentalmente el coeficiente <code>−228,9</code>.</p>
+<p>Ahora podemos observar directamente cómo cambia el Profit esperado a medida que aumenta el descuento.</p>
+<p>La tendencia es claramente descendente.</p>
+<p>Con un descuento cercano a <strong>0%</strong>, el Profit esperado se encuentra alrededor de <strong>$50</strong>.</p>
+<p>Cuando el descuento alcanza aproximadamente el <strong>20%</strong>, el Profit esperado se aproxima a <strong>$0</strong>.</p>
+<p>Y a medida que seguimos aumentando el descuento, el Profit esperado pasa progresivamente a terreno negativo.</p>
+<p>Alrededor del <strong>80% de descuento</strong>, por ejemplo, la pérdida esperada se encuentra aproximadamente en <strong>$130</strong>, con un intervalo de incertidumbre que se sitúa aproximadamente entre <strong>−$145 y −$125</strong>.</p>
+<p>Lo importante aquí no es memorizar esos valores.</p>
+<p>Lo importante es observar la <strong>forma de la relación</strong>:</p>
+<blockquote class="blockquote">
+<p><strong>A medida que aumenta el descuento, la rentabilidad esperada disminuye.</strong></p>
+</blockquote>
+<p>Y la incertidumbre no desaparece.</p>
+<p>La cinta alrededor de la línea nos recuerda que cada predicción es una distribución de valores plausibles, no una cifra exacta.</p>
+<hr>
+</section>
+<section id="tres-decisiones-comerciales-concretas" class="level2">
+<h2 class="anchored" data-anchor-id="tres-decisiones-comerciales-concretas">Tres decisiones comerciales concretas</h2>
+<p>La trayectoria completa es útil para comprender el comportamiento general.</p>
+<p>Pero un responsable de negocio normalmente necesita comparar alternativas concretas.</p>
+<p>Podemos simplificar la pregunta:</p>
+<blockquote class="blockquote">
+<p>¿Qué ocurre con la rentabilidad ante un descuento bajo, medio o alto?</p>
+</blockquote>
+<p>Construiremos tres escenarios:</p>
+<ul>
+<li>0% de descuento;</li>
+<li>20% de descuento;</li>
+<li>40% de descuento.</li>
+</ul>
+<p>Mantendremos constantes:</p>
+<ul>
+<li>Sales = $54,49;</li>
+<li>Quantity = 3;</li>
+<li>Category = Office Supplies.</li>
+</ul>
+<p>La tabla que acabamos de construir representa tres situaciones hipotéticas.</p>
+<p>No estamos diciendo que estos sean necesariamente los únicos descuentos posibles.</p>
+<p>Son simplemente tres escenarios suficientemente diferentes para visualizar cómo cambia la rentabilidad.</p>
+<hr>
+</section>
+<section id="generando-las-predicciones-de-los-tres-escenarios" class="level2">
+<h2 class="anchored" data-anchor-id="generando-las-predicciones-de-los-tres-escenarios">Generando las predicciones de los tres escenarios</h2>
+<p>Ahora podemos pedirle al modelo que estime el Profit esperado para cada escenario.</p>
+<p>Para cada escenario obtenemos 1000 valores provenientes de la distribución posterior.</p>
+<p>Podemos resumirlos mediante su mediana y los cuantiles 5% y 95%.</p>
+<p>Los resultados son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Escenario</th>
+<th style="text-align: right;">Profit esperado</th>
+<th style="text-align: right;">Intervalo central</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Descuento bajo — 0%</td>
+<td style="text-align: right;">$46,86</td>
+<td style="text-align: right;">$41,89 a $51,43</td>
+</tr>
+<tr class="even">
+<td>Descuento medio — 20%</td>
+<td style="text-align: right;">$1,05</td>
+<td style="text-align: right;">−$3,66 a $5,37</td>
+</tr>
+<tr class="odd">
+<td>Descuento alto — 40%</td>
+<td style="text-align: right;">−$44,96</td>
+<td style="text-align: right;">−$50,62 a −$39,42</td>
+</tr>
+</tbody>
+</table>
+<p>Aquí el modelo empieza a hablar un lenguaje mucho más cercano a la toma de decisiones.</p>
+<hr>
+</section>
+<section id="comparando-los-tres-escenarios" class="level2">
+<h2 class="anchored" data-anchor-id="comparando-los-tres-escenarios">Comparando los tres escenarios</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Este es probablemente uno de los gráficos más útiles de todo el análisis.</p>
+<p>Con un descuento de <strong>0%</strong>, el Profit esperado es de aproximadamente <strong>$46,9</strong>, con un intervalo central de incertidumbre entre aproximadamente <strong>$41,9 y $51,4</strong>.</p>
+<p>Con un descuento del <strong>20%</strong>, el Profit esperado prácticamente desaparece.</p>
+<p>La mediana es de aproximadamente <strong>$1,0</strong>, mientras que el intervalo se extiende desde una pérdida de aproximadamente <strong>$3,7</strong> hasta una ganancia de aproximadamente <strong>$5,4</strong>.</p>
+<p>Esto significa que, bajo este escenario, el resultado es compatible tanto con una pequeña ganancia como con una pequeña pérdida.</p>
+<p>Con un descuento del <strong>40%</strong>, la situación cambia considerablemente.</p>
+<p>El Profit esperado es aproximadamente <strong>−$45</strong>, con un intervalo que permanece completamente en terreno negativo: aproximadamente entre <strong>−$50,6 y −$39,4</strong>.</p>
+<p>La comparación permite expresar el resultado de una manera mucho más útil:</p>
+<blockquote class="blockquote">
+<p><strong>En este escenario representativo, aumentar el descuento del 0% al 20% prácticamente elimina la rentabilidad esperada, mientras que llevarlo al 40% sitúa el Profit claramente en terreno negativo.</strong></p>
+</blockquote>
+<p>Esto es mucho más accionable que simplemente decir:</p>
+<blockquote class="blockquote">
+<p>“El coeficiente de Discount es −228,9.”</p>
+</blockquote>
+<hr>
+</section>
+<section id="una-precaución-importante" class="level2">
+<h2 class="anchored" data-anchor-id="una-precaución-importante">Una precaución importante</h2>
+<p>Hay que recordar qué estamos haciendo realmente.</p>
+<p>Estos escenarios mantienen constantes:</p>
+<pre class="text"><code>Sales    = $54,49
+Quantity = 3
+Category = Office Supplies</code></pre>
+<p>Por tanto, no estamos simulando todo lo que podría ocurrir en una campaña comercial real.</p>
+<p>Por ejemplo, un descuento mayor podría aumentar las ventas o modificar la cantidad comprada.</p>
+<p>Nuestro modelo no está simulando esos posibles cambios.</p>
+<p>Estamos respondiendo una pregunta más específica:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cómo cambia el Profit esperado cuando modificamos el descuento y mantenemos constantes las demás características del pedido?</strong></p>
+</blockquote>
+<p>Esta precisión es importante.</p>
+<p>Un escenario estadístico es una herramienta para aislar una relación.</p>
+<p>No es necesariamente una simulación completa de la realidad empresarial.</p>
+<hr>
+</section>
+<section id="y-qué-ocurre-con-las-categorías" class="level2">
+<h2 class="anchored" data-anchor-id="y-qué-ocurre-con-las-categorías">¿Y qué ocurre con las categorías?</h2>
+<p>El mismo razonamiento puede utilizarse para comparar las categorías.</p>
+<p>Podemos preguntar:</p>
+<blockquote class="blockquote">
+<p><strong>Si dos pedidos tienen las mismas ventas, la misma cantidad y el mismo descuento, ¿cómo cambia el Profit esperado según la categoría?</strong></p>
+</blockquote>
+<p>Para responderlo construiremos tres escenarios:</p>
+<ul>
+<li>Furniture;</li>
+<li>Office Supplies;</li>
+<li>Technology.</li>
+</ul>
+<p>Mantendremos:</p>
+<ul>
+<li>Discount = 10%;</li>
+<li>Sales = $54,49;</li>
+<li>Quantity = 3.</li>
+</ul>
+<p>Ahora tenemos tres pedidos hipotéticos que son iguales en todas las variables excepto en la categoría.</p>
+<p>Eso permite realizar una comparación más directa.</p>
+<hr>
+</section>
+<section id="predicciones-por-categoría" class="level2">
+<h2 class="anchored" data-anchor-id="predicciones-por-categoría">Predicciones por categoría</h2>
+<p>Resumimos nuevamente las distribuciones posteriores:</p>
+<p>Los resultados obtenidos son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Categoría</th>
+<th style="text-align: right;">Profit esperado</th>
+<th style="text-align: right;">Intervalo central</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Furniture</td>
+<td style="text-align: right;">−$26,41</td>
+<td style="text-align: right;">−$33,35 a −$19,22</td>
+</tr>
+<tr class="even">
+<td>Office Supplies</td>
+<td style="text-align: right;">$23,90</td>
+<td style="text-align: right;">$19,39 a $28,20</td>
+</tr>
+<tr class="odd">
+<td>Technology</td>
+<td style="text-align: right;">$14,91</td>
+<td style="text-align: right;">$6,83 a $23,19</td>
+</tr>
+</tbody>
+</table>
+<p>Ahora podemos representar esta comparación.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El resultado es especialmente interesante.</p>
+<p>Bajo este escenario:</p>
+<ul>
+<li><code>Furniture</code> presenta un Profit esperado de aproximadamente <strong>−$26,4</strong>;</li>
+<li><code>Technology</code> presenta un Profit esperado de aproximadamente <strong>$14,9</strong>;</li>
+<li><code>Office Supplies</code> presenta un Profit esperado de aproximadamente <strong>$23,9</strong>.</li>
+</ul>
+<p>Y aquí aparece una diferencia importante respecto a la interpretación de los coeficientes.</p>
+<p>Anteriormente dijimos que <code>Office Supplies</code> tenía aproximadamente <strong>$50 más de Profit que Furniture</strong>.</p>
+<p>Eso sigue siendo cierto para el efecto del coeficiente.</p>
+<p>Pero cuando incorporamos el escenario completo, obtenemos valores absolutos de Profit diferentes:</p>
+<pre class="text"><code>Furniture        ≈ −$26
+Technology       ≈  $15
+Office Supplies  ≈  $24</code></pre>
+<p>¿Por qué?</p>
+<p>Porque ahora estamos incorporando también:</p>
+<ul>
+<li>el intercepto;</li>
+<li>el efecto del descuento;</li>
+<li>el efecto de las ventas;</li>
+<li>el efecto de la cantidad;</li>
+<li>y el efecto específico de cada categoría.</li>
+</ul>
+<p>Esto demuestra una idea fundamental:</p>
+<blockquote class="blockquote">
+<p><strong>Los coeficientes explican cómo cambia el resultado. Las predicciones nos ayudan a visualizar cuál podría ser el resultado bajo determinadas condiciones.</strong></p>
+</blockquote>
+<p>Y precisamente por eso no debemos quedarnos únicamente con la tabla de coeficientes.</p>
+<hr>
+</section>
+<section id="una-primera-lectura-empresarial" class="level2">
+<h2 class="anchored" data-anchor-id="una-primera-lectura-empresarial">Una primera lectura empresarial</h2>
+<p>Hasta este momento podemos construir una historia bastante clara.</p>
+<p>El modelo encuentra evidencia compatible con una relación negativa entre descuento y Profit.</p>
+<p>Además, bajo nuestro escenario representativo:</p>
+<ul>
+<li>sin descuento, el Profit esperado es positivo;</li>
+<li>con 20% de descuento, la rentabilidad se aproxima a cero;</li>
+<li>con 40%, la rentabilidad esperada es claramente negativa.</li>
+</ul>
+<p>Por otro lado, las categorías presentan diferencias importantes.</p>
+<p>Con las mismas ventas, cantidad y descuento:</p>
+<ul>
+<li>Furniture presenta una pérdida esperada;</li>
+<li>Technology presenta una ganancia esperada;</li>
+<li>Office Supplies presenta la mayor ganancia esperada de los tres escenarios.</li>
+</ul>
+<p>Pero todavía debemos hacer una pregunta más importante:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué debería hacer realmente un analista con esta información?</strong></p>
+</blockquote>
+<p>Porque encontrar una relación estadística no es todavía una recomendación empresarial.</p>
+<p>La última parte del análisis consistirá precisamente en convertir estos resultados en una forma prudente de tomar decisiones bajo incertidumbre.</p>
+<hr>
+</section>
+<section id="del-análisis-a-la-decisión" class="level2">
+<h2 class="anchored" data-anchor-id="del-análisis-a-la-decisión">Del análisis a la decisión</h2>
+<p>Llegados a este punto, ya no necesitamos mirar solamente los coeficientes.</p>
+<p>Podemos utilizar el modelo para comparar situaciones concretas.</p>
+<p>Y esa es probablemente una de las ideas más importantes de este análisis:</p>
+<blockquote class="blockquote">
+<p><strong>Un modelo bayesiano resulta especialmente útil cuando transforma incertidumbre estadística en escenarios que podemos discutir en términos de negocio.</strong></p>
+</blockquote>
+<p>Nuestro análisis ha encontrado tres señales particularmente importantes.</p>
+<p>La primera está relacionada con los descuentos.</p>
+<p>La segunda con las categorías.</p>
+<p>La tercera con la incertidumbre que permanece alrededor de todas nuestras estimaciones.</p>
+<hr>
+</section>
+<section id="qué-aprendimos-sobre-los-descuentos" class="level2">
+<h2 class="anchored" data-anchor-id="qué-aprendimos-sobre-los-descuentos">¿Qué aprendimos sobre los descuentos?</h2>
+<p>El efecto estimado del descuento es claramente negativo.</p>
+<p>La mediana posterior del coeficiente fue de aproximadamente:</p>
+<p><strong>−228,9</strong></p>
+<p>y su intervalo de credibilidad del 95% se situó entre aproximadamente:</p>
+<p><strong>−247,1 y −212,4</strong></p>
+<p>Recordemos que <code>Discount</code> está expresado como proporción.</p>
+<p>Por tanto, una unidad completa corresponde a un cambio de 100 puntos porcentuales.</p>
+<p>Una forma más intuitiva de expresarlo es:</p>
+<blockquote class="blockquote">
+<p><strong>Un aumento de 10 puntos porcentuales en el descuento está asociado con una disminución aproximada de $22,9 en Profit, manteniendo constantes las demás variables del modelo.</strong></p>
+</blockquote>
+<p>El análisis de escenarios refuerza esta señal.</p>
+<p>Para un pedido representativo de <code>Office Supplies</code>, con:</p>
+<ul>
+<li>ventas de $54,49;</li>
+<li>3 unidades;</li>
+</ul>
+<p>obtuvimos:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Descuento</th>
+<th style="text-align: right;">Profit esperado</th>
+<th style="text-align: right;">Intervalo central</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0%</td>
+<td style="text-align: right;">$46,86</td>
+<td style="text-align: right;">$41,89 a $51,43</td>
+</tr>
+<tr class="even">
+<td>20%</td>
+<td style="text-align: right;">$1,05</td>
+<td style="text-align: right;">−$3,66 a $5,37</td>
+</tr>
+<tr class="odd">
+<td>40%</td>
+<td style="text-align: right;">−$44,96</td>
+<td style="text-align: right;">−$50,62 a −$39,42</td>
+</tr>
+</tbody>
+</table>
+<p>La diferencia entre estos escenarios es importante.</p>
+<p>Con 0% de descuento, el resultado esperado es claramente positivo.</p>
+<p>Con 20%, el resultado se aproxima al punto de equilibrio.</p>
+<p>Con 40%, el intervalo permanece completamente por debajo de cero.</p>
+<p>Por tanto, dentro de las condiciones de este escenario, los descuentos elevados parecen especialmente difíciles de conciliar con una rentabilidad positiva.</p>
+<hr>
+</section>
+<section id="pero-cuidado-esto-no-significa-que-los-descuentos-causen-pérdidas" class="level2">
+<h2 class="anchored" data-anchor-id="pero-cuidado-esto-no-significa-que-los-descuentos-causen-pérdidas">Pero cuidado: esto no significa que “los descuentos causen pérdidas”</h2>
+<p>Aquí debemos detenernos un momento.</p>
+<p>Es tentador mirar el coeficiente de <code>Discount</code> y concluir:</p>
+<blockquote class="blockquote">
+<p>“Los descuentos provocan pérdidas.”</p>
+</blockquote>
+<p>Pero esa afirmación sería demasiado fuerte para el análisis que hemos realizado.</p>
+<p>Nuestro modelo es observacional.</p>
+<p>Estamos estudiando órdenes que realmente ocurrieron y buscando relaciones entre sus variables.</p>
+<p>No hemos realizado un experimento controlado en el que asignemos aleatoriamente distintos descuentos a pedidos equivalentes.</p>
+<p>Por tanto, el resultado debe interpretarse como:</p>
+<blockquote class="blockquote">
+<p><strong>Los datos muestran una asociación negativa entre el nivel de descuento y Profit, después de considerar las demás variables incluidas en el modelo.</strong></p>
+</blockquote>
+<p>Podrían existir otros factores que no estamos considerando.</p>
+<p>Por ejemplo:</p>
+<ul>
+<li>tipo de producto;</li>
+<li>región;</li>
+<li>cliente;</li>
+<li>fecha;</li>
+<li>condiciones comerciales;</li>
+<li>costos específicos;</li>
+<li>promociones;</li>
+<li>características del mercado.</li>
+</ul>
+<p>Si alguno de estos factores está relacionado tanto con el descuento como con la rentabilidad, podría estar influyendo en la relación observada.</p>
+<p>Por eso el modelo nos ayuda a identificar una señal.</p>
+<p>No elimina la necesidad de análisis adicional.</p>
+<hr>
+</section>
+<section id="qué-aprendimos-sobre-las-categorías" class="level2">
+<h2 class="anchored" data-anchor-id="qué-aprendimos-sobre-las-categorías">¿Qué aprendimos sobre las categorías?</h2>
+<p>La comparación entre categorías también resulta interesante.</p>
+<p>Manteniendo:</p>
+<ul>
+<li>ventas = $54,49;</li>
+<li>cantidad = 3;</li>
+<li>descuento = 10%;</li>
+</ul>
+<p>obtuvimos:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Categoría</th>
+<th style="text-align: right;">Profit esperado</th>
+<th style="text-align: right;">Intervalo central</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Furniture</td>
+<td style="text-align: right;">−$26,41</td>
+<td style="text-align: right;">−$33,35 a −$19,22</td>
+</tr>
+<tr class="even">
+<td>Technology</td>
+<td style="text-align: right;">$14,91</td>
+<td style="text-align: right;">$6,83 a $23,19</td>
+</tr>
+<tr class="odd">
+<td>Office Supplies</td>
+<td style="text-align: right;">$23,90</td>
+<td style="text-align: right;">$19,39 a $28,20</td>
+</tr>
+</tbody>
+</table>
+<p>Bajo estas condiciones, <code>Furniture</code> presenta un resultado esperado negativo.</p>
+<p><code>Technology</code> presenta un resultado positivo.</p>
+<p>Y <code>Office Supplies</code> presenta el mayor Profit esperado de los tres escenarios.</p>
+<p>Esto es consistente con lo que observamos anteriormente en los coeficientes.</p>
+<p>Recordemos que los coeficientes de las categorías eran diferencias respecto a <code>Furniture</code>.</p>
+<p>El modelo estimaba aproximadamente:</p>
+<ul>
+<li>$41 más para Technology respecto a Furniture;</li>
+<li>$50 más para Office Supplies respecto a Furniture.</li>
+</ul>
+<p>Cuando transformamos esas diferencias en escenarios completos, podemos observar directamente el Profit esperado de cada categoría.</p>
+<p>Esta es precisamente la ventaja de pasar de los coeficientes a las predicciones.</p>
+<hr>
+</section>
+<section id="una-observación-importante-sobre-las-categorías" class="level2">
+<h2 class="anchored" data-anchor-id="una-observación-importante-sobre-las-categorías">Una observación importante sobre las categorías</h2>
+<p>Tampoco deberíamos concluir:</p>
+<blockquote class="blockquote">
+<p>“Office Supplies siempre es más rentable que Technology.”</p>
+</blockquote>
+<p>Nuestro escenario representa únicamente una combinación concreta de condiciones:</p>
+<pre class="text"><code>Sales    = $54,49
+Quantity = 3
+Discount = 10%</code></pre>
+<p>Si cambiamos esas condiciones, las predicciones también cambiarán.</p>
+<p>Por ejemplo, una orden de Technology con ventas mucho mayores podría presentar un Profit muy diferente.</p>
+<p>Por eso debemos pensar en estas predicciones como:</p>
+<blockquote class="blockquote">
+<p><strong>escenarios condicionados</strong></p>
+</blockquote>
+<p>y no como características universales de cada categoría.</p>
+<p>Esta forma de pensar es especialmente importante cuando utilizamos modelos para apoyar decisiones.</p>
+<hr>
+</section>
+<section id="la-incertidumbre-no-desaparece" class="level2">
+<h2 class="anchored" data-anchor-id="la-incertidumbre-no-desaparece">La incertidumbre no desaparece</h2>
+<p>Una de las ventajas más interesantes del enfoque bayesiano es que no necesitamos ocultar la incertidumbre.</p>
+<p>Podemos mostrarla.</p>
+<p>Por ejemplo, para el escenario de descuento del 40% obtuvimos:</p>
+<p><strong>Profit esperado = −$44,96</strong></p>
+<p>con un intervalo central aproximadamente entre:</p>
+<p><strong>−$50,62 y −$39,42</strong>.</p>
+<p>No tenemos que elegir entre decir:</p>
+<blockquote class="blockquote">
+<p>“La pérdida será exactamente de $44,96.”</p>
+</blockquote>
+<p>o:</p>
+<blockquote class="blockquote">
+<p>“No sabemos absolutamente nada.”</p>
+</blockquote>
+<p>Existe una tercera posibilidad.</p>
+<p>Podemos decir:</p>
+<blockquote class="blockquote">
+<p><strong>El resultado más plausible se encuentra alrededor de una pérdida de $45, y los valores centrales de nuestra distribución de predicciones se encuentran aproximadamente entre $39 y $51 de pérdida.</strong></p>
+</blockquote>
+<p>Esto es mucho más cercano a la forma en que realmente se toman decisiones bajo incertidumbre.</p>
+<hr>
+</section>
+<section id="qué-haría-un-analista-con-esta-información" class="level2">
+<h2 class="anchored" data-anchor-id="qué-haría-un-analista-con-esta-información">¿Qué haría un analista con esta información?</h2>
+<p>Aquí llegamos al punto más importante del artículo.</p>
+<p>El modelo no debería convertirse automáticamente en una política comercial.</p>
+<p>Su función es aportar evidencia para discutir las alternativas.</p>
+<p>A partir de nuestros resultados, un analista podría plantear al menos cuatro acciones.</p>
+<section id="revisar-los-descuentos-elevados" class="level3">
+<h3 class="anchored" data-anchor-id="revisar-los-descuentos-elevados">1. Revisar los descuentos elevados</h3>
+<p>Los resultados muestran una relación negativa bastante clara entre descuento y Profit.</p>
+<p>Por tanto, los descuentos elevados deberían ser revisados con especial atención.</p>
+<p>No necesariamente significa prohibirlos.</p>
+<p>Significa preguntarse:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué volumen adicional de ventas necesitamos para compensar la pérdida de margen asociada con el descuento?</strong></p>
+</blockquote>
+<p>Esta pregunta podría convertirse en el siguiente análisis.</p>
+<hr>
+</section>
+<section id="comparar-estrategias-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="comparar-estrategias-por-categoría">2. Comparar estrategias por categoría</h3>
+<p>Las categorías no presentan el mismo comportamiento bajo condiciones equivalentes.</p>
+<p>Por tanto, podría ser poco recomendable aplicar una única política de descuentos a todas las categorías.</p>
+<p>Una estrategia comercial podría necesitar distinguir entre:</p>
+<ul>
+<li>Furniture;</li>
+<li>Technology;</li>
+<li>Office Supplies.</li>
+</ul>
+<p>La información del modelo sugiere que estas categorías merecen ser analizadas por separado.</p>
+<hr>
+</section>
+<section id="utilizar-escenarios-antes-de-modificar-una-política-comercial" class="level3">
+<h3 class="anchored" data-anchor-id="utilizar-escenarios-antes-de-modificar-una-política-comercial">3. Utilizar escenarios antes de modificar una política comercial</h3>
+<p>Antes de establecer un nuevo descuento general, podemos utilizar el modelo para preguntar:</p>
+<pre class="text"><code>¿Qué ocurre con 5%?
+¿Qué ocurre con 10%?
+¿Qué ocurre con 15%?
+¿Qué ocurre con 20%?</code></pre>
+<p>Y posteriormente extender el análisis incorporando otras variables.</p>
+<p>Esto convierte al modelo en una herramienta para explorar decisiones.</p>
+<p>No en una máquina que simplemente produce coeficientes.</p>
+<hr>
+</section>
+<section id="buscar-variables-que-todavía-no-están-en-el-modelo" class="level3">
+<h3 class="anchored" data-anchor-id="buscar-variables-que-todavía-no-están-en-el-modelo">4. Buscar variables que todavía no están en el modelo</h3>
+<p>Nuestro modelo explica solamente una parte del comportamiento de <code>Profit</code>.</p>
+<p>La presencia del parámetro <code>sigma</code>, con una mediana de aproximadamente <strong>198,7</strong>, nos recuerda que existe una importante variabilidad residual alrededor de las predicciones.</p>
+<p>Pero debemos interpretar este valor correctamente.</p>
+<p>No significa:</p>
+<blockquote class="blockquote">
+<p>“Hay $198,7 de ganancias que el modelo no explica.”</p>
+</blockquote>
+<p><code>Sigma</code> representa la escala de la variabilidad residual del modelo.</p>
+<p>En términos sencillos:</p>
+<blockquote class="blockquote">
+<p><strong>Incluso después de considerar descuento, ventas, cantidad y categoría, los valores reales de Profit todavía presentan una dispersión importante alrededor de las predicciones del modelo.</strong></p>
+</blockquote>
+<p>Esto nos indica que existen otros factores que podrían ayudar a comprender mejor la rentabilidad.</p>
+<p>Y esa observación es muy útil para un analista.</p>
+<p>Un buen modelo no solamente responde preguntas.</p>
+<p>También ayuda a descubrir <strong>qué preguntas todavía no hemos respondido</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="una-lectura-conjunta-del-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="una-lectura-conjunta-del-modelo">Una lectura conjunta del modelo</h2>
+<p>Podemos resumir nuestro análisis en una sola imagen mental.</p>
+<pre class="text"><code>                 MODELO
+                   │
+        ┌──────────┼──────────┐
+        │          │          │
+    Descuento    Ventas    Cantidad
+        │          │          │
+        ▼          ▼          ▼
+      Profit     Profit     Profit
+        │
+        │
+        ▼
+    Categoría
+        │
+        ▼
+      Profit</code></pre>
+<p>El modelo encontró:</p>
+<p><strong>Descuento</strong></p>
+<p>Una asociación negativa bastante clara con Profit.</p>
+<p><strong>Ventas</strong></p>
+<p>Una asociación positiva: aproximadamente $0,184 de Profit por cada dólar adicional de Sales, manteniendo constantes las demás variables.</p>
+<p><strong>Cantidad</strong></p>
+<p>Una asociación negativa de aproximadamente $3,2 por unidad adicional, bajo las condiciones del modelo.</p>
+<p><strong>Categoría</strong></p>
+<p>Diferencias positivas respecto a Furniture para Office Supplies y Technology.</p>
+<p>Pero ninguna de estas cifras debería interpretarse de manera aislada.</p>
+<p>La utilidad aparece cuando combinamos:</p>
+<blockquote class="blockquote">
+<p><strong>efecto + incertidumbre + contexto + escenario.</strong></p>
+</blockquote>
+<hr>
+</section>
+<section id="coeficientes-versus-escenarios" class="level2">
+<h2 class="anchored" data-anchor-id="coeficientes-versus-escenarios">Coeficientes versus escenarios</h2>
+<p>Podemos resumir todo el aprendizaje del artículo mediante esta comparación.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 46%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coeficientes</th>
+<th>Escenarios</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Explican relaciones</td>
+<td>Simulan situaciones concretas</td>
+</tr>
+<tr class="even">
+<td>Ayudan a entender magnitudes</td>
+<td>Ayudan a comparar decisiones</td>
+</tr>
+<tr class="odd">
+<td>Muestran efectos individuales</td>
+<td>Combinan varios efectos</td>
+</tr>
+<tr class="even">
+<td>Son útiles para comprender el modelo</td>
+<td>Son útiles para conversar sobre el negocio</td>
+</tr>
+<tr class="odd">
+<td>Necesitan interpretación</td>
+<td>Se acercan al lenguaje de decisión</td>
+</tr>
+</tbody>
+</table>
+<p>Ninguno sustituye al otro.</p>
+<p>Los coeficientes nos permiten comprender la estructura del modelo.</p>
+<p>Los escenarios nos permiten utilizar esa estructura para explorar preguntas concretas.</p>
+<p>Por eso, un análisis bayesiano aplicado no debería terminar necesariamente con una tabla de coeficientes.</p>
+<p>Muchas veces, <strong>ese es solamente el comienzo de la conversación</strong>.</p>
+<hr>
+</section>
+<section id="qué-nos-dice-realmente-este-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="qué-nos-dice-realmente-este-modelo">¿Qué nos dice realmente este modelo?</h2>
+<p>Después de todo el análisis podemos regresar a nuestra pregunta inicial:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué significa realmente un modelo para quien debe tomar decisiones?</strong></p>
+</blockquote>
+<p>La respuesta no es:</p>
+<blockquote class="blockquote">
+<p>“Significa mirar los coeficientes.”</p>
+</blockquote>
+<p>Significa algo más amplio.</p>
+<p>Un modelo nos permite organizar la evidencia disponible y utilizarla para explorar situaciones que podrían ser relevantes para el negocio.</p>
+<p>En nuestro caso encontramos evidencia compatible con una relación negativa entre descuentos y rentabilidad.</p>
+<p>También encontramos diferencias entre categorías.</p>
+<p>Y pudimos transformar esas relaciones en escenarios concretos.</p>
+<p>Pero el modelo no nos dice automáticamente qué decisión tomar.</p>
+<p>La decisión requiere incorporar:</p>
+<ul>
+<li>objetivos del negocio;</li>
+<li>costos;</li>
+<li>estrategia comercial;</li>
+<li>restricciones;</li>
+<li>información adicional;</li>
+<li>y, sobre todo, la incertidumbre que permanece.</li>
+</ul>
+<hr>
+</section>
+<section id="una-recomendación-prudente" class="level2">
+<h2 class="anchored" data-anchor-id="una-recomendación-prudente">Una recomendación prudente</h2>
+<p>Si tuviéramos que entregar este análisis a un responsable comercial, probablemente no recomendaríamos simplemente:</p>
+<blockquote class="blockquote">
+<p><strong>“Elimine los descuentos.”</strong></p>
+</blockquote>
+<p>Eso sería una conclusión demasiado fuerte.</p>
+<p>Una recomendación más razonable sería:</p>
+<blockquote class="blockquote">
+<p><strong>“Los datos muestran una relación negativa entre el descuento y Profit. En los escenarios analizados, los descuentos del 20% llevan la rentabilidad esperada cerca del punto de equilibrio, mientras que un descuento del 40% produce un Profit esperado claramente negativo. Antes de establecer descuentos elevados de forma generalizada, convendría evaluar su impacto por categoría y comprobar si el incremento esperado en ventas compensa la reducción de rentabilidad.”</strong></p>
+</blockquote>
+<p>Esta recomendación tiene una característica importante:</p>
+<p><strong>reconoce lo que sabemos y también lo que todavía no sabemos.</strong></p>
+<p>Ese es precisamente el tipo de comunicación que buscamos en Business Analytics Bayesiano.</p>
+<hr>
+</section>
+<section id="reflexión-bayesiana" class="level2">
+<h2 class="anchored" data-anchor-id="reflexión-bayesiana">Reflexión bayesiana</h2>
+<p>Este análisis comenzó con una tabla de coeficientes.</p>
+<p>Terminó con escenarios de negocio.</p>
+<p>Ese recorrido es importante.</p>
+<p>Un enfoque puramente numérico podría detenerse en:</p>
+<pre class="text"><code>Discount = -228,9
+Sales = 0,184
+Quantity = -3,2</code></pre>
+<p>Pero esos números, por sí solos, no toman decisiones.</p>
+<p>La estadística nos ayuda a resumir la evidencia.</p>
+<p>La visualización nos ayuda a comprenderla.</p>
+<p>El modelo bayesiano nos permite representar la incertidumbre.</p>
+<p>Y el análisis de escenarios nos ayuda a conectar todo ello con preguntas empresariales.</p>
+<p>Por eso, quizá la principal lección de este artículo sea:</p>
+<blockquote class="blockquote">
+<p><strong>El objetivo de un modelo no es producir coeficientes. Es ayudarnos a pensar mejor cuando no tenemos certeza.</strong></p>
+</blockquote>
+<p>En nuestro caso todavía no sabemos exactamente qué ocurriría si una empresa cambiara su política de descuentos.</p>
+<p>Pero ahora sabemos algo más útil:</p>
+<p><strong>qué relación aparece en los datos, qué magnitud parece tener, qué escenarios son plausibles y dónde permanece la incertidumbre.</strong></p>
+<p>Y eso ya es información que puede contribuir a una mejor decisión.</p>
+<hr>
+</section>
+<section id="conclusiones" class="level2">
+<h2 class="anchored" data-anchor-id="conclusiones">Conclusiones</h2>
+<p>Después de construir e interpretar nuestro modelo bayesiano podemos quedarnos con cinco ideas.</p>
+<section id="un-coeficiente-necesita-contexto" class="level3">
+<h3 class="anchored" data-anchor-id="un-coeficiente-necesita-contexto">1. Un coeficiente necesita contexto</h3>
+<p>Un número como <code>−228,9</code> no tiene mucho significado hasta que sabemos qué variable representa, en qué escala está medida y qué variables estamos manteniendo constantes.</p>
+</section>
+<section id="la-incertidumbre-forma-parte-del-resultado" class="level3">
+<h3 class="anchored" data-anchor-id="la-incertidumbre-forma-parte-del-resultado">2. La incertidumbre forma parte del resultado</h3>
+<p>No debemos presentar una estimación puntual como si fuera una verdad exacta.</p>
+<p>Los intervalos de credibilidad nos muestran qué rango de valores resulta compatible con nuestro análisis.</p>
+</section>
+<section id="los-escenarios-pueden-ser-más-intuitivos-que-los-coeficientes" class="level3">
+<h3 class="anchored" data-anchor-id="los-escenarios-pueden-ser-más-intuitivos-que-los-coeficientes">3. Los escenarios pueden ser más intuitivos que los coeficientes</h3>
+<p>Comparar descuentos del 0%, 20% y 40% puede ser mucho más fácil de comprender para un responsable de negocio que interpretar directamente un coeficiente de regresión.</p>
+</section>
+<section id="una-predicción-no-es-una-recomendación" class="level3">
+<h3 class="anchored" data-anchor-id="una-predicción-no-es-una-recomendación">4. Una predicción no es una recomendación</h3>
+<p>El modelo proporciona evidencia.</p>
+<p>La decisión requiere además contexto empresarial.</p>
+</section>
+<section id="un-buen-análisis-también-muestra-lo-que-todavía-desconocemos" class="level3">
+<h3 class="anchored" data-anchor-id="un-buen-análisis-también-muestra-lo-que-todavía-desconocemos">5. Un buen análisis también muestra lo que todavía desconocemos</h3>
+<p>La incertidumbre residual nos recuerda que las variables incluidas en nuestro modelo no explican todo lo que ocurre con Profit.</p>
+<p>Y precisamente ahí aparecen nuevas preguntas.</p>
+<hr>
+</section>
+</section>
+<section id="apéndice-código-completo" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-código-completo">Apéndice — Código completo</h2>
+<p>Este apéndice contiene el código utilizado durante el análisis en el mismo orden en que aparece a lo largo del artículo.</p>
+<p>Los bloques utilizan <code>eval: false</code> para evitar que el análisis vuelva a ejecutarse durante el renderizado del documento.</p>
+<p>Esto permite conservar el código completo, con resaltado de sintaxis, para que el lector pueda estudiarlo o reutilizarlo.</p>
+<section id="cargar-las-librerías-y-los-datos" class="level3">
+<h3 class="anchored" data-anchor-id="cargar-las-librerías-y-los-datos">1. Cargar las librerías y los datos</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/kaggle/input/datasets/superstore2-5/superstore_sales.csv"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">guess_max =</span> <span class="dv">10000</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">factor</span>(Category)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    Profit,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    Discount,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    Sales,</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    Quantity,</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    Category</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="crear-el-modelo-bayesiano" class="level3">
+<h3 class="anchored" data-anchor-id="crear-el-modelo-bayesiano">2. Crear el modelo bayesiano</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>modelo_profit <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  Profit <span class="sc">~</span> Discount <span class="sc">+</span> Sales <span class="sc">+</span> Quantity <span class="sc">+</span> Category,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> superstore,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="extraer-las-muestras-posteriores" class="level3">
+<h3 class="anchored" data-anchor-id="extraer-las-muestras-posteriores">3. Extraer las muestras posteriores</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>draws <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>(modelo_profit)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="seleccionar-los-coeficientes-de-interés" class="level3">
+<h3 class="anchored" data-anchor-id="seleccionar-los-coeficientes-de-interés">4. Seleccionar los coeficientes de interés</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>variables_modelo <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Discount"</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Sales"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Quantity"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CategoryOffice Supplies"</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"CategoryTechnology"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> draws <span class="sc">%&gt;%</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(variables_modelo)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Variable"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Valor"</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumir-las-distribuciones-posteriores" class="level3">
+<h3 class="anchored" data-anchor-id="resumir-las-distribuciones-posteriores">5. Resumir las distribuciones posteriores</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> coeficientes <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Variable) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mediana =</span> <span class="fu">median</span>(Valor),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Inferior =</span> <span class="fu">quantile</span>(Valor, <span class="fl">0.025</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Superior =</span> <span class="fu">quantile</span>(Valor, <span class="fl">0.975</span>),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="renombrar-las-variables" class="level3">
+<h3 class="anchored" data-anchor-id="renombrar-las-variables">6. Renombrar las variables</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>coeficientes <span class="ot">&lt;-</span> coeficientes <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">recode</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      Variable,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Discount"</span> <span class="ot">=</span> <span class="st">"Descuento"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Sales"</span> <span class="ot">=</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Quantity"</span> <span class="ot">=</span> <span class="st">"Cantidad"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CategoryOffice Supplies"</span> <span class="ot">=</span> <span class="st">"Office Supplies"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"CategoryTechnology"</span> <span class="ot">=</span> <span class="st">"Technology"</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gráfico-de-coeficientes" class="level3">
+<h3 class="anchored" data-anchor-id="gráfico-de-coeficientes">7. Gráfico de coeficientes</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  coeficientes,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Mediana,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">reorder</span>(Variable, Mediana)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmin =</span> Inferior,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">xmax =</span> Superior</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">orientation =</span> <span class="st">"y"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="fl">0.15</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Efectos estimados sobre Profit"</span>,</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Mediana posterior e intervalo de credibilidad del 95%"</span>,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Cambio plausible en Profit"</span>,</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">NULL</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="calcular-valores-representativos" class="level3">
+<h3 class="anchored" data-anchor-id="calcular-valores-representativos">8. Calcular valores representativos</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ventas_mediana <span class="ot">&lt;-</span> <span class="fu">median</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  superstore<span class="sc">$</span>Sales,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>cantidad_mediana <span class="ot">&lt;-</span> <span class="fu">median</span>(</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  superstore<span class="sc">$</span>Quantity,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="crear-los-escenarios-de-descuento" class="level3">
+<h3 class="anchored" data-anchor-id="crear-los-escenarios-de-descuento">9. Crear los escenarios de descuento</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>newdata_descuento <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">seq</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(superstore<span class="sc">$</span>Discount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(superstore<span class="sc">$</span>Discount, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">100</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Office Supplies"</span>,</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="generar-las-predicciones-posteriores" class="level3">
+<h3 class="anchored" data-anchor-id="generar-las-predicciones-posteriores">10. Generar las predicciones posteriores</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pred_descuento <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  modelo_profit,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> newdata_descuento</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumir-las-predicciones" class="level3">
+<h3 class="anchored" data-anchor-id="resumir-las-predicciones">11. Resumir las predicciones</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>pred_descuento_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> newdata_descuento<span class="sc">$</span>Discount,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    pred_descuento,</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gráfico-de-la-trayectoria-del-descuento" class="level3">
+<h3 class="anchored" data-anchor-id="gráfico-de-la-trayectoria-del-descuento">12. Gráfico de la trayectoria del descuento</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  pred_descuento_resumen,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Discount <span class="sc">*</span> <span class="dv">100</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.2</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Profit esperado bajo distintos niveles de descuento"</span>,</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Ventas y cantidad mantenidas en valores representativos"</span>,</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Descuento (%)"</span>,</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="crear-los-tres-escenarios-de-descuento" class="level3">
+<h3 class="anchored" data-anchor-id="crear-los-tres-escenarios-de-descuento">13. Crear los tres escenarios de descuento</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>escenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Escenario =</span> <span class="fu">c</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento bajo"</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento medio"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Descuento alto"</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fu">c</span>(</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.00</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.20</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.40</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Office Supplies"</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="predicciones-de-los-tres-escenarios" class="level3">
+<h3 class="anchored" data-anchor-id="predicciones-de-los-tres-escenarios">14. Predicciones de los tres escenarios</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pred_escenarios <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  modelo_profit,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> escenarios</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumen-de-los-escenarios" class="level3">
+<h3 class="anchored" data-anchor-id="resumen-de-los-escenarios">15. Resumen de los escenarios</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>escenarios_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Escenario =</span> escenarios<span class="sc">$</span>Escenario,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    pred_escenarios,</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gráfico-de-escenarios" class="level3">
+<h3 class="anchored" data-anchor-id="gráfico-de-escenarios">16. Gráfico de escenarios</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  escenarios_resumen,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Escenario,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.15</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Tres escenarios de descuento"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Profit esperado e intervalo central de incertidumbre"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="crear-escenarios-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="crear-escenarios-por-categoría">17. Crear escenarios por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>escenarios_categoria <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> <span class="fu">factor</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">levels</span>(superstore<span class="sc">$</span>Category),</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">levels</span>(superstore<span class="sc">$</span>Category)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount =</span> <span class="fl">0.10</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sales =</span> ventas_mediana,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity =</span> cantidad_mediana</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="predicciones-por-categoría-1" class="level3">
+<h3 class="anchored" data-anchor-id="predicciones-por-categoría-1">18. Predicciones por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>pred_categoria <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  modelo_profit,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> escenarios_categoria</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resumen-de-las-predicciones-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="resumen-de-las-predicciones-por-categoría">19. Resumen de las predicciones por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>categoria_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Category =</span> escenarios_categoria<span class="sc">$</span>Category,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mediana =</span> <span class="fu">apply</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    median</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Inferior =</span> <span class="fu">apply</span>(</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.05</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Superior =</span> <span class="fu">apply</span>(</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    pred_categoria,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.95</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gráfico-de-profit-esperado-por-categoría" class="level3">
+<h3 class="anchored" data-anchor-id="gráfico-de-profit-esperado-por-categoría">20. Gráfico de Profit esperado por categoría</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  categoria_resumen,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> Category,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> Mediana</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymin =</span> Inferior,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">ymax =</span> Superior</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.15</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Profit esperado por categoría"</span>,</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Mismas ventas, cantidad y descuento"</span>,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Profit esperado"</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="cierre" class="level1">
+<h1>Cierre</h1>
+<p>Este artículo comenzó con una tabla de coeficientes y terminó con algo mucho más útil: una forma de utilizar un modelo bayesiano para <strong>comparar escenarios empresariales sin esconder la incertidumbre</strong>.</p>
+<p>Ese es el cambio de perspectiva que queremos introducir en esta colección.</p>
+<p>El modelo no es el protagonista.</p>
+<p>La pregunta de negocio lo es.</p>
+<p>Y los coeficientes, las distribuciones posteriores y las predicciones son simplemente herramientas que nos ayudan a responderla.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
