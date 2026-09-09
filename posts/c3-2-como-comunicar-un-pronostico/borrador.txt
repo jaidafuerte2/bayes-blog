@@ -1,0 +1,266 @@
+---
+title: "borrador"
+format: html
+---
+
+```{r}
+
+# Cargar las librerías necesarias 
+library(tidyverse) 
+library(lubridate) 
+#library(rstanarm) 
+library(posterior)  
+library(bayesplot) 
+library(ggplot2) 
+
+# Evitar la notación científica 
+options(scipen = 999)
+
+# Cargar la dataset
+superstore <- read_csv("../../data/superstore_sales.csv")
+
+# Cargar los modelos
+predicciones <- 
+  readRDS("../../R/col3-2/predicciones.rds")
+```
+
+```{r}
+# Comprobar el tipo real de Order Date 
+class(superstore$`Order Date`)
+```
+
+```{r}
+# Convertir Order Date al formato de fecha 
+superstore <- superstore |> 
+  mutate( 
+      Order_Date = mdy(`Order Date`) 
+  )
+# Comprobar la transformación 
+summary(superstore$Order_Date)
+```
+
+```{r}
+# Comprobar valores faltantes 
+sum(is.na(superstore$Order_Date))
+```
+
+```{r}
+# Crear serie mensual 
+ventas_mensuales <- superstore |> 
+  filter(!is.na(Order_Date)) |> 
+  mutate( 
+      Mes = floor_date( 
+          Order_Date, unit = "month" 
+      ) 
+  ) |> 
+  group_by(Mes) |> 
+  summarise( 
+      Sales = sum( 
+          Sales, na.rm = TRUE 
+      ), 
+      .groups = "drop" 
+  ) |> 
+  arrange(Mes)
+ventas_mensuales
+```
+
+```{r}
+# Crear índice temporal 
+ventas_mensuales <- ventas_mensuales |> 
+  mutate( 
+      Tiempo = row_number() 
+  )
+ventas_mensuales
+```
+
+```{r}
+# Construir el modelo bayesiano 
+#modelo_ventas <- stan_glm( 
+#    Sales ~ Tiempo, 
+#    data = ventas_mensuales, 
+#    family = gaussian(), 
+#    chains = 2, 
+#    iter = 1000, 
+#    seed = 1234, 
+#    refresh = 0 
+#)
+#modelo_ventas
+```
+
+```{r}
+# Crear observación para el siguiente período 
+proximo_mes <- tibble( 
+    Tiempo = max( 
+        ventas_mensuales$Tiempo 
+    ) + 1 
+)
+proximo_mes
+```
+
+```{r}
+# Generar distribución predictiva posterior 
+#predicciones <- posterior_predict( 
+#    modelo_ventas, 
+#    newdata = proximo_mes 
+#)
+predicciones[1:6,]
+```
+
+```{r}
+# Convertir predicciones en tabla 
+predicciones_df <- tibble( 
+    Sales = as.numeric( 
+        predicciones 
+    ) 
+)
+predicciones_df
+```
+
+```{r}
+# Visualizar distribución predictiva 
+ggplot( 
+    predicciones_df, 
+    aes(x = Sales) 
+) + 
+  geom_histogram( 
+      bins = 40 
+  ) + 
+  labs( 
+      title = "Escenarios plausibles para las ventas del próximo mes", 
+      subtitle = "Distribución predictiva posterior", 
+      x = "Ventas", 
+      y = "Frecuencia" 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+# Calcular escenarios 
+escenarios <- quantile( 
+    predicciones, 
+    probs = c( 
+        0.10, 0.50, 0.90 
+    ) 
+)
+escenarios
+```
+
+```{r}
+# Crear tabla de escenarios 
+escenarios_df <- tibble( 
+    Escenario = c( 
+        "Conservador", 
+        "Moderado", 
+        "Optimista" 
+    ), 
+    Percentil = c( 
+        "10%", 
+        "50%", 
+        "90%" 
+    ), 
+    Ventas = as.numeric( 
+        escenarios 
+    ) 
+)
+escenarios_df
+```
+
+```{r}
+# Visualizar escenarios 
+ggplot( 
+    escenarios_df, 
+    aes( 
+        x = Escenario, 
+        y = Ventas 
+    ) 
+) + 
+  geom_col() + 
+  labs( 
+      title = "Tres escenarios para las ventas del próximo mes", 
+      subtitle = "Los escenarios representan diferentes puntos de la distribución predictiva", 
+      x = NULL, 
+      y = "Ventas" 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+# Calcular intervalo predictivo del 95% 
+intervalo_predictivo <- quantile( 
+    predicciones, 
+    probs = c( 
+        0.025, 0.50, 0.975 
+    ) 
+)
+intervalo_predictivo
+```
+
+```{r}
+# Crear tabla del intervalo predictivo 
+intervalo_df <- tibble( 
+    Medida = c( 
+        "Límite inferior", 
+        "Mediana", 
+        "Límite superior" 
+    ), 
+    Ventas = as.numeric( 
+        intervalo_predictivo 
+    ) 
+)
+intervalo_df
+```
+
+```{r}
+# Crear datos para gráfico final 
+intervalo_grafico <- tibble( 
+    Mes = as.Date("2018-01-01"), 
+    Mediana = as.numeric(intervalo_predictivo[2]), 
+    Inferior = as.numeric(intervalo_predictivo[1]), 
+    Superior = as.numeric(intervalo_predictivo[3]) 
+)
+intervalo_grafico
+```
+
+```{r}
+# Visualizar historia y pronóstico 
+ggplot( 
+    ventas_mensuales, 
+    aes( 
+        x = Mes, 
+        y = Sales 
+    ) 
+) + 
+  geom_line(linewidth = 0.8) + 
+  geom_point(size = 2) + 
+  geom_point( 
+      data = intervalo_grafico, 
+      aes( x = Mes, y = Mediana ), 
+      size = 4 
+  ) + 
+  geom_errorbar( 
+      data = intervalo_grafico, 
+      aes( 
+          x = Mes, 
+          ymin = Inferior, 
+          ymax = Superior 
+      ), 
+      width = 15, 
+      inherit.aes = FALSE 
+  ) + 
+  labs( 
+      title = "Ventas históricas y pronóstico", 
+      subtitle = "El escenario central se presenta junto con un intervalo predictivo", 
+      x = "Mes", 
+      y = "Ventas" 
+  ) + 
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
