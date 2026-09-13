@@ -1,0 +1,288 @@
+---
+title: "borrador"
+format: html
+---
+
+```{r}
+# Cargar las librerías necesarias 
+library(tidyverse) 
+library(lubridate)
+#library(rstanarm) 
+library(ggplot2) 
+library(posterior) 
+library(bayesplot) 
+
+# Evitar la notación científica
+options(scipen = 999)
+
+# Cargar la dataset
+superstore <- read_csv("../../data/superstore_sales.csv")
+
+```
+
+```{r}
+# Cargar los modelos
+coeficientes <- 
+  readRDS("../../R/col3-3/coeficientes.rds")
+predicciones <- 
+  readRDS("../../R/col3-3/predicciones.rds")
+```
+
+```{r}
+names(superstore) 
+#str(superstore) 
+glimpse(superstore)
+```
+
+```{r}
+# Seleccionar 10 filas para conocer el posible formato
+# de las fechas
+superstore %>% 
+  select(`Order Date`, Sales) %>% 
+  slice_head(n = 10)
+```
+
+```{r}
+# Cambiar la variable de fecha de orden a formato
+# de fecha
+superstore <- superstore %>% 
+  mutate( 
+      order_date = mdy(`Order Date`) 
+  )
+```
+
+```{r}
+# Resumir la variable fecha de pedido para saber que
+# tiene un formato de fecha adecuado
+superstore %>% summarise( 
+    filas = n(), 
+    fechas_na = sum(is.na(order_date)), 
+    fecha_minima = min(order_date, na.rm = TRUE), 
+    fecha_maxima = max(order_date, na.rm = TRUE) 
+)
+```
+
+```{r}
+# Agrupar las ventas por mes
+ventas_mensuales <- superstore %>% 
+  mutate( 
+      mes = floor_date(order_date, unit = "month") 
+  ) %>% 
+  group_by(mes) %>% 
+  summarise( 
+      ventas = sum(Sales, na.rm = TRUE), 
+      .groups = "drop" 
+  ) %>% 
+  arrange(mes) 
+
+ventas_mensuales
+```
+
+```{r}
+# Visualizar la evolución histórica de las ventas
+ggplot(
+    ventas_mensuales, 
+    aes(x = mes, y = ventas)
+) + 
+  geom_line() + 
+  geom_point() + 
+  labs( 
+      title = "Evolución mensual de las ventas", 
+      subtitle = "Superstore Sales", 
+      x = "Mes", 
+      y = "Ventas" 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+# Enumerar las ventas mensuales: 
+ventas_mensuales <- ventas_mensuales %>% 
+  mutate( 
+      tiempo = row_number() 
+  ) 
+ventas_mensuales
+```
+
+```{r}
+# Resumen del modelo
+#coeficientes <- as.data.frame( 
+#    summary(modelo_forecast)
+#)
+coeficientes
+```
+
+```{r}
+# horizonte: 3 meses posteriores
+horizonte <- 3 
+
+# Crear tabla con los 3 meses posteriores a los 4 años
+futuro <- tibble( 
+    tiempo = (max(ventas_mensuales$tiempo) + 1): # 1 mes posterior 
+             (max(ventas_mensuales$tiempo) + horizonte)  # 3 meses posteriores
+) 
+
+futuro
+```
+
+```{r}
+# Crear 1000 predicciones para cada mes posterior
+#predicciones <- posterior_predict( 
+#    modelo_forecast, 
+#    newdata = futuro 
+#)
+predicciones[1:6,]
+```
+
+```{r}
+# Transformar la matriz a data frame
+predicciones_df <- as.data.frame(predicciones)
+predicciones_df[1:6,]
+```
+
+```{r}
+# Cambiar los nombres de las variables
+colnames(predicciones_df) <- paste0( 
+    "periodo_", 
+    futuro$tiempo 
+)
+colnames(predicciones_df) # produce:
+predicciones_df # produce:
+```
+
+```{r}
+# Resumir las 1000 predicciones posteriores en los percentiles
+# 10, 50 y 90
+escenarios <- tibble( 
+    periodo = seq_len(horizonte), 
+    demanda_baja = apply( 
+        predicciones, 
+        2, 
+        quantile, 
+        probs = 0.10 
+    ), 
+    demanda_central = apply( 
+        predicciones, 
+        2, 
+        quantile, 
+        probs = 0.50 
+    ), 
+    demanda_alta = apply( 
+        predicciones, 
+        2, 
+        
+        quantile, probs = 0.90 
+    ) 
+)
+escenarios
+```
+
+```{r}
+# Transformar los escenarios de los 3 meses posteriores a su 
+# formato largo
+escenarios_largo <- escenarios %>% 
+  pivot_longer( 
+    cols = c( 
+        demanda_baja, 
+        demanda_central, 
+        demanda_alta 
+    ), 
+    names_to = "escenario", 
+    values_to = "ventas" 
+)
+escenarios_largo
+```
+
+```{r}
+# Graficar tres escenarios para la demanda futura de
+# los próximos 3 meses
+ggplot( 
+    escenarios_largo,
+    aes(x = periodo, y = ventas, linetype = escenario) 
+) + 
+  geom_line(linewidth = 1) + 
+  geom_point(size = 2) + 
+  scale_x_continuous( 
+      breaks = seq_len(horizonte) 
+  ) + 
+  labs( 
+      title = "Tres escenarios para la demanda futura", 
+      x = "Periodo futuro", 
+      y = "Ventas previstas", 
+      linetype = "Escenario" 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+# Conocer cuantas ventas mensuales históricas existen
+ultimo_tiempo <- max(ventas_mensuales$tiempo)
+ultimo_tiempo
+```
+
+```{r}
+# Crear una nueva variable tipo y asignarles a los 48
+# meses la etiqueta "Histórico"
+historico_plot <- ventas_mensuales %>% 
+  select(tiempo, ventas) %>% 
+  mutate( 
+      tipo = "Histórico" 
+  )
+historico_plot
+```
+
+```{r}
+# A los 3 meses posteriores asignarles sus ventas de pronóstico 
+# central
+futuro_plot <- escenarios %>% 
+  transmute( 
+    tiempo = ultimo_tiempo + periodo, 
+    ventas = demanda_central, 
+    tipo = "Pronóstico central" 
+)
+futuro_plot
+```
+
+```{r}
+# Unir en una sola tablas los 48 meses históricos
+# con los 3 meses posteriores (con sus ventas respectivas) 
+datos_comparacion <- bind_rows( 
+    historico_plot, 
+    futuro_plot 
+)
+datos_comparacion
+```
+
+```{r}
+# Crear un gráfico de las 48 ventas mensuales históricas
+# y los 3 meses posteriores de la predicción
+ggplot( 
+    datos_comparacion, 
+    aes(x = tiempo, y = ventas, linetype = tipo) 
+) + 
+  geom_line(linewidth = 1) + 
+  geom_point() + 
+  labs( 
+      title = "De las ventas históricas al pronóstico", 
+      x = "Periodo", 
+      y = "Ventas", 
+      linetype = NULL 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+# Crear una tabla de las ventas de los 3 meses posteriores
+# y sus posibles escenarios: bajo, central y alto
+tabla_decision <- escenarios %>% 
+  transmute( 
+      Periodo = paste("Periodo", periodo), 
+      `Escenario bajo` = round(demanda_baja, 0), 
+      `Escenario central` = round(demanda_central, 0), 
+      `Escenario alto` = round(demanda_alta, 0) 
+  ) 
+tabla_decision
+```
+
+
+

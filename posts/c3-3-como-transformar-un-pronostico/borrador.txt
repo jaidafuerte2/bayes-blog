@@ -1,0 +1,958 @@
+---
+
+title: "¿Cómo transformar un pronóstico en un plan de inventario?"
+description: "Un pronóstico no es una decisión. Exploramos cómo convertir escenarios bayesianos de ventas en una referencia práctica para planificar inventario."
+author: "David Villafuerte, MD, MBA"
+date: "2026-09-12"
+categories:
+
+* Retail
+* Forecasting
+* Operaciones
+
+---
+
+# ¿Cuánto inventario deberíamos preparar para el próximo periodo?
+
+Predecir las ventas del próximo periodo puede parecer el objetivo final de un análisis. Sin embargo, para una empresa el pronóstico es solamente el comienzo.
+
+Una empresa no compra un pronóstico.
+
+Compra productos, prepara inventario, asigna recursos y toma decisiones tratando de evitar dos problemas opuestos:
+
+* quedarse sin producto cuando la demanda aumenta;
+* mantener demasiado inventario cuando la demanda termina siendo menor de lo esperado.
+
+Por eso, una pregunta más útil que *"¿cuánto venderemos?"* es:
+
+> **¿Qué nivel de demanda deberíamos considerar al preparar nuestro próximo periodo?**
+
+En esta entrada utilizaremos el dataset **Superstore Sales** para construir un pronóstico bayesiano de ventas y transformarlo en tres escenarios: bajo, central y alto.
+
+La idea no es producir un número mágico. Es convertir la incertidumbre del pronóstico en información que pueda utilizarse para tomar una decisión.
+
+---
+
+# 1. El problema de negocio
+
+Imaginemos que estamos cerrando diciembre de 2017 y necesitamos prepararnos para los siguientes tres meses.
+
+Podríamos mirar simplemente las ventas históricas y calcular un promedio.
+
+Pero ese enfoque tiene una limitación importante: el futuro no es un promedio.
+
+Las ventas pueden continuar creciendo, pueden ser menores de lo esperado o pueden situarse en algún punto intermedio.
+
+El análisis bayesiano nos permite plantear el problema de una manera diferente:
+
+> **En lugar de preguntar cuál será exactamente la próxima venta, podemos preguntar qué valores de demanda futura son plausibles.**
+
+Esto resulta especialmente útil para inventario.
+
+Si solamente tuviéramos un pronóstico puntual de $70.000, todavía tendríamos que decidir si preparar $70.000 de inventario, algo más o algo menos.
+
+Si en cambio conocemos un escenario bajo, uno central y uno alto, podemos relacionar cada escenario con una estrategia operativa diferente.
+
+---
+
+# 2. Los datos
+
+Trabajaremos nuevamente con **Superstore Sales**, manteniendo la estructura original del dataset.
+
+Nuestro interés estará en dos variables:
+
+* `Order Date`: fecha de la orden.
+* `Sales`: valor monetario de la venta.
+
+Primero cargamos los datos y verificamos su estructura.
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(lubridate)
+library(rstanarm)
+library(ggplot2)
+library(posterior)
+library(bayesplot)
+
+options(scipen = 999)
+
+superstore <- read_csv(
+  "/kaggle/input/datasets/store33/superstore_sales.csv",
+  guess_max = 10000,
+  show_col_types = FALSE
+)
+
+names(superstore)
+glimpse(superstore)
+```
+
+La tabla contiene **9.994 registros y 21 variables**.
+
+Antes de utilizar las fechas, debemos comprobar cómo están almacenadas. `Order Date` aparece como texto y utiliza el formato mes/día/año.
+
+Por eso utilizamos `mdy()` para convertirla a una fecha reconocible por R.
+
+```{r}
+#| echo: false
+
+superstore <- superstore %>%
+  mutate(
+    order_date = mdy(`Order Date`)
+  )
+
+superstore %>%
+  summarise(
+    filas = n(),
+    fechas_na = sum(is.na(order_date)),
+    fecha_minima = min(order_date, na.rm = TRUE),
+    fecha_maxima = max(order_date, na.rm = TRUE)
+  )
+```
+
+La conversión no produjo valores perdidos.
+
+Tenemos información desde el **3 de enero de 2014 hasta el 30 de diciembre de 2017**, lo que nos proporciona cuatro años de historia comercial.
+
+---
+
+# 3. De las órdenes individuales a las ventas mensuales
+
+Para pronosticar la demanda no necesitamos trabajar con cada orden individual.
+
+Nos interesa observar cómo se comportan las ventas a través del tiempo.
+
+Por eso agruparemos las órdenes por mes.
+
+```{r}
+#| echo: false
+
+ventas_mensuales <- superstore %>%
+  mutate(
+    mes = floor_date(order_date, unit = "month")
+  ) %>%
+  group_by(mes) %>%
+  summarise(
+    ventas = sum(Sales, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(mes)
+```
+
+Ahora tenemos una serie de **48 periodos mensuales**.
+
+Podemos visualizar su evolución.
+
+```{r}
+#| echo: false
+
+ggplot(
+  ventas_mensuales,
+  aes(x = mes, y = ventas)
+) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Evolución mensual de las ventas",
+    subtitle = "Superstore Sales",
+    x = "Mes",
+    y = "Ventas"
+  ) +
+  theme_minimal()
+```
+
+La primera característica que destaca es una **tendencia general creciente**.
+
+Durante 2014 los valores máximos mensuales se encuentran por encima de $80.000. En 2015 los máximos se sitúan alrededor de $75.000, mientras que durante 2016 aparecen meses cercanos a $100.000.
+
+En 2017 la escala aumenta todavía más, con meses que alcanzan aproximadamente $118.000.
+
+También observamos un comportamiento estacional aparente: noviembre y diciembre suelen encontrarse entre los meses de mayores ventas, mientras que enero y febrero tienden a presentar valores más bajos.
+
+Esto ya nos proporciona una primera lección.
+
+**El pasado contiene información útil sobre el futuro, pero no toda esa información tiene que comportarse de la misma manera.**
+
+---
+
+# 4. Construimos una referencia temporal
+
+Para construir un modelo sencillo necesitamos representar el paso del tiempo mediante una variable numérica.
+
+```{r}
+#| echo: false
+
+ventas_mensuales <- ventas_mensuales %>%
+  mutate(
+    tiempo = row_number()
+  )
+```
+
+Tenemos 48 meses, por lo que:
+
+* enero de 2014 corresponde al periodo 1;
+* el último mes observado corresponde al periodo 48;
+* los siguientes meses serán los periodos 49, 50 y 51.
+
+Esta transformación permite preguntarnos si existe una relación entre el paso del tiempo y el nivel de ventas.
+
+---
+
+# 5. Un modelo bayesiano de tendencia
+
+Construiremos un modelo lineal bayesiano sencillo:
+
+```{r}
+#| echo: false
+
+modelo_forecast <- stan_glm(
+  ventas ~ tiempo,
+  data = ventas_mensuales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+```
+
+El modelo estima principalmente tres cantidades:
+
+* un intercepto;
+* el efecto del paso del tiempo;
+* la desviación residual `sigma`.
+
+Los resultados principales fueron:
+
+| Parámetro  | Mediana | Desviación posterior |
+| ---------- | ------: | -------------------: |
+| Intercepto | $25.528 |               $6.628 |
+| Tiempo     |    $906 |                 $227 |
+| Sigma      | $22.124 |               $2.118 |
+
+La mediana posterior del coeficiente `tiempo` es aproximadamente **$906**.
+
+En términos sencillos, el modelo sitúa el crecimiento esperado de las ventas alrededor de **$906 por cada periodo mensual adicional**, manteniendo la estructura lineal del modelo.
+
+Esto no significa que cada mes vaya a aumentar exactamente $906.
+
+Es una forma de describir la tendencia promedio que el modelo encuentra en los datos.
+
+El parámetro `sigma`, cuya mediana posterior es aproximadamente **$22.124**, representa la magnitud típica de la variación residual alrededor de la relación estimada.
+
+Es una cantidad importante porque nos recuerda que existe una diferencia considerable entre una tendencia promedio y las ventas que finalmente pueden observarse.
+
+### Una precisión importante sobre el intercepto
+
+El intercepto tiene una mediana de aproximadamente $25.528.
+
+Pero no debemos interpretarlo como las ventas reales de un mes observado.
+
+Nuestro primer mes corresponde a `tiempo = 1`, por lo que el intercepto representa el valor que el modelo asignaría a `tiempo = 0`.
+
+Es decir, se trata de una **extrapolación matemática de la recta**, no de un mes histórico real de Superstore.
+
+Por eso, para la decisión empresarial nos interesa mucho más utilizar el modelo para generar predicciones futuras.
+
+---
+
+# 6. Mirar hacia adelante
+
+Supongamos que queremos preparar los siguientes tres periodos.
+
+Después del periodo 48, nuestros nuevos periodos serán 49, 50 y 51.
+
+```{r}
+#| echo: false
+
+horizonte <- 3
+
+futuro <- tibble(
+  tiempo = (max(ventas_mensuales$tiempo) + 1):
+           (max(ventas_mensuales$tiempo) + horizonte)
+)
+
+futuro
+```
+
+Ahora utilizaremos `posterior_predict()`.
+
+Esta función tiene una característica especialmente interesante para nuestro problema.
+
+No genera únicamente una estimación puntual.
+
+Genera múltiples valores posibles de ventas futuras a partir de la distribución predictiva posterior del modelo.
+
+```{r}
+#| echo: false
+
+predicciones <- posterior_predict(
+  modelo_forecast,
+  newdata = futuro
+)
+
+predicciones_df <- as.data.frame(predicciones)
+
+colnames(predicciones_df) <- paste0(
+  "periodo_",
+  futuro$tiempo
+)
+```
+
+En otras palabras, en lugar de obtener simplemente:
+
+> "El próximo periodo venderemos $70.000."
+
+obtenemos una distribución de posibles resultados.
+
+Esto cambia completamente la conversación empresarial.
+
+Ya no estamos tratando de adivinar el futuro.
+
+Estamos intentando **entender el rango de resultados plausibles para poder decidir mejor**.
+
+---
+
+# 7. Tres escenarios para la demanda
+
+Para convertir esa distribución en algo que pueda utilizarse en una conversación empresarial, resumiremos las predicciones mediante tres puntos:
+
+* percentil 10: escenario bajo;
+* percentil 50: escenario central;
+* percentil 90: escenario alto.
+
+```{r}
+#| echo: false
+
+escenarios <- tibble(
+  periodo = seq_len(horizonte),
+  demanda_baja = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.10
+  ),
+  demanda_central = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.50
+  ),
+  demanda_alta = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.90
+  )
+)
+
+escenarios
+```
+
+Los resultados son:
+
+| Periodo | Escenario bajo | Escenario central | Escenario alto |
+| ------- | -------------: | ----------------: | -------------: |
+| 1       |        $40.504 |           $69.525 |       $100.352 |
+| 2       |        $40.279 |           $70.611 |       $100.683 |
+| 3       |        $42.919 |           $72.765 |        $99.711 |
+
+Aquí aparece la parte más importante del análisis.
+
+Para el **periodo 1**, por ejemplo, la predicción central es de aproximadamente **$69.525**.
+
+Pero el modelo también considera escenarios plausibles alrededor de ella:
+
+* un escenario bajo cercano a **$40.504**;
+* un escenario central de **$69.525**;
+* un escenario alto de **$100.352**.
+
+No estamos diciendo que esos sean los únicos tres resultados posibles.
+
+Son tres puntos de referencia extraídos de toda la distribución predictiva.
+
+El intervalo entre los percentiles 10 y 90 representa un **intervalo predictivo central del 80%**.
+
+No significa que "el 80% de las ventas estará ahí" en un sentido literal sobre observaciones futuras individuales. Significa que estamos utilizando los percentiles 10 y 90 de la distribución predictiva como límites de un rango central de resultados plausibles generado por el modelo.
+
+---
+
+# 8. Visualizar los escenarios
+
+Podemos llevar estos resultados a un gráfico.
+
+```{r}
+#| echo: false
+
+escenarios_largo <- escenarios %>%
+  pivot_longer(
+    cols = c(
+      demanda_baja,
+      demanda_central,
+      demanda_alta
+    ),
+    names_to = "escenario",
+    values_to = "ventas"
+  )
+```
+
+```{r}
+#| echo: false
+
+ggplot(
+  escenarios_largo,
+  aes(x = periodo, y = ventas, linetype = escenario)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(
+    breaks = seq_len(horizonte)
+  ) +
+  labs(
+    title = "Tres escenarios para la demanda futura",
+    x = "Periodo futuro",
+    y = "Ventas previstas",
+    linetype = "Escenario"
+  ) +
+  theme_minimal()
+```
+
+La gráfica permite observar algo que una única cifra no podría mostrar.
+
+El escenario central aumenta progresivamente:
+
+* periodo 1: $69.525;
+* periodo 2: $70.611;
+* periodo 3: $72.765.
+
+Pero la incertidumbre alrededor de esos valores sigue siendo amplia.
+
+El escenario alto se mantiene alrededor de $100.000, mientras que el escenario bajo se encuentra cerca de $40.000.
+
+Por lo tanto, el crecimiento de la tendencia no elimina la incertidumbre.
+
+**El futuro puede continuar creciendo y, al mismo tiempo, seguir siendo incierto.**
+
+---
+
+# 9. Del histórico al futuro
+
+Hasta ahora hemos separado visualmente la historia del pronóstico.
+
+Podemos colocarlos juntos para observar cómo el modelo extiende la tendencia después del último periodo observado.
+
+```{r}
+#| echo: false
+
+ultimo_tiempo <- max(ventas_mensuales$tiempo)
+
+historico_plot <- ventas_mensuales %>%
+  select(tiempo, ventas) %>%
+  mutate(tipo = "Histórico")
+
+futuro_plot <- escenarios %>%
+  transmute(
+    tiempo = ultimo_tiempo + periodo,
+    ventas = demanda_central,
+    tipo = "Pronóstico central"
+  )
+
+datos_comparacion <- bind_rows(
+  historico_plot,
+  futuro_plot
+)
+```
+
+```{r}
+#| echo: false
+
+ggplot(
+  datos_comparacion,
+  aes(x = tiempo, y = ventas, linetype = tipo)
+) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(
+    title = "De las ventas históricas al pronóstico",
+    x = "Periodo",
+    y = "Ventas",
+    linetype = NULL
+  ) +
+  theme_minimal()
+```
+
+El último periodo histórico corresponde a **diciembre de 2017**.
+
+A partir de ahí, los tres periodos pronosticados representan **enero, febrero y marzo de 2018**.
+
+El modelo proyecta un escenario central que continúa aumentando.
+
+Sin embargo, hay que recordar qué estamos viendo:
+
+* hasta diciembre de 2017 observamos datos reales;
+* desde enero de 2018 estamos observando valores generados por el modelo.
+
+Esta separación es fundamental.
+
+Un pronóstico no convierte el futuro en datos observados.
+
+---
+
+# 10. Ahora sí: ¿qué hacemos con el inventario?
+
+Aquí es donde el análisis deja de ser solamente estadístico.
+
+Supongamos que una empresa necesita decidir cuánto preparar para el siguiente periodo.
+
+Tenemos tres referencias:
+
+| Escenario | Demanda aproximada |
+| --------- | -----------------: |
+| Bajo      |            $40.504 |
+| Central   |            $69.525 |
+| Alto      |           $100.352 |
+
+Cada cifra puede conducir a una decisión diferente.
+
+### Si utilizamos el escenario central
+
+Podríamos planificar alrededor de **$69.525** de ventas esperadas.
+
+Es una referencia razonable si el costo de mantener inventario adicional es importante y la empresa puede aceptar cierto riesgo de quedarse corta.
+
+### Si damos mayor importancia al riesgo de quedarse sin producto
+
+El escenario alto, cercano a **$100.352**, puede convertirse en una referencia más conservadora.
+
+La lógica es sencilla:
+
+> Si el costo de quedarse sin producto es muy alto, puede tener sentido planificar considerando una parte más alta de la distribución predictiva.
+
+### Si el costo de exceso de inventario es muy elevado
+
+Podría ser preferible utilizar una referencia más cercana al escenario bajo o central.
+
+En ese caso, la empresa estaría aceptando mayor riesgo de no cubrir una demanda elevada a cambio de reducir el capital comprometido en inventario.
+
+Aquí aparece una idea fundamental de Business Analytics:
+
+> **El mejor escenario no depende únicamente del pronóstico. Depende también del costo de equivocarse.**
+
+---
+
+# 11. Una tabla para apoyar la decisión
+
+Podemos transformar los resultados en una tabla sencilla que pueda utilizarse directamente en una conversación de negocio.
+
+```{r}
+#| echo: false
+
+tabla_decision <- escenarios %>%
+  transmute(
+    Periodo = paste("Periodo", periodo),
+    `Escenario bajo` = round(demanda_baja, 0),
+    `Escenario central` = round(demanda_central, 0),
+    `Escenario alto` = round(demanda_alta, 0)
+  )
+
+tabla_decision
+```
+
+El resultado resume nuestra referencia para los tres meses:
+
+| Periodo   | Escenario bajo | Escenario central | Escenario alto |
+| --------- | -------------: | ----------------: | -------------: |
+| Periodo 1 |        $40.504 |           $69.525 |       $100.352 |
+| Periodo 2 |        $40.279 |           $70.611 |       $100.683 |
+| Periodo 3 |        $42.919 |           $72.765 |        $99.711 |
+
+Esta tabla es probablemente más útil para un responsable de operaciones que una página llena de estadísticas del modelo.
+
+La razón es sencilla.
+
+El objetivo del análisis no es que el responsable de operaciones conozca `stan_glm()`.
+
+El objetivo es que pueda responder:
+
+> **"¿Qué escenario queremos utilizar para nuestra decisión?"**
+
+---
+
+# 12. Una limitación importante: ventas no son unidades de inventario
+
+Hay una precisión que debemos hacer antes de convertir estos resultados en una política real de inventario.
+
+El dataset contiene **ventas monetarias**, no unidades físicas disponibles ni cantidades de inventario.
+
+Por lo tanto, este análisis no nos permite decir directamente:
+
+> "Debemos almacenar 700 unidades."
+
+Tampoco permite transformar automáticamente $70.000 de ventas en una cantidad concreta de productos.
+
+Lo que sí podemos obtener es una **referencia monetaria de la demanda futura**.
+
+Esto puede ser útil como primera aproximación para planificación, pero un sistema real de inventario necesitaría información adicional, por ejemplo:
+
+* unidades vendidas;
+* inventario disponible;
+* inventario de seguridad;
+* tiempos de reposición;
+* costo de mantener inventario;
+* costo de quedarse sin producto;
+* precio y margen por producto;
+* demanda por categoría o producto.
+
+Esta diferencia no es un detalle menor.
+
+**Un buen análisis no solamente explica lo que los datos permiten hacer. También deja claro lo que todavía no permiten hacer.**
+
+---
+
+# 13. Otra limitación: la estacionalidad
+
+También observamos un comportamiento estacional en los datos.
+
+Noviembre y diciembre tienden a presentar mayores ventas, mientras que enero y febrero tienden a ser más bajos.
+
+Sin embargo, nuestro modelo utiliza únicamente:
+
+```text
+ventas ~ tiempo
+```
+
+Por lo tanto, está capturando principalmente una **tendencia temporal general**.
+
+No está modelando explícitamente cada mes del año.
+
+Esto significa que debemos interpretar el pronóstico como una primera referencia probabilística y no como un sistema completo de forecasting operativo.
+
+Un siguiente modelo podría incorporar la estructura mensual y otros factores relevantes.
+
+Pero esta limitación también tiene una ventaja.
+
+Comenzamos con un modelo suficientemente sencillo como para entender la lógica fundamental:
+
+**historia → tendencia → distribución predictiva → escenarios → decisión.**
+
+---
+
+# 14. La verdadera utilidad del pronóstico bayesiano
+
+El resultado más importante de este análisis no es $69.525.
+
+Tampoco es $100.352.
+
+La verdadera utilidad está en cambiar la pregunta.
+
+Una aproximación tradicional podría llevarnos a preguntar:
+
+> "¿Cuánto vamos a vender?"
+
+El enfoque probabilístico nos lleva a preguntar:
+
+> "¿Qué niveles de ventas futuras son plausibles y qué decisión tomaríamos frente a cada uno?"
+
+Esta segunda pregunta es mucho más cercana a la realidad empresarial.
+
+Porque las decisiones se toman antes de conocer el futuro.
+
+Y cuando el futuro es incierto, una cifra puntual puede transmitir una falsa sensación de precisión.
+
+Una distribución, en cambio, nos permite reconocer explícitamente esa incertidumbre.
+
+---
+
+# 15. Del pronóstico a la decisión
+
+Podemos resumir todo el proceso de esta entrada en cinco pasos:
+
+### 1. Observar
+
+Partimos de las ventas históricas y buscamos patrones relevantes.
+
+### 2. Modelar
+
+Construimos un modelo bayesiano que representa la tendencia temporal.
+
+### 3. Predecir
+
+Generamos una distribución de posibles ventas futuras mediante `posterior_predict()`.
+
+### 4. Crear escenarios
+
+Extraemos referencias bajo, central y alto a partir de la distribución predictiva.
+
+### 5. Decidir
+
+Relacionamos esos escenarios con el costo y el riesgo de las diferentes decisiones de inventario.
+
+La parte estadística termina en el paso 4.
+
+La parte de Business Analytics comienza realmente en el paso 5.
+
+---
+
+# 16. Reflexión bayesiana
+
+Una de las ideas más poderosas del enfoque bayesiano es que **la incertidumbre no es un defecto que debamos esconder**.
+
+Es información.
+
+En nuestro ejemplo sabemos que el escenario central para el primer periodo es de aproximadamente $69.525.
+
+Pero también sabemos que el modelo considera escenarios considerablemente menores y mayores.
+
+Eso nos permite tener una conversación más madura:
+
+> "Nuestro escenario central es aproximadamente $70.000, pero existe una incertidumbre importante. Si el costo de quedarnos sin producto es alto, debemos considerar un nivel superior. Si el costo de mantener inventario es alto, quizá prefiramos asumir parte de ese riesgo."
+
+Esa conversación es mucho más útil que afirmar:
+
+> "El próximo mes venderemos $69.525."
+
+El primer planteamiento reconoce que estamos tomando una decisión bajo incertidumbre.
+
+El segundo convierte una predicción en una falsa certeza.
+
+---
+
+# 17. Conclusión
+
+Un pronóstico no es un plan de inventario.
+
+Es una pieza de información que ayuda a construirlo.
+
+En este análisis utilizamos cuatro años de ventas mensuales de Superstore Sales y un modelo bayesiano sencillo para proyectar los siguientes tres periodos.
+
+El escenario central pasó de aproximadamente **$69.525** en el primer periodo a **$72.765** en el tercero.
+
+Pero el modelo también mostró escenarios mucho más bajos y altos, alrededor de **$40.000 y $100.000**, respectivamente.
+
+La conclusión empresarial no es que debamos elegir automáticamente el escenario alto, central o bajo.
+
+La conclusión es que **la elección debe depender del costo de equivocarnos**.
+
+Si quedarse sin producto es muy costoso, podemos preferir una referencia más conservadora.
+
+Si mantener inventario adicional es muy costoso, podemos aceptar mayor riesgo y trabajar más cerca del escenario central.
+
+Y si necesitamos una planificación realmente operativa, tendremos que enriquecer el modelo con unidades, inventario, costos, tiempos de reposición y estacionalidad.
+
+Ese es precisamente el valor de Business Analytics Bayesiano:
+
+> **no intentar eliminar la incertidumbre, sino convertirla en información útil para tomar mejores decisiones.**
+
+---
+
+# Apéndice: código completo
+
+El siguiente bloque reúne todo el código utilizado en esta entrada, en el mismo orden en que aparece en el análisis.
+
+```{r}
+#| echo: true
+#| eval: false
+
+library(tidyverse)
+library(lubridate)
+library(rstanarm)
+library(ggplot2)
+library(posterior)
+library(bayesplot)
+
+options(scipen = 999)
+
+superstore <- read_csv(
+  "/kaggle/input/datasets/store33/superstore_sales.csv",
+  guess_max = 10000,
+  show_col_types = FALSE
+)
+
+names(superstore)
+glimpse(superstore)
+
+
+superstore <- superstore %>%
+  mutate(
+    order_date = mdy(`Order Date`)
+  )
+
+superstore %>%
+  summarise(
+    filas = n(),
+    fechas_na = sum(is.na(order_date)),
+    fecha_minima = min(order_date, na.rm = TRUE),
+    fecha_maxima = max(order_date, na.rm = TRUE)
+  )
+
+
+ventas_mensuales <- superstore %>%
+  mutate(
+    mes = floor_date(order_date, unit = "month")
+  ) %>%
+  group_by(mes) %>%
+  summarise(
+    ventas = sum(Sales, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(mes)
+
+
+ggplot(
+  ventas_mensuales,
+  aes(x = mes, y = ventas)
+) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Evolución mensual de las ventas",
+    subtitle = "Superstore Sales",
+    x = "Mes",
+    y = "Ventas"
+  ) +
+  theme_minimal()
+
+
+ventas_mensuales <- ventas_mensuales %>%
+  mutate(
+    tiempo = row_number()
+  )
+
+
+modelo_forecast <- stan_glm(
+  ventas ~ tiempo,
+  data = ventas_mensuales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+
+summary(modelo_forecast)
+
+
+horizonte <- 3
+
+futuro <- tibble(
+  tiempo = (max(ventas_mensuales$tiempo) + 1):
+           (max(ventas_mensuales$tiempo) + horizonte)
+)
+
+futuro
+
+
+predicciones <- posterior_predict(
+  modelo_forecast,
+  newdata = futuro
+)
+
+predicciones_df <- as.data.frame(predicciones)
+
+colnames(predicciones_df) <- paste0(
+  "periodo_",
+  futuro$tiempo
+)
+
+
+escenarios <- tibble(
+  periodo = seq_len(horizonte),
+  demanda_baja = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.10
+  ),
+  demanda_central = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.50
+  ),
+  demanda_alta = apply(
+    predicciones,
+    2,
+    quantile,
+    probs = 0.90
+  )
+)
+
+escenarios
+
+
+escenarios_largo <- escenarios %>%
+  pivot_longer(
+    cols = c(
+      demanda_baja,
+      demanda_central,
+      demanda_alta
+    ),
+    names_to = "escenario",
+    values_to = "ventas"
+  )
+
+
+ggplot(
+  escenarios_largo,
+  aes(x = periodo, y = ventas, linetype = escenario)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(
+    breaks = seq_len(horizonte)
+  ) +
+  labs(
+    title = "Tres escenarios para la demanda futura",
+    x = "Periodo futuro",
+    y = "Ventas previstas",
+    linetype = "Escenario"
+  ) +
+  theme_minimal()
+
+
+ultimo_tiempo <- max(ventas_mensuales$tiempo)
+
+historico_plot <- ventas_mensuales %>%
+  select(tiempo, ventas) %>%
+  mutate(tipo = "Histórico")
+
+futuro_plot <- escenarios %>%
+  transmute(
+    tiempo = ultimo_tiempo + periodo,
+    ventas = demanda_central,
+    tipo = "Pronóstico central"
+  )
+
+datos_comparacion <- bind_rows(
+  historico_plot,
+  futuro_plot
+)
+
+
+ggplot(
+  datos_comparacion,
+  aes(x = tiempo, y = ventas, linetype = tipo)
+) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(
+    title = "De las ventas históricas al pronóstico",
+    x = "Periodo",
+    y = "Ventas",
+    linetype = NULL
+  ) +
+  theme_minimal()
+
+
+tabla_decision <- escenarios %>%
+  transmute(
+    Periodo = paste("Periodo", periodo),
+    `Escenario bajo` = round(demanda_baja, 0),
+    `Escenario central` = round(demanda_central, 0),
+    `Escenario alto` = round(demanda_alta, 0)
+  )
+
+tabla_decision
+```

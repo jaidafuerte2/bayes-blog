@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte, MD, MBA">
+<meta name="dcterms.date" content="2026-09-12">
+<meta name="description" content="Un pronóstico no es una decisión. Exploramos cómo convertir escenarios bayesianos de ventas en una referencia práctica para planificar inventario.">
+
+<title>¿Cómo transformar un pronóstico en un plan de inventario? – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#cuánto-inventario-deberíamos-preparar-para-el-próximo-periodo" id="toc-cuánto-inventario-deberíamos-preparar-para-el-próximo-periodo" class="nav-link active" data-scroll-target="#cuánto-inventario-deberíamos-preparar-para-el-próximo-periodo">¿Cuánto inventario deberíamos preparar para el próximo periodo?</a></li>
+  <li><a href="#el-problema-de-negocio" id="toc-el-problema-de-negocio" class="nav-link" data-scroll-target="#el-problema-de-negocio">1. El problema de negocio</a></li>
+  <li><a href="#los-datos" id="toc-los-datos" class="nav-link" data-scroll-target="#los-datos">2. Los datos</a></li>
+  <li><a href="#de-las-órdenes-individuales-a-las-ventas-mensuales" id="toc-de-las-órdenes-individuales-a-las-ventas-mensuales" class="nav-link" data-scroll-target="#de-las-órdenes-individuales-a-las-ventas-mensuales">3. De las órdenes individuales a las ventas mensuales</a></li>
+  <li><a href="#construimos-una-referencia-temporal" id="toc-construimos-una-referencia-temporal" class="nav-link" data-scroll-target="#construimos-una-referencia-temporal">4. Construimos una referencia temporal</a></li>
+  <li><a href="#un-modelo-bayesiano-de-tendencia" id="toc-un-modelo-bayesiano-de-tendencia" class="nav-link" data-scroll-target="#un-modelo-bayesiano-de-tendencia">5. Un modelo bayesiano de tendencia</a></li>
+  <li><a href="#mirar-hacia-adelante" id="toc-mirar-hacia-adelante" class="nav-link" data-scroll-target="#mirar-hacia-adelante">6. Mirar hacia adelante</a></li>
+  <li><a href="#tres-escenarios-para-la-demanda" id="toc-tres-escenarios-para-la-demanda" class="nav-link" data-scroll-target="#tres-escenarios-para-la-demanda">7. Tres escenarios para la demanda</a></li>
+  <li><a href="#visualizar-los-escenarios" id="toc-visualizar-los-escenarios" class="nav-link" data-scroll-target="#visualizar-los-escenarios">8. Visualizar los escenarios</a></li>
+  <li><a href="#del-histórico-al-futuro" id="toc-del-histórico-al-futuro" class="nav-link" data-scroll-target="#del-histórico-al-futuro">9. Del histórico al futuro</a></li>
+  <li><a href="#ahora-sí-qué-hacemos-con-el-inventario" id="toc-ahora-sí-qué-hacemos-con-el-inventario" class="nav-link" data-scroll-target="#ahora-sí-qué-hacemos-con-el-inventario">10. Ahora sí: ¿qué hacemos con el inventario?</a></li>
+  <li><a href="#una-tabla-para-apoyar-la-decisión" id="toc-una-tabla-para-apoyar-la-decisión" class="nav-link" data-scroll-target="#una-tabla-para-apoyar-la-decisión">11. Una tabla para apoyar la decisión</a></li>
+  <li><a href="#una-limitación-importante-ventas-no-son-unidades-de-inventario" id="toc-una-limitación-importante-ventas-no-son-unidades-de-inventario" class="nav-link" data-scroll-target="#una-limitación-importante-ventas-no-son-unidades-de-inventario">12. Una limitación importante: ventas no son unidades de inventario</a></li>
+  <li><a href="#otra-limitación-la-estacionalidad" id="toc-otra-limitación-la-estacionalidad" class="nav-link" data-scroll-target="#otra-limitación-la-estacionalidad">13. Otra limitación: la estacionalidad</a></li>
+  <li><a href="#la-verdadera-utilidad-del-pronóstico-bayesiano" id="toc-la-verdadera-utilidad-del-pronóstico-bayesiano" class="nav-link" data-scroll-target="#la-verdadera-utilidad-del-pronóstico-bayesiano">14. La verdadera utilidad del pronóstico bayesiano</a></li>
+  <li><a href="#del-pronóstico-a-la-decisión" id="toc-del-pronóstico-a-la-decisión" class="nav-link" data-scroll-target="#del-pronóstico-a-la-decisión">15. Del pronóstico a la decisión</a></li>
+  <li><a href="#reflexión-bayesiana" id="toc-reflexión-bayesiana" class="nav-link" data-scroll-target="#reflexión-bayesiana">16. Reflexión bayesiana</a></li>
+  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">17. Conclusión</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice: código completo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">¿Cómo transformar un pronóstico en un plan de inventario?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Forecasting</div>
+    <div class="quarto-category">Operaciones</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Un pronóstico no es una decisión. Exploramos cómo convertir escenarios bayesianos de ventas en una referencia práctica para planificar inventario.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte, MD, MBA </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 12, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="cuánto-inventario-deberíamos-preparar-para-el-próximo-periodo" class="level2">
+<h2 class="anchored" data-anchor-id="cuánto-inventario-deberíamos-preparar-para-el-próximo-periodo">¿Cuánto inventario deberíamos preparar para el próximo periodo?</h2>
+<p>Predecir las ventas del próximo periodo puede parecer el objetivo final de un análisis. Sin embargo, para una empresa el pronóstico es solamente el comienzo.</p>
+<p>Una empresa no compra un pronóstico.</p>
+<p>Compra productos, prepara inventario, asigna recursos y toma decisiones tratando de evitar dos problemas opuestos:</p>
+<ul>
+<li>quedarse sin producto cuando la demanda aumenta;</li>
+<li>mantener demasiado inventario cuando la demanda termina siendo menor de lo esperado.</li>
+</ul>
+<p>Por eso, una pregunta más útil que <em>“¿cuánto venderemos?”</em> es:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué nivel de demanda deberíamos considerar al preparar nuestro próximo periodo?</strong></p>
+</blockquote>
+<p>En esta entrada utilizaremos el dataset <strong>Superstore Sales</strong> para construir un pronóstico bayesiano de ventas y transformarlo en tres escenarios: bajo, central y alto.</p>
+<p>La idea no es producir un número mágico. Es convertir la incertidumbre del pronóstico en información que pueda utilizarse para tomar una decisión.</p>
+<hr>
+</section>
+<section id="el-problema-de-negocio" class="level2">
+<h2 class="anchored" data-anchor-id="el-problema-de-negocio">1. El problema de negocio</h2>
+<p>Imaginemos que estamos cerrando diciembre de 2017 y necesitamos prepararnos para los siguientes tres meses.</p>
+<p>Podríamos mirar simplemente las ventas históricas y calcular un promedio.</p>
+<p>Pero ese enfoque tiene una limitación importante: el futuro no es un promedio.</p>
+<p>Las ventas pueden continuar creciendo, pueden ser menores de lo esperado o pueden situarse en algún punto intermedio.</p>
+<p>El análisis bayesiano nos permite plantear el problema de una manera diferente:</p>
+<blockquote class="blockquote">
+<p><strong>En lugar de preguntar cuál será exactamente la próxima venta, podemos preguntar qué valores de demanda futura son plausibles.</strong></p>
+</blockquote>
+<p>Esto resulta especialmente útil para inventario.</p>
+<p>Si solamente tuviéramos un pronóstico puntual de $70.000, todavía tendríamos que decidir si preparar $70.000 de inventario, algo más o algo menos.</p>
+<p>Si en cambio conocemos un escenario bajo, uno central y uno alto, podemos relacionar cada escenario con una estrategia operativa diferente.</p>
+<hr>
+</section>
+<section id="los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="los-datos">2. Los datos</h2>
+<p>Trabajaremos nuevamente con <strong>Superstore Sales</strong>, manteniendo la estructura original del dataset.</p>
+<p>Nuestro interés estará en dos variables:</p>
+<ul>
+<li><code>Order Date</code>: fecha de la orden.</li>
+<li><code>Sales</code>: valor monetario de la venta.</li>
+</ul>
+<p>Primero cargamos los datos y verificamos su estructura.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(superstore) <span class="co"># produce:</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 9,994
+Columns: 21
+$ `Row ID`        &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,…
+$ `Order ID`      &lt;chr&gt; "CA-2016-152156", "CA-2016-152156", "CA-2016-138688", …
+$ `Order Date`    &lt;chr&gt; "11/8/2016", "11/8/2016", "6/12/2016", "10/11/2015", "…
+$ `Ship Date`     &lt;chr&gt; "11/11/2016", "11/11/2016", "6/16/2016", "10/18/2015",…
+$ `Ship Mode`     &lt;chr&gt; "Second Class", "Second Class", "Second Class", "Stand…
+$ `Customer ID`   &lt;chr&gt; "CG-12520", "CG-12520", "DV-13045", "SO-20335", "SO-20…
+$ `Customer Name` &lt;chr&gt; "Claire Gute", "Claire Gute", "Darrin Van Huff", "Sean…
+$ Segment         &lt;chr&gt; "Consumer", "Consumer", "Corporate", "Consumer", "Cons…
+$ Country         &lt;chr&gt; "United States", "United States", "United States", "Un…
+$ City            &lt;chr&gt; "Henderson", "Henderson", "Los Angeles", "Fort Lauderd…
+$ State           &lt;chr&gt; "Kentucky", "Kentucky", "California", "Florida", "Flor…
+$ `Postal Code`   &lt;chr&gt; "42420", "42420", "90036", "33311", "33311", "90032", …
+$ Region          &lt;chr&gt; "South", "South", "West", "South", "South", "West", "W…
+$ `Product ID`    &lt;chr&gt; "FUR-BO-10001798", "FUR-CH-10000454", "OFF-LA-10000240…
+$ Category        &lt;chr&gt; "Furniture", "Furniture", "Office Supplies", "Furnitur…
+$ `Sub-Category`  &lt;chr&gt; "Bookcases", "Chairs", "Labels", "Tables", "Storage", …
+$ `Product Name`  &lt;chr&gt; "Bush Somerset Collection Bookcase", "Hon Deluxe Fabri…
+$ Sales           &lt;dbl&gt; 261.9600, 731.9400, 14.6200, 957.5775, 22.3680, 48.860…
+$ Quantity        &lt;dbl&gt; 2, 3, 2, 5, 2, 7, 4, 6, 3, 5, 9, 4, 3, 3, 5, 3, 6, 2, …
+$ Discount        &lt;dbl&gt; 0.00, 0.00, 0.00, 0.45, 0.20, 0.00, 0.00, 0.20, 0.20, …
+$ Profit          &lt;dbl&gt; 41.9136, 219.5820, 6.8714, -383.0310, 2.5164, 14.1694,…</code></pre>
+</div>
+</div>
+<p>La tabla contiene <strong>9.994 registros y 21 variables</strong>.</p>
+<p>Antes de utilizar las fechas, debemos comprobar cómo están almacenadas. <code>Order Date</code> aparece como texto y utiliza el formato mes/día/año.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer el tipo de dato de la variable de fecha de pedido</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer el formato de algunos valores de la variable de fecha </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># de pedido</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "11/8/2016"  "6/12/2016"  "10/11/2015" "6/9/2014"   "4/15/2017" 
+ [6] "12/5/2016"  "11/22/2015" "11/11/2014" "5/13/2014"  "8/27/2014" 
+[11] "12/9/2016"  "7/16/2017"  "9/25/2015"  "1/16/2016"  "9/17/2015" 
+[16] "10/19/2017" "12/8/2016"  "12/27/2015" "9/10/2017"  "7/17/2016" </code></pre>
+</div>
+</div>
+<p>Por eso utilizamos <code>mdy()</code> para convertirla a una fecha reconocible por R.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">order_date =</span> <span class="fu">mdy</span>(<span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>superstore <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">filas =</span> <span class="fu">n</span>(),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fechas_na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(order_date)),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_minima =</span> <span class="fu">min</span>(order_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_maxima =</span> <span class="fu">max</span>(order_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  filas fechas_na fecha_minima fecha_maxima
+  &lt;int&gt;     &lt;int&gt; &lt;date&gt;       &lt;date&gt;      
+1  9994         0 2014-01-03   2017-12-30  </code></pre>
+</div>
+</div>
+<p>La conversión no produjo valores perdidos.</p>
+<p>Tenemos información desde el <strong>3 de enero de 2014 hasta el 30 de diciembre de 2017</strong>, lo que nos proporciona cuatro años de historia comercial.</p>
+<hr>
+</section>
+<section id="de-las-órdenes-individuales-a-las-ventas-mensuales" class="level2">
+<h2 class="anchored" data-anchor-id="de-las-órdenes-individuales-a-las-ventas-mensuales">3. De las órdenes individuales a las ventas mensuales</h2>
+<p>Para pronosticar la demanda no necesitamos trabajar con cada orden individual.</p>
+<p>Nos interesa observar cómo se comportan las ventas a través del tiempo.</p>
+<p>Por eso agruparemos las órdenes por mes.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">mes =</span> <span class="fu">floor_date</span>(order_date, <span class="at">unit =</span> <span class="st">"month"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(mes) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">ventas =</span> <span class="fu">sum</span>(Sales, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Ahora tenemos una serie de <strong>48 periodos mensuales</strong>.</p>
+<p>Podemos visualizar su evolución.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  ventas_mensuales,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> mes, <span class="at">y =</span> ventas)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Evolución mensual de las ventas"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Superstore Sales"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Mes"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La primera característica que destaca es una <strong>tendencia general creciente</strong>.</p>
+<p>Durante 2014 los valores máximos mensuales se encuentran por encima de $80.000. En 2015 los máximos se sitúan alrededor de $75.000, mientras que durante 2016 aparecen meses cercanos a $100.000.</p>
+<p>En 2017 la escala aumenta todavía más, con meses que alcanzan aproximadamente $118.000.</p>
+<p>También observamos un comportamiento estacional aparente: noviembre y diciembre suelen encontrarse entre los meses de mayores ventas, mientras que enero y febrero tienden a presentar valores más bajos.</p>
+<p>Esto ya nos proporciona una primera lección.</p>
+<p><strong>El pasado contiene información útil sobre el futuro, pero no toda esa información tiene que comportarse de la misma manera.</strong></p>
+<hr>
+</section>
+<section id="construimos-una-referencia-temporal" class="level2">
+<h2 class="anchored" data-anchor-id="construimos-una-referencia-temporal">4. Construimos una referencia temporal</h2>
+<p>Para construir un modelo sencillo necesitamos representar el paso del tiempo mediante una variable numérica.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">tiempo =</span> <span class="fu">row_number</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Tenemos 48 meses, por lo que:</p>
+<ul>
+<li>enero de 2014 corresponde al periodo 1;</li>
+<li>el último mes observado corresponde al periodo 48;</li>
+<li>los siguientes meses serán los periodos 49, 50 y 51.</li>
+</ul>
+<p>Esta transformación permite preguntarnos si existe una relación entre el paso del tiempo y el nivel de ventas.</p>
+<hr>
+</section>
+<section id="un-modelo-bayesiano-de-tendencia" class="level2">
+<h2 class="anchored" data-anchor-id="un-modelo-bayesiano-de-tendencia">5. Un modelo bayesiano de tendencia</h2>
+<p>Construiremos un modelo lineal bayesiano sencillo:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>modelo_forecast <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  ventas <span class="sc">~</span> tiempo,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ventas_mensuales,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>El modelo estima principalmente tres cantidades:</p>
+<ul>
+<li>un intercepto;</li>
+<li>el efecto del paso del tiempo;</li>
+<li>la desviación residual <code>sigma</code>.</li>
+</ul>
+<p>Los resultados principales fueron:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parámetro</th>
+<th style="text-align: right;">Mediana</th>
+<th style="text-align: right;">Desviación posterior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intercepto</td>
+<td style="text-align: right;">$25.528</td>
+<td style="text-align: right;">$6.628</td>
+</tr>
+<tr class="even">
+<td>Tiempo</td>
+<td style="text-align: right;">$906</td>
+<td style="text-align: right;">$227</td>
+</tr>
+<tr class="odd">
+<td>Sigma</td>
+<td style="text-align: right;">$22.124</td>
+<td style="text-align: right;">$2.118</td>
+</tr>
+</tbody>
+</table>
+<p>La mediana posterior del coeficiente <code>tiempo</code> es aproximadamente <strong>$906</strong>.</p>
+<p>En términos sencillos, el modelo sitúa el crecimiento esperado de las ventas alrededor de <strong>$906 por cada periodo mensual adicional</strong>, manteniendo la estructura lineal del modelo.</p>
+<p>Esto no significa que cada mes vaya a aumentar exactamente $906.</p>
+<p>Es una forma de describir la tendencia promedio que el modelo encuentra en los datos.</p>
+<p>El parámetro <code>sigma</code>, cuya mediana posterior es aproximadamente <strong>$22.124</strong>, representa la magnitud típica de la variación residual alrededor de la relación estimada.</p>
+<p>Es una cantidad importante porque nos recuerda que existe una diferencia considerable entre una tendencia promedio y las ventas que finalmente pueden observarse.</p>
+<section id="una-precisión-importante-sobre-el-intercepto" class="level4">
+<h4 class="anchored" data-anchor-id="una-precisión-importante-sobre-el-intercepto">Una precisión importante sobre el intercepto</h4>
+<p>El intercepto tiene una mediana de aproximadamente $25.528.</p>
+<p>Pero no debemos interpretarlo como las ventas reales de un mes observado.</p>
+<p>Nuestro primer mes corresponde a <code>tiempo = 1</code>, por lo que el intercepto representa el valor que el modelo asignaría a <code>tiempo = 0</code>.</p>
+<p>Es decir, se trata de una <strong>extrapolación matemática de la recta</strong>, no de un mes histórico real de Superstore.</p>
+<p>Por eso, para la decisión empresarial nos interesa mucho más utilizar el modelo para generar predicciones futuras.</p>
+<hr>
+</section>
+</section>
+<section id="mirar-hacia-adelante" class="level2">
+<h2 class="anchored" data-anchor-id="mirar-hacia-adelante">6. Mirar hacia adelante</h2>
+<p>Supongamos que queremos preparar los siguientes tres periodos.</p>
+<p>Después del periodo 48, nuestros nuevos periodos serán 49, 50 y 51.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>horizonte <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>futuro <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">tiempo =</span> (<span class="fu">max</span>(ventas_mensuales<span class="sc">$</span>tiempo) <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           (<span class="fu">max</span>(ventas_mensuales<span class="sc">$</span>tiempo) <span class="sc">+</span> horizonte)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>futuro</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 1
+  tiempo
+   &lt;int&gt;
+1     49
+2     50
+3     51</code></pre>
+</div>
+</div>
+<p>Ahora utilizaremos <code>posterior_predict()</code>.</p>
+<p>Esta función tiene una característica especialmente interesante para nuestro problema.</p>
+<p>No genera únicamente una estimación puntual.</p>
+<p>Genera múltiples valores posibles de ventas futuras a partir de la distribución predictiva posterior del modelo.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>predicciones <span class="ot">&lt;-</span> <span class="fu">posterior_predict</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  modelo_forecast,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> futuro</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>En otras palabras, en lugar de obtener simplemente:</p>
+<blockquote class="blockquote">
+<p>“El próximo periodo venderemos $70.000.”</p>
+</blockquote>
+<p>obtenemos una distribución de posibles resultados.</p>
+<p>Esto cambia completamente la conversación empresarial.</p>
+<p>Ya no estamos tratando de adivinar el futuro.</p>
+<p>Estamos intentando <strong>entender el rango de resultados plausibles para poder decidir mejor</strong>.</p>
+<p>Adicionalmente transformamos las predicciones posteriores a un formato de tabla para poder usarlas en otras transformaciones y grafícos</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformar las predicciones posteriores a formato de tabla</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>predicciones_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(predicciones)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Renombrar los nombres de las variables de las predicciones</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># posteriores para los meses 49, 50 y 51</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(predicciones_df) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"periodo_"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  futuro<span class="sc">$</span>tiempo</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="tres-escenarios-para-la-demanda" class="level2">
+<h2 class="anchored" data-anchor-id="tres-escenarios-para-la-demanda">7. Tres escenarios para la demanda</h2>
+<p>Para convertir esa distribución en algo que pueda utilizarse en una conversación empresarial, resumiremos las predicciones mediante tres puntos:</p>
+<ul>
+<li>percentil 10: escenario bajo;</li>
+<li>percentil 50: escenario central;</li>
+<li>percentil 90: escenario alto.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>escenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">periodo =</span> <span class="fu">seq_len</span>(horizonte),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_baja =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.10</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_central =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.50</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_alta =</span> <span class="fu">apply</span>(</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.90</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Los resultados son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Periodo</th>
+<th style="text-align: right;">Escenario bajo</th>
+<th style="text-align: right;">Escenario central</th>
+<th style="text-align: right;">Escenario alto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: right;">$40.504</td>
+<td style="text-align: right;">$69.525</td>
+<td style="text-align: right;">$100.352</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: right;">$40.279</td>
+<td style="text-align: right;">$70.611</td>
+<td style="text-align: right;">$100.683</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: right;">$42.919</td>
+<td style="text-align: right;">$72.765</td>
+<td style="text-align: right;">$99.711</td>
+</tr>
+</tbody>
+</table>
+<p>Aquí aparece la parte más importante del análisis.</p>
+<p>Para el <strong>periodo 1</strong>, por ejemplo, la predicción central es de aproximadamente <strong>$69.525</strong>.</p>
+<p>Pero el modelo también considera escenarios plausibles alrededor de ella:</p>
+<ul>
+<li>un escenario bajo cercano a <strong>$40.504</strong>;</li>
+<li>un escenario central de <strong>$69.525</strong>;</li>
+<li>un escenario alto de <strong>$100.352</strong>.</li>
+</ul>
+<p>No estamos diciendo que esos sean los únicos tres resultados posibles.</p>
+<p>Son tres puntos de referencia extraídos de toda la distribución predictiva.</p>
+<p>El intervalo entre los percentiles 10 y 90 representa un <strong>intervalo predictivo central del 80%</strong>.</p>
+<p>No significa que “el 80% de las ventas estará ahí” en un sentido literal sobre observaciones futuras individuales. Significa que estamos utilizando los percentiles 10 y 90 de la distribución predictiva como límites de un rango central de resultados plausibles generado por el modelo.</p>
+<hr>
+</section>
+<section id="visualizar-los-escenarios" class="level2">
+<h2 class="anchored" data-anchor-id="visualizar-los-escenarios">8. Visualizar los escenarios</h2>
+<p>Podemos llevar estos resultados a un gráfico.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La gráfica permite observar algo que una única cifra no podría mostrar.</p>
+<p>El escenario central aumenta progresivamente:</p>
+<ul>
+<li>periodo 1: $69.525;</li>
+<li>periodo 2: $70.611;</li>
+<li>periodo 3: $72.765.</li>
+</ul>
+<p>Pero la incertidumbre alrededor de esos valores sigue siendo amplia.</p>
+<p>El escenario alto se mantiene alrededor de $100.000, mientras que el escenario bajo se encuentra cerca de $40.000.</p>
+<p>Por lo tanto, el crecimiento de la tendencia no elimina la incertidumbre.</p>
+<p><strong>El futuro puede continuar creciendo y, al mismo tiempo, seguir siendo incierto.</strong></p>
+<hr>
+</section>
+<section id="del-histórico-al-futuro" class="level2">
+<h2 class="anchored" data-anchor-id="del-histórico-al-futuro">9. Del histórico al futuro</h2>
+<p>Hasta ahora hemos separado visualmente la historia del pronóstico.</p>
+<p>Podemos colocarlos juntos para observar cómo el modelo extiende la tendencia después del último periodo observado.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>El último periodo histórico corresponde a <strong>diciembre de 2017</strong>.</p>
+<p>A partir de ahí, los tres periodos pronosticados representan <strong>enero, febrero y marzo de 2018</strong>.</p>
+<p>El modelo proyecta un escenario central que continúa aumentando.</p>
+<p>Sin embargo, hay que recordar qué estamos viendo:</p>
+<ul>
+<li>hasta diciembre de 2017 observamos datos reales;</li>
+<li>desde enero de 2018 estamos observando valores generados por el modelo.</li>
+</ul>
+<p>Esta separación es fundamental.</p>
+<p>Un pronóstico no convierte el futuro en datos observados.</p>
+<hr>
+</section>
+<section id="ahora-sí-qué-hacemos-con-el-inventario" class="level2">
+<h2 class="anchored" data-anchor-id="ahora-sí-qué-hacemos-con-el-inventario">10. Ahora sí: ¿qué hacemos con el inventario?</h2>
+<p>Aquí es donde el análisis deja de ser solamente estadístico.</p>
+<p>Supongamos que una empresa necesita decidir cuánto preparar para el siguiente periodo.</p>
+<p>Tenemos tres referencias:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Escenario</th>
+<th style="text-align: right;">Demanda aproximada</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bajo</td>
+<td style="text-align: right;">$40.504</td>
+</tr>
+<tr class="even">
+<td>Central</td>
+<td style="text-align: right;">$69.525</td>
+</tr>
+<tr class="odd">
+<td>Alto</td>
+<td style="text-align: right;">$100.352</td>
+</tr>
+</tbody>
+</table>
+<p>Cada cifra puede conducir a una decisión diferente.</p>
+<section id="si-utilizamos-el-escenario-central" class="level4">
+<h4 class="anchored" data-anchor-id="si-utilizamos-el-escenario-central">Si utilizamos el escenario central</h4>
+<p>Podríamos planificar alrededor de <strong>$69.525</strong> de ventas esperadas.</p>
+<p>Es una referencia razonable si el costo de mantener inventario adicional es importante y la empresa puede aceptar cierto riesgo de quedarse corta.</p>
+</section>
+<section id="si-damos-mayor-importancia-al-riesgo-de-quedarse-sin-producto" class="level4">
+<h4 class="anchored" data-anchor-id="si-damos-mayor-importancia-al-riesgo-de-quedarse-sin-producto">Si damos mayor importancia al riesgo de quedarse sin producto</h4>
+<p>El escenario alto, cercano a <strong>$100.352</strong>, puede convertirse en una referencia más conservadora.</p>
+<p>La lógica es sencilla:</p>
+<blockquote class="blockquote">
+<p>Si el costo de quedarse sin producto es muy alto, puede tener sentido planificar considerando una parte más alta de la distribución predictiva.</p>
+</blockquote>
+</section>
+<section id="si-el-costo-de-exceso-de-inventario-es-muy-elevado" class="level4">
+<h4 class="anchored" data-anchor-id="si-el-costo-de-exceso-de-inventario-es-muy-elevado">Si el costo de exceso de inventario es muy elevado</h4>
+<p>Podría ser preferible utilizar una referencia más cercana al escenario bajo o central.</p>
+<p>En ese caso, la empresa estaría aceptando mayor riesgo de no cubrir una demanda elevada a cambio de reducir el capital comprometido en inventario.</p>
+<p>Aquí aparece una idea fundamental de Business Analytics:</p>
+<blockquote class="blockquote">
+<p><strong>El mejor escenario no depende únicamente del pronóstico. Depende también del costo de equivocarse.</strong></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="una-tabla-para-apoyar-la-decisión" class="level2">
+<h2 class="anchored" data-anchor-id="una-tabla-para-apoyar-la-decisión">11. Una tabla para apoyar la decisión</h2>
+<p>Podemos transformar los resultados en una tabla sencilla que pueda utilizarse directamente en una conversación de negocio.</p>
+<p>El resultado resume nuestra referencia para los tres meses:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Periodo</th>
+<th style="text-align: right;">Escenario bajo</th>
+<th style="text-align: right;">Escenario central</th>
+<th style="text-align: right;">Escenario alto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Periodo 1</td>
+<td style="text-align: right;">$40.504</td>
+<td style="text-align: right;">$69.525</td>
+<td style="text-align: right;">$100.352</td>
+</tr>
+<tr class="even">
+<td>Periodo 2</td>
+<td style="text-align: right;">$40.279</td>
+<td style="text-align: right;">$70.611</td>
+<td style="text-align: right;">$100.683</td>
+</tr>
+<tr class="odd">
+<td>Periodo 3</td>
+<td style="text-align: right;">$42.919</td>
+<td style="text-align: right;">$72.765</td>
+<td style="text-align: right;">$99.711</td>
+</tr>
+</tbody>
+</table>
+<p>Esta tabla es probablemente más útil para un responsable de operaciones que una página llena de estadísticas del modelo.</p>
+<p>La razón es sencilla.</p>
+<p>El objetivo del análisis no es que el responsable de operaciones conozca <code>stan_glm()</code>.</p>
+<p>El objetivo es que pueda responder:</p>
+<blockquote class="blockquote">
+<p><strong>“¿Qué escenario queremos utilizar para nuestra decisión?”</strong></p>
+</blockquote>
+<hr>
+</section>
+<section id="una-limitación-importante-ventas-no-son-unidades-de-inventario" class="level2">
+<h2 class="anchored" data-anchor-id="una-limitación-importante-ventas-no-son-unidades-de-inventario">12. Una limitación importante: ventas no son unidades de inventario</h2>
+<p>Hay una precisión que debemos hacer antes de convertir estos resultados en una política real de inventario.</p>
+<p>El dataset contiene <strong>ventas monetarias</strong>, no unidades físicas disponibles ni cantidades de inventario.</p>
+<p>Por lo tanto, este análisis no nos permite decir directamente:</p>
+<blockquote class="blockquote">
+<p>“Debemos almacenar 700 unidades.”</p>
+</blockquote>
+<p>Tampoco permite transformar automáticamente $70.000 de ventas en una cantidad concreta de productos.</p>
+<p>Lo que sí podemos obtener es una <strong>referencia monetaria de la demanda futura</strong>.</p>
+<p>Esto puede ser útil como primera aproximación para planificación, pero un sistema real de inventario necesitaría información adicional, por ejemplo:</p>
+<ul>
+<li>unidades vendidas;</li>
+<li>inventario disponible;</li>
+<li>inventario de seguridad;</li>
+<li>tiempos de reposición;</li>
+<li>costo de mantener inventario;</li>
+<li>costo de quedarse sin producto;</li>
+<li>precio y margen por producto;</li>
+<li>demanda por categoría o producto.</li>
+</ul>
+<p>Esta diferencia no es un detalle menor.</p>
+<p><strong>Un buen análisis no solamente explica lo que los datos permiten hacer. También deja claro lo que todavía no permiten hacer.</strong></p>
+<hr>
+</section>
+<section id="otra-limitación-la-estacionalidad" class="level2">
+<h2 class="anchored" data-anchor-id="otra-limitación-la-estacionalidad">13. Otra limitación: la estacionalidad</h2>
+<p>También observamos un comportamiento estacional en los datos.</p>
+<p>Noviembre y diciembre tienden a presentar mayores ventas, mientras que enero y febrero tienden a ser más bajos.</p>
+<p>Sin embargo, nuestro modelo utiliza únicamente:</p>
+<pre class="text"><code>ventas ~ tiempo</code></pre>
+<p>Por lo tanto, está capturando principalmente una <strong>tendencia temporal general</strong>.</p>
+<p>No está modelando explícitamente cada mes del año.</p>
+<p>Esto significa que debemos interpretar el pronóstico como una primera referencia probabilística y no como un sistema completo de forecasting operativo.</p>
+<p>Un siguiente modelo podría incorporar la estructura mensual y otros factores relevantes.</p>
+<p>Pero esta limitación también tiene una ventaja.</p>
+<p>Comenzamos con un modelo suficientemente sencillo como para entender la lógica fundamental:</p>
+<p><strong>historia → tendencia → distribución predictiva → escenarios → decisión.</strong></p>
+<hr>
+</section>
+<section id="la-verdadera-utilidad-del-pronóstico-bayesiano" class="level2">
+<h2 class="anchored" data-anchor-id="la-verdadera-utilidad-del-pronóstico-bayesiano">14. La verdadera utilidad del pronóstico bayesiano</h2>
+<p>El resultado más importante de este análisis no es $69.525.</p>
+<p>Tampoco es $100.352.</p>
+<p>La verdadera utilidad está en cambiar la pregunta.</p>
+<p>Una aproximación tradicional podría llevarnos a preguntar:</p>
+<blockquote class="blockquote">
+<p>“¿Cuánto vamos a vender?”</p>
+</blockquote>
+<p>El enfoque probabilístico nos lleva a preguntar:</p>
+<blockquote class="blockquote">
+<p>“¿Qué niveles de ventas futuras son plausibles y qué decisión tomaríamos frente a cada uno?”</p>
+</blockquote>
+<p>Esta segunda pregunta es mucho más cercana a la realidad empresarial.</p>
+<p>Porque las decisiones se toman antes de conocer el futuro.</p>
+<p>Y cuando el futuro es incierto, una cifra puntual puede transmitir una falsa sensación de precisión.</p>
+<p>Una distribución, en cambio, nos permite reconocer explícitamente esa incertidumbre.</p>
+<hr>
+</section>
+<section id="del-pronóstico-a-la-decisión" class="level2">
+<h2 class="anchored" data-anchor-id="del-pronóstico-a-la-decisión">15. Del pronóstico a la decisión</h2>
+<p>Podemos resumir todo el proceso de esta entrada en cinco pasos:</p>
+<section id="observar" class="level4">
+<h4 class="anchored" data-anchor-id="observar">1. Observar</h4>
+<p>Partimos de las ventas históricas y buscamos patrones relevantes.</p>
+</section>
+<section id="modelar" class="level4">
+<h4 class="anchored" data-anchor-id="modelar">2. Modelar</h4>
+<p>Construimos un modelo bayesiano que representa la tendencia temporal.</p>
+</section>
+<section id="predecir" class="level4">
+<h4 class="anchored" data-anchor-id="predecir">3. Predecir</h4>
+<p>Generamos una distribución de posibles ventas futuras mediante <code>posterior_predict()</code>.</p>
+</section>
+<section id="crear-escenarios" class="level4">
+<h4 class="anchored" data-anchor-id="crear-escenarios">4. Crear escenarios</h4>
+<p>Extraemos referencias bajo, central y alto a partir de la distribución predictiva.</p>
+</section>
+<section id="decidir" class="level4">
+<h4 class="anchored" data-anchor-id="decidir">5. Decidir</h4>
+<p>Relacionamos esos escenarios con el costo y el riesgo de las diferentes decisiones de inventario.</p>
+<p>La parte estadística termina en el paso 4.</p>
+<p>La parte de Business Analytics comienza realmente en el paso 5.</p>
+<hr>
+</section>
+</section>
+<section id="reflexión-bayesiana" class="level2">
+<h2 class="anchored" data-anchor-id="reflexión-bayesiana">16. Reflexión bayesiana</h2>
+<p>Una de las ideas más poderosas del enfoque bayesiano es que <strong>la incertidumbre no es un defecto que debamos esconder</strong>.</p>
+<p>Es información.</p>
+<p>En nuestro ejemplo sabemos que el escenario central para el primer periodo es de aproximadamente $69.525.</p>
+<p>Pero también sabemos que el modelo considera escenarios considerablemente menores y mayores.</p>
+<p>Eso nos permite tener una conversación más madura:</p>
+<blockquote class="blockquote">
+<p>“Nuestro escenario central es aproximadamente $70.000, pero existe una incertidumbre importante. Si el costo de quedarnos sin producto es alto, debemos considerar un nivel superior. Si el costo de mantener inventario es alto, quizá prefiramos asumir parte de ese riesgo.”</p>
+</blockquote>
+<p>Esa conversación es mucho más útil que afirmar:</p>
+<blockquote class="blockquote">
+<p>“El próximo mes venderemos $69.525.”</p>
+</blockquote>
+<p>El primer planteamiento reconoce que estamos tomando una decisión bajo incertidumbre.</p>
+<p>El segundo convierte una predicción en una falsa certeza.</p>
+<hr>
+</section>
+<section id="conclusión" class="level2">
+<h2 class="anchored" data-anchor-id="conclusión">17. Conclusión</h2>
+<p>Un pronóstico no es un plan de inventario.</p>
+<p>Es una pieza de información que ayuda a construirlo.</p>
+<p>En este análisis utilizamos cuatro años de ventas mensuales de Superstore Sales y un modelo bayesiano sencillo para proyectar los siguientes tres periodos.</p>
+<p>El escenario central pasó de aproximadamente <strong>$69.525</strong> en el primer periodo a <strong>$72.765</strong> en el tercero.</p>
+<p>Pero el modelo también mostró escenarios mucho más bajos y altos, alrededor de <strong>$40.000 y $100.000</strong>, respectivamente.</p>
+<p>La conclusión empresarial no es que debamos elegir automáticamente el escenario alto, central o bajo.</p>
+<p>La conclusión es que <strong>la elección debe depender del costo de equivocarnos</strong>.</p>
+<p>Si quedarse sin producto es muy costoso, podemos preferir una referencia más conservadora.</p>
+<p>Si mantener inventario adicional es muy costoso, podemos aceptar mayor riesgo y trabajar más cerca del escenario central.</p>
+<p>Y si necesitamos una planificación realmente operativa, tendremos que enriquecer el modelo con unidades, inventario, costos, tiempos de reposición y estacionalidad.</p>
+<p>Ese es precisamente el valor de Business Analytics Bayesiano:</p>
+<blockquote class="blockquote">
+<p><strong>no intentar eliminar la incertidumbre, sino convertirla en información útil para tomar mejores decisiones.</strong></p>
+</blockquote>
+<hr>
+</section>
+<section id="apéndice-código-completo" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-código-completo">Apéndice: código completo</h2>
+<p>El siguiente bloque reúne todo el código utilizado en esta entrada, en el mismo orden en que aparece en el análisis.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/kaggle/input/datasets/store33/superstore_sales.csv"</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">guess_max =</span> <span class="dv">10000</span>,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(superstore)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(superstore)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">order_date =</span> <span class="fu">mdy</span>(<span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>superstore <span class="sc">%&gt;%</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">filas =</span> <span class="fu">n</span>(),</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">fechas_na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(order_date)),</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_minima =</span> <span class="fu">min</span>(order_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_maxima =</span> <span class="fu">max</span>(order_date, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">mes =</span> <span class="fu">floor_date</span>(order_date, <span class="at">unit =</span> <span class="st">"month"</span>)</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(mes) <span class="sc">%&gt;%</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">ventas =</span> <span class="fu">sum</span>(Sales, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mes)</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>  ventas_mensuales,</span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> mes, <span class="at">y =</span> ventas)</span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Evolución mensual de las ventas"</span>,</span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Superstore Sales"</span>,</span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Mes"</span>,</span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">tiempo =</span> <span class="fu">row_number</span>()</span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a>modelo_forecast <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a>  ventas <span class="sc">~</span> tiempo,</span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ventas_mensuales,</span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelo_forecast)</span>
+<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a>horizonte <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a>futuro <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a>  <span class="at">tiempo =</span> (<span class="fu">max</span>(ventas_mensuales<span class="sc">$</span>tiempo) <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span></span>
+<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a>           (<span class="fu">max</span>(ventas_mensuales<span class="sc">$</span>tiempo) <span class="sc">+</span> horizonte)</span>
+<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a>futuro</span>
+<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a>predicciones <span class="ot">&lt;-</span> <span class="fu">posterior_predict</span>(</span>
+<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a>  modelo_forecast,</span>
+<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> futuro</span>
+<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a>predicciones_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(predicciones)</span>
+<span id="cb19-97"><a href="#cb19-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-98"><a href="#cb19-98" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(predicciones_df) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a>  <span class="st">"periodo_"</span>,</span>
+<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a>  futuro<span class="sc">$</span>tiempo</span>
+<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a>escenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a>  <span class="at">periodo =</span> <span class="fu">seq_len</span>(horizonte),</span>
+<span id="cb19-106"><a href="#cb19-106" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_baja =</span> <span class="fu">apply</span>(</span>
+<span id="cb19-107"><a href="#cb19-107" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.10</span></span>
+<span id="cb19-111"><a href="#cb19-111" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb19-112"><a href="#cb19-112" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_central =</span> <span class="fu">apply</span>(</span>
+<span id="cb19-113"><a href="#cb19-113" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb19-114"><a href="#cb19-114" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb19-115"><a href="#cb19-115" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb19-116"><a href="#cb19-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.50</span></span>
+<span id="cb19-117"><a href="#cb19-117" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb19-118"><a href="#cb19-118" aria-hidden="true" tabindex="-1"></a>  <span class="at">demanda_alta =</span> <span class="fu">apply</span>(</span>
+<span id="cb19-119"><a href="#cb19-119" aria-hidden="true" tabindex="-1"></a>    predicciones,</span>
+<span id="cb19-120"><a href="#cb19-120" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>,</span>
+<span id="cb19-121"><a href="#cb19-121" aria-hidden="true" tabindex="-1"></a>    quantile,</span>
+<span id="cb19-122"><a href="#cb19-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">probs =</span> <span class="fl">0.90</span></span>
+<span id="cb19-123"><a href="#cb19-123" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-124"><a href="#cb19-124" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-125"><a href="#cb19-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-126"><a href="#cb19-126" aria-hidden="true" tabindex="-1"></a>escenarios</span>
+<span id="cb19-127"><a href="#cb19-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-128"><a href="#cb19-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-129"><a href="#cb19-129" aria-hidden="true" tabindex="-1"></a>escenarios_largo <span class="ot">&lt;-</span> escenarios <span class="sc">%&gt;%</span></span>
+<span id="cb19-130"><a href="#cb19-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb19-131"><a href="#cb19-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(</span>
+<span id="cb19-132"><a href="#cb19-132" aria-hidden="true" tabindex="-1"></a>      demanda_baja,</span>
+<span id="cb19-133"><a href="#cb19-133" aria-hidden="true" tabindex="-1"></a>      demanda_central,</span>
+<span id="cb19-134"><a href="#cb19-134" aria-hidden="true" tabindex="-1"></a>      demanda_alta</span>
+<span id="cb19-135"><a href="#cb19-135" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-136"><a href="#cb19-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"escenario"</span>,</span>
+<span id="cb19-137"><a href="#cb19-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"ventas"</span></span>
+<span id="cb19-138"><a href="#cb19-138" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-139"><a href="#cb19-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-140"><a href="#cb19-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-141"><a href="#cb19-141" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb19-142"><a href="#cb19-142" aria-hidden="true" tabindex="-1"></a>  escenarios_largo,</span>
+<span id="cb19-143"><a href="#cb19-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> periodo, <span class="at">y =</span> ventas, <span class="at">linetype =</span> escenario)</span>
+<span id="cb19-144"><a href="#cb19-144" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb19-145"><a href="#cb19-145" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb19-146"><a href="#cb19-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq_len</span>(horizonte)</span>
+<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Tres escenarios para la demanda futura"</span>,</span>
+<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Periodo futuro"</span>,</span>
+<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas previstas"</span>,</span>
+<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"Escenario"</span></span>
+<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-159"><a href="#cb19-159" aria-hidden="true" tabindex="-1"></a>ultimo_tiempo <span class="ot">&lt;-</span> <span class="fu">max</span>(ventas_mensuales<span class="sc">$</span>tiempo)</span>
+<span id="cb19-160"><a href="#cb19-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a>historico_plot <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tiempo, ventas) <span class="sc">%&gt;%</span></span>
+<span id="cb19-163"><a href="#cb19-163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="st">"Histórico"</span>)</span>
+<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-165"><a href="#cb19-165" aria-hidden="true" tabindex="-1"></a>futuro_plot <span class="ot">&lt;-</span> escenarios <span class="sc">%&gt;%</span></span>
+<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a>    <span class="at">tiempo =</span> ultimo_tiempo <span class="sc">+</span> periodo,</span>
+<span id="cb19-168"><a href="#cb19-168" aria-hidden="true" tabindex="-1"></a>    <span class="at">ventas =</span> demanda_central,</span>
+<span id="cb19-169"><a href="#cb19-169" aria-hidden="true" tabindex="-1"></a>    <span class="at">tipo =</span> <span class="st">"Pronóstico central"</span></span>
+<span id="cb19-170"><a href="#cb19-170" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-171"><a href="#cb19-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a>datos_comparacion <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb19-173"><a href="#cb19-173" aria-hidden="true" tabindex="-1"></a>  historico_plot,</span>
+<span id="cb19-174"><a href="#cb19-174" aria-hidden="true" tabindex="-1"></a>  futuro_plot</span>
+<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a>  datos_comparacion,</span>
+<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> tiempo, <span class="at">y =</span> ventas, <span class="at">linetype =</span> tipo)</span>
+<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb19-183"><a href="#cb19-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb19-184"><a href="#cb19-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"De las ventas históricas al pronóstico"</span>,</span>
+<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Periodo"</span>,</span>
+<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas"</span>,</span>
+<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="cn">NULL</span></span>
+<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a>tabla_decision <span class="ot">&lt;-</span> escenarios <span class="sc">%&gt;%</span></span>
+<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">Periodo =</span> <span class="fu">paste</span>(<span class="st">"Periodo"</span>, periodo),</span>
+<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Escenario bajo</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(demanda_baja, <span class="dv">0</span>),</span>
+<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Escenario central</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(demanda_central, <span class="dv">0</span>),</span>
+<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Escenario alto</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(demanda_alta, <span class="dv">0</span>)</span>
+<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a>tabla_decision</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
