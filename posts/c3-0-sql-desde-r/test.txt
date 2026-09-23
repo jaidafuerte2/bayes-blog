@@ -1,0 +1,190 @@
+---
+title: "test"
+format: html
+---
+
+```{r}
+# Cargar las librerías necesarias 
+library(DBI) 
+library(RSQLite)
+
+# Evitar la notación científica
+options(scipen = 999)
+```
+
+
+```{r}
+# Cargar la tabla de superstores sales
+superstore <- readr::read_csv(
+  "../../data/superstore_sales.csv",
+  locale = readr::locale(encoding = "Windows-1252"),
+  show_col_types = FALSE
+)
+
+names(superstore)
+```
+
+
+```{r}
+dplyr::glimpse(superstore)
+```
+
+```{r}
+con <- DBI::dbConnect( 
+    RSQLite::SQLite(), 
+    ":memory:" 
+) 
+
+DBI::dbWriteTable( 
+    con, 
+    "superstore", 
+    superstore, 
+    overwrite = TRUE 
+)
+
+DBI::dbListTables(con) # produce:
+```
+
+
+```{r}
+q1 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+SELECT * 
+    FROM superstore 
+    LIMIT 5 
+    ' 
+)
+
+gt::gt(q1)
+```
+
+```{r}
+q2 <- DBI::dbGetQuery( 
+    con, 
+    '
+    SELECT 
+      "Order ID", 
+      "Order Date", 
+      "Category", 
+      "Sales" 
+    FROM superstore 
+    LIMIT 10 
+    ' 
+) 
+
+gt::gt(q2)
+```
+
+```{r}
+q3 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+SELECT 
+    "Order ID", 
+    "Product Name", 
+    "Category", 
+"Sales" 
+    FROM superstore 
+    WHERE  "Category" = \'Technology\'
+    LIMIT 10 
+    ' 
+) 
+
+gt::gt(q3)
+```
+
+```{r}
+q4 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+SELECT 
+    "Order ID", 
+    "Product Name", 
+    
+"Category", "Sales" 
+    FROM superstore 
+    ORDER BY "Sales" 
+    DESC LIMIT 10 
+    ' 
+) 
+gt::gt(q4)
+```
+
+```{r}
+q5 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+SELECT 
+    "Product Name", 
+    "Sales" 
+    FROM superstore 
+    ORDER BY "Sales" DESC 
+    LIMIT 5 
+    ' 
+) 
+gt::gt(q5)
+```
+
+```{r}
+q6 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+    SELECT 
+      SUM("Sales") AS total_sales 
+    FROM superstore 
+    ' 
+)
+gt::gt(q6)
+```
+
+```{r}
+q7 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+    SELECT 
+      COUNT(*) AS n_observaciones 
+    FROM superstore 
+    ' 
+)
+gt::gt(q7)
+```
+
+```{r}
+q8 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+    SELECT 
+      AVG("Sales") AS venta_promedio 
+    FROM superstore 
+    ' 
+) 
+gt::gt(q8)
+```
+
+```{r}
+q9 <- DBI::dbGetQuery( 
+    con, 
+    ' 
+    SELECT 
+      "Category", 
+      SUM("Sales") AS total_sales 
+    FROM superstore 
+    GROUP BY "Category" 
+    ORDER BY total_sales DESC 
+    ' 
+) 
+gt::gt(q9)
+```
+
+```{r}
+DBI::dbDisconnect(con)
+```
+
+
+
+
+
+
+
+

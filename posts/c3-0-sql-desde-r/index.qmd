@@ -1,0 +1,1358 @@
+---
+title: "SQL desde R: una introducción práctica con SQLite y Superstore"
+
+description: "Una introducción práctica a SQL desde R utilizando SQLite y Superstore para consultar, filtrar, ordenar y resumir datos de negocio."
+
+author: "David Villafuerte"
+
+date: "2026-09-02"
+
+categories:
+  - Retail
+  - Operaciones
+  - Visualización
+
+format:
+  html:
+    theme: lux
+    toc: true
+    toc-depth: 2
+    
+execute:
+  warning: false
+  message: false
+  
+draft: false
+---
+
+Hasta ahora hemos trabajado con los datos de Superstore principalmente desde R. Hemos explorado sus variables, construido resúmenes y utilizado modelos para intentar responder preguntas de negocio bajo incertidumbre.
+
+Pero existe otra herramienta fundamental para trabajar con datos empresariales: **SQL**.
+
+SQL permite consultar y resumir información almacenada en bases de datos utilizando un lenguaje diseñado específicamente para trabajar con tablas.
+
+En esta entrada vamos a dar nuestro primer paso en esa dirección utilizando **SQLite desde R**.
+
+La pregunta práctica que guiará este ejercicio es:
+
+> **¿Cómo podemos utilizar SQL para consultar y resumir datos de negocio utilizando SQLite desde nuestro entorno de R?**
+
+No construiremos todavía ningún modelo bayesiano. Tampoco intentaremos cubrir todo SQL.
+
+La finalidad es más concreta: entender cómo podemos incorporar SQL a nuestro flujo de trabajo con datos.
+
+---
+
+# 1. ¿Por qué introducir SQL en nuestro flujo de trabajo?
+
+R es una herramienta excelente para analizar datos, construir modelos y comunicar resultados.
+
+SQL cumple otra función.
+
+Cuando trabajamos con bases de datos, con frecuencia necesitamos responder preguntas como:
+
+* ¿Qué columnas contiene una tabla?
+* ¿Cuáles son los primeros registros?
+* ¿Qué ventas pertenecen a una determinada categoría?
+* ¿Cuáles son las ventas más grandes?
+* ¿Cuántas observaciones existen?
+* ¿Cuál es la venta promedio?
+* ¿Cuánto se ha vendido en total?
+* ¿Cómo se distribuyen las ventas entre categorías?
+
+Estas preguntas no requieren todavía un modelo estadístico.
+
+Primero necesitamos **consultar los datos**.
+
+Aquí aparece SQL.
+
+Podemos pensar en SQL como un lenguaje para formular preguntas sobre tablas.
+
+Por ejemplo:
+
+```sql
+SELECT *
+FROM superstore
+LIMIT 5;
+```
+
+La pregunta que estamos haciendo es sencilla:
+
+> "Muéstrame las primeras cinco filas de la tabla `superstore`."
+
+La ventaja de trabajar con SQL desde R es que no necesitamos abandonar nuestro entorno de análisis.
+
+Podemos utilizar R para conectarnos a una base de datos, escribir consultas SQL y devolver sus resultados a R para continuar trabajando con ellos.
+
+Nuestro flujo será:
+
+**Superstore → R → SQLite → SQL → resultado → R**
+
+---
+
+# 2. El entorno: R, DBI, RSQLite y SQLite
+
+Antes de realizar consultas necesitamos entender las piezas que participan en el proceso.
+
+En este ejercicio utilizaremos:
+
+```{r}
+# Cargar las librerías
+library(DBI)
+library(RSQLite)
+
+# Evitar la notación científica
+options(scipen = 999)
+```
+
+`DBI` proporciona una interfaz estándar para que R pueda comunicarse con diferentes sistemas de bases de datos.
+
+`RSQLite`, por su parte, permite que esa interfaz se comunique específicamente con **SQLite**.
+
+Podemos imaginarlo de la siguiente manera:
+
+```text
+R
+│
+├── DBI
+│
+├── RSQLite
+│
+└── SQLite
+```
+
+La idea importante es que cada componente cumple una función diferente.
+
+**DBI** proporciona la interfaz.
+
+**RSQLite** proporciona la implementación necesaria para comunicarnos con SQLite.
+
+**SQLite** es el sistema de base de datos que almacenará nuestra tabla.
+
+SQLite resulta especialmente conveniente para este ejercicio porque no necesitamos levantar un servidor de base de datos independiente.
+
+Además, trabajaremos con una base de datos temporal en memoria.
+
+---
+
+# 3. Cargar los datos de Superstore
+
+Lo primero que debemos hacer es cargar los datos:
+
+```{r}
+superstore <- readr::read_csv(
+  "../../data/superstore_sales.csv",
+  locale = readr::locale(encoding = "Windows-1252"),
+  show_col_types = FALSE
+)
+```
+
+El uso de:
+
+```r
+encoding = "Windows-1252"
+```
+
+permite que `readr` interprete correctamente la codificación utilizada por el archivo.
+
+Por otro lado:
+
+```r
+show_col_types = FALSE
+```
+
+evita que `read_csv()` muestre el mensaje informativo sobre los tipos de columnas detectados.
+
+En este punto todavía estamos trabajando exclusivamente con R.
+
+`superstore` es un objeto de R que contiene nuestros datos.
+
+---
+
+# 4. Conocer la estructura antes de utilizar SQL
+
+Antes de introducir los datos en SQLite conviene conocer su estructura.
+
+Podemos consultar los nombres de las variables:
+
+```r
+names(superstore)
+```
+
+Nuestro dataset contiene 21 variables:
+
+* `Row ID`
+* `Order ID`
+* `Order Date`
+* `Ship Date`
+* `Ship Mode`
+* `Customer ID`
+* `Customer Name`
+* `Segment`
+* `Country`
+* `City`
+* `State`
+* `Postal Code`
+* `Region`
+* `Product ID`
+* `Category`
+* `Sub-Category`
+* `Product Name`
+* `Sales`
+* `Quantity`
+* `Discount`
+* `Profit`
+
+También podemos utilizar:
+
+```r
+dplyr::glimpse(superstore)
+```
+
+La inspección confirma que tenemos:
+
+**9.994 filas y 21 columnas.**
+
+Entre ellas encontramos información sobre pedidos, clientes, productos, categorías, ventas, descuentos y ganancias.
+
+Hay un detalle importante relacionado con las fechas.
+
+`Order Date` aparece actualmente como:
+
+```text
+<chr>
+```
+
+es decir, como texto.
+
+En esta entrada **no vamos a transformar esa variable**.
+
+Esto es deliberado.
+
+En las entradas posteriores de esta colección necesitaremos trabajar con la dimensión temporal de Superstore para estudiar escenarios futuros. Aquí, en cambio, nuestro objetivo es aprender a consultar una tabla mediante SQL.
+
+---
+
+# 5. Crear una base de datos SQLite en memoria
+
+Ahora damos el primer paso propiamente relacionado con la base de datos.
+
+```{r}
+con <- DBI::dbConnect(
+  RSQLite::SQLite(),
+  ":memory:"
+)
+```
+
+Aquí aparecen dos elementos importantes.
+
+`RSQLite::SQLite()` indica que utilizaremos SQLite.
+
+`":memory:"` le indica a SQLite que cree una base de datos temporal directamente en memoria.
+
+El objeto:
+
+```r
+con
+```
+
+representa nuestra **conexión** con esa base de datos.
+
+Por eso es habitual utilizar el nombre `con`, abreviatura de *connection*.
+
+Podríamos utilizar otro nombre, pero `con` es una convención clara y fácil de reconocer.
+
+Podemos imaginarlo como el canal mediante el cual R se comunica con nuestra base de datos.
+
+---
+
+# 6. Escribir Superstore dentro de SQLite
+
+Ahora necesitamos llevar nuestro objeto de R a la base de datos.
+
+Utilizamos:
+
+```{r}
+DBI::dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+```
+
+Aquí es importante distinguir:
+
+```r
+"superstore"
+```
+
+de:
+
+```r
+superstore
+```
+
+El primero es un **nombre**: indica cómo se llamará la tabla dentro de SQLite.
+
+El segundo es el **objeto de R que contiene nuestros datos**.
+
+Por tanto, estamos diciendo:
+
+> "Toma el objeto `superstore` de R y escríbelo en la base de datos conectada mediante `con`, utilizando `superstore` como nombre de la tabla."
+
+El argumento:
+
+```r
+overwrite = TRUE
+```
+
+permite reemplazar una tabla existente con ese mismo nombre si ya estuviera presente.
+
+Ahora podemos comprobar qué tablas existen:
+
+```r
+DBI::dbListTables(con)
+```
+
+El resultado es:
+
+```text
+"superstore"
+```
+
+Ya tenemos nuestra tabla SQLite.
+
+Podemos representar mentalmente el proceso así:
+
+```text
+Objeto de R
+superstore
+     │
+     │ dbWriteTable()
+     ↓
+Base de datos SQLite
+     │
+     └── tabla "superstore"
+```
+
+Es importante mantener esta distinción durante todo el ejercicio:
+
+* `superstore` = objeto de datos en R.
+* `"superstore"` = nombre de la tabla en SQLite.
+* `con` = conexión con la base de datos.
+
+---
+
+# 7. Primera consulta: observar la tabla
+
+Comencemos con una consulta sencilla.
+
+```{r}
+q1 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT *
+  FROM superstore
+  LIMIT 5
+  '
+)
+```
+
+La consulta SQL es:
+
+```sql
+SELECT *
+FROM superstore
+LIMIT 5
+```
+
+Podemos leerla prácticamente como una frase:
+
+> Selecciona todas las columnas de la tabla `superstore` y limita el resultado a cinco filas.
+
+El símbolo:
+
+```sql
+*
+```
+
+significa "todas las columnas".
+
+El resultado contiene:
+
+**5 filas y 21 columnas.**
+
+En R podemos observarlo con:
+
+```{r}
+gt::gt(q1)
+```
+
+
+Lo importante aquí no es todavía el contenido particular de las cinco filas.
+
+Lo importante es observar el flujo:
+
+```text
+SQL
+ ↓
+SQLite
+ ↓
+resultado
+ ↓
+R
+```
+
+`dbGetQuery()` ejecuta la consulta SQL y devuelve el resultado a R.
+
+Por eso podemos guardar el resultado en:
+
+```r
+q1
+```
+
+y continuar trabajando con él como un objeto tabular de R.
+
+---
+
+# 8. Seleccionar solamente algunas columnas
+
+Normalmente no necesitamos recuperar toda la tabla.
+
+Supongamos que solamente queremos conocer:
+
+* el identificador del pedido;
+* la fecha;
+* la categoría;
+* las ventas.
+
+Podemos escribir:
+
+```{r}
+q2 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Order Date",
+    "Category",
+    "Sales"
+  FROM superstore
+  LIMIT 10
+  '
+)
+gt::gt(q2)
+```
+
+Aquí hemos reemplazado:
+
+```sql
+SELECT *
+```
+
+por una lista específica de columnas.
+
+El resultado contiene **10 filas y 4 columnas**.
+
+Las primeras filas permiten observar, por ejemplo, que un mismo pedido puede aparecer en varios registros y que diferentes productos pueden pertenecer a diferentes categorías.
+
+También podemos observar que `Sales` es numérica mientras que `Order Date` permanece como texto.
+
+Esta consulta introduce una idea fundamental de SQL:
+
+> **No siempre necesitamos recuperar toda la información disponible. Podemos solicitar solamente las columnas necesarias para responder una pregunta concreta.**
+
+En un contexto empresarial, esta forma de trabajar ayuda a construir consultas más enfocadas.
+
+---
+
+# 9. Filtrar información con WHERE
+
+Ahora podemos formular una pregunta un poco más específica:
+
+> **¿Qué registros pertenecen a la categoría Technology?**
+
+Utilizamos:
+
+```{r}
+q3 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Product Name",
+    "Category",
+    "Sales"
+  FROM superstore
+  WHERE "Category" = \'Technology\'
+  LIMIT 10
+  '
+)
+gt::gt(q3) # produce:
+```
+
+La parte nueva es:
+
+```sql
+WHERE "Category" = 'Technology'
+```
+
+`WHERE` permite establecer una condición.
+
+En lenguaje natural estamos diciendo:
+
+> "Selecciona solamente las filas cuya categoría sea Technology."
+
+El resultado contiene diez registros de esa categoría.
+
+Entre ellos aparecen productos como:
+
+* Mitel 5320 IP Phone VoIP phone;
+* Konftel 250 Conference phone;
+* Cisco SPA 501G IP Phone;
+* GE 30524EE4;
+* Panasonic Kx-TS550.
+
+Aquí aparece además una pequeña particularidad sintáctica.
+
+Las comillas dobles:
+
+```sql
+"Category"
+```
+
+delimitan el **nombre de una columna**.
+
+En cambio, las comillas simples:
+
+```sql
+'Technology'
+```
+
+delimitan un **valor de texto**.
+
+Esta diferencia es importante cuando comenzamos a escribir SQL desde R.
+
+En nuestro caso, además, la consulta SQL está dentro de una cadena de texto de R delimitada por comillas simples. Por eso necesitamos escapar las comillas simples que rodean `Technology`:
+
+```r
+\'Technology\'
+```
+
+La codificación Windows-1252 utilizada al leer el CSV y esta cuestión de las comillas pertenecen a problemas completamente diferentes.
+
+---
+
+# 10. Ordenar los resultados
+
+Otra pregunta frecuente es:
+
+> **¿Cuáles son los registros con mayores ventas?**
+
+Para responderla podemos ordenar la información.
+
+```{r}
+q4 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Product Name",
+    "Category",
+    "Sales"
+  FROM superstore
+  ORDER BY "Sales"
+  DESC
+  LIMIT 10
+  '
+)
+```
+
+La parte nueva es:
+
+```sql
+ORDER BY "Sales" DESC
+```
+
+`ORDER BY` indica que queremos ordenar los resultados.
+
+`DESC` significa **descendente**.
+
+Por tanto, estamos solicitando:
+
+> "Ordena los registros según `Sales`, desde el valor más alto hasta el más bajo."
+
+Los diez primeros registros incluyen:
+
+| Producto                                                  | Categoría       |    Ventas |
+| --------------------------------------------------------- | --------------- | --------: |
+| Cisco TelePresence System EX90 Videoconferencing Unit     | Technology      | 22.638,48 |
+| Canon imageCLASS 2200 Advanced Copier                     | Technology      | 17.499,95 |
+| Canon imageCLASS 2200 Advanced Copier                     | Technology      | 13.999,96 |
+| Canon imageCLASS 2200 Advanced Copier                     | Technology      | 11.199,97 |
+| Canon imageCLASS 2200 Advanced Copier                     | Technology      | 10.499,97 |
+| GBC Ibimaster 500 Manual ProClick Binding System          | Office Supplies |  9.892,74 |
+| Ibico EPK-21 Electric Binding System                      | Office Supplies |  9.449,95 |
+| 3D Systems Cube Printer, 2nd Generation, Magenta          | Technology      |  9.099,93 |
+| HP Designjet T520 Inkjet Large Format Printer - 24" Color | Technology      |  8.749,95 |
+| Canon imageCLASS 2200 Advanced Copier                     | Technology      |  8.399,98 |
+
+Esta consulta permite identificar rápidamente los registros con las ventas individuales más elevadas.
+
+También podemos observar que varios de los valores más altos corresponden a productos de Technology y que el producto Canon imageCLASS 2200 Advanced Copier aparece varias veces.
+
+No debemos confundir esta observación con una conclusión general sobre la rentabilidad o el desempeño de una categoría.
+
+Aquí solamente estamos **ordenando registros según ventas**.
+
+---
+
+# 11. Combinar ORDER BY y LIMIT
+
+Podemos hacer la consulta todavía más pequeña:
+
+```{r}
+q5 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Product Name",
+    "Sales"
+  FROM superstore
+  ORDER BY "Sales" DESC
+  LIMIT 5
+  '
+)
+```
+
+Ahora solamente solicitamos:
+
+* nombre del producto;
+* ventas.
+
+Y pedimos los cinco valores más altos.
+
+El resultado es:
+
+| Producto                                              |    Ventas |
+| ----------------------------------------------------- | --------: |
+| Cisco TelePresence System EX90 Videoconferencing Unit | 22.638,48 |
+| Canon imageCLASS 2200 Advanced Copier                 | 17.499,95 |
+| Canon imageCLASS 2200 Advanced Copier                 | 13.999,96 |
+| Canon imageCLASS 2200 Advanced Copier                 | 11.199,97 |
+| Canon imageCLASS 2200 Advanced Copier                 | 10.499,97 |
+
+Aquí podemos observar una idea importante:
+
+`LIMIT` no cambia los datos originales.
+
+Simplemente limita **cuántas filas devuelve nuestra consulta**.
+
+Esto resulta especialmente útil cuando estamos explorando una tabla grande y queremos observar rápidamente los primeros resultados después de aplicar algún criterio de ordenamiento.
+
+---
+
+# 12. Calcular ventas totales con SUM
+
+Hasta ahora hemos seleccionado y ordenado registros individuales.
+
+Ahora queremos responder una pregunta diferente:
+
+> **¿Cuánto representan en total las ventas de Superstore?**
+
+Para ello podemos utilizar una función de agregación:
+
+```sql
+SUM()
+```
+
+Nuestra consulta es:
+
+```{r}
+q6 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    SUM("Sales") AS total_sales
+  FROM superstore
+  '
+)
+```
+
+La parte:
+
+```sql
+SUM("Sales")
+```
+
+suma los valores de la columna `Sales`.
+
+Después utilizamos:
+
+```sql
+AS total_sales
+```
+
+para darle un nombre al resultado.
+
+`AS` permite crear un alias.
+
+En este caso:
+
+```text
+SUM("Sales") → total_sales
+```
+
+El resultado obtenido es:
+
+**2.297.201**
+
+Es decir, la suma de los valores de `Sales` en las 9.994 filas del dataset es aproximadamente **2,30 millones**.
+
+La consulta devuelve una sola fila porque ya no estamos solicitando registros individuales.
+
+Estamos calculando un **resumen de toda la tabla**.
+
+---
+
+# 13. Contar observaciones con COUNT
+
+Otra pregunta básica es:
+
+> **¿Cuántos registros contiene nuestra tabla?**
+
+Podemos utilizar:
+
+```sql
+COUNT()
+```
+
+Nuestra consulta es:
+
+```{r}
+q7 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    COUNT(*) AS n_observaciones
+  FROM superstore
+  '
+)
+```
+
+Aquí:
+
+```sql
+COUNT(*)
+```
+
+cuenta las filas de la tabla.
+
+El alias:
+
+```sql
+AS n_observaciones
+```
+
+nos permite darle un nombre claro al resultado.
+
+Obtenemos:
+
+```text
+n_observaciones
+9994
+```
+
+Este resultado coincide con la inspección inicial realizada mediante `glimpse()`.
+
+Tenemos, por tanto:
+
+**9.994 observaciones.**
+
+Este pequeño ejemplo muestra algo importante: SQL también puede utilizarse para obtener rápidamente métricas básicas de una tabla.
+
+---
+
+# 14. Calcular una venta promedio con AVG
+
+Podemos formular una pregunta adicional:
+
+> **¿Cuál es la venta promedio por registro?**
+
+Para ello utilizamos:
+
+```sql
+AVG()
+```
+
+La consulta es:
+
+```{r}
+q8 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    AVG("Sales") AS venta_promedio
+  FROM superstore
+  '
+)
+```
+
+El resultado es:
+
+```text
+venta_promedio
+229.858
+```
+
+Por tanto, la venta promedio por registro del dataset es aproximadamente:
+
+**229,86**
+
+Aquí debemos tener cuidado con la interpretación.
+
+Este valor representa el promedio de la variable `Sales` a nivel de **registro de la tabla**, no necesariamente el valor promedio de una compra individual, de un pedido completo o de un cliente.
+
+La diferencia importa porque el dataset contiene múltiples registros asociados con pedidos y productos.
+
+Por ahora nos basta con reconocer que `AVG()` permite calcular el promedio de una variable numérica.
+
+---
+
+# 15. Agrupar información con GROUP BY
+
+Hasta este momento hemos calculado resúmenes para toda la tabla.
+
+Pero una pregunta de negocio suele requerir comparar grupos.
+
+Por ejemplo:
+
+> **¿Cuánto representan las ventas totales de cada categoría?**
+
+Aquí aparece `GROUP BY`.
+
+Nuestra consulta es:
+
+```{r}
+q9 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Category",
+    SUM("Sales") AS total_sales
+  FROM superstore
+  GROUP BY "Category"
+  ORDER BY total_sales DESC
+  '
+)
+```
+
+Esta consulta contiene varias piezas que ya conocemos.
+
+Primero:
+
+```sql
+SELECT "Category"
+```
+
+indica que queremos trabajar con la categoría.
+
+Después:
+
+```sql
+SUM("Sales") AS total_sales
+```
+
+calcula las ventas totales y les asigna el nombre `total_sales`.
+
+Luego:
+
+```sql
+GROUP BY "Category"
+```
+
+le indica a SQLite que debe realizar ese cálculo **por cada categoría**, en lugar de calcular una única suma para toda la tabla.
+
+Finalmente:
+
+```sql
+ORDER BY total_sales DESC
+```
+
+ordena las categorías desde la mayor venta total hasta la menor.
+
+El resultado es:
+
+| Categoría       | Ventas totales |
+| --------------- | -------------: |
+| Technology      |      836.154,0 |
+| Furniture       |      741.999,8 |
+| Office Supplies |      719.047,0 |
+
+Aquí SQL nos ha permitido pasar de una pregunta sobre registros individuales a una pregunta sobre **grupos de negocio**.
+
+La suma total de las ventas por categoría permite observar cómo se distribuye el volumen de ventas entre las tres categorías presentes en el dataset.
+
+Nuevamente, conviene mantener la interpretación dentro de los límites de la consulta.
+
+Estos son **totales de ventas**, no ganancias.
+
+Una categoría con mayores ventas no necesariamente tiene mayores beneficios.
+
+Para estudiar esa cuestión necesitaríamos utilizar `Profit` y formular otra consulta.
+
+---
+
+# 16. Lo que hemos aprendido
+
+En esta primera aproximación hemos utilizado solamente unas pocas instrucciones de SQL:
+
+| Instrucción | Función                       |
+| ----------- | ----------------------------- |
+| `SELECT`    | Elegir columnas o expresiones |
+| `FROM`      | Indicar la tabla de origen    |
+| `WHERE`     | Filtrar filas                 |
+| `ORDER BY`  | Ordenar resultados            |
+| `LIMIT`     | Limitar el número de filas    |
+| `SUM()`     | Calcular una suma             |
+| `COUNT()`   | Contar registros              |
+| `AVG()`     | Calcular un promedio          |
+| `GROUP BY`  | Agrupar registros             |
+
+Con estas herramientas ya podemos realizar consultas bastante útiles sobre una tabla empresarial.
+
+Nuestro recorrido ha sido progresivo:
+
+```text
+SELECT *
+      ↓
+seleccionar columnas
+      ↓
+WHERE
+      ↓
+ORDER BY
+      ↓
+LIMIT
+      ↓
+SUM / COUNT / AVG
+      ↓
+GROUP BY
+```
+
+No hemos necesitado todavía modelos estadísticos.
+
+Tampoco hemos necesitado gráficos.
+
+Simplemente hemos aprendido a **hacer preguntas a los datos**.
+
+---
+
+# 17. SQL como parte del flujo de Business Analytics
+
+Esta entrada tiene una función deliberadamente introductoria.
+
+SQL no sustituye a R.
+
+Tampoco R sustituye a SQL.
+
+Cada herramienta puede ocupar un lugar diferente dentro de un flujo de análisis.
+
+En nuestro caso podemos pensar en el siguiente proceso:
+
+```text
+Datos de negocio
+      ↓
+     SQL
+      ↓
+Consultas y resúmenes
+      ↓
+      R
+      ↓
+Análisis estadístico
+      ↓
+Modelos bayesianos
+      ↓
+Incertidumbre
+      ↓
+Interpretación
+      ↓
+Decisión
+```
+
+Esta separación será especialmente importante en las próximas entradas.
+
+SQL nos permitirá preparar y consultar los datos.
+
+R continuará siendo nuestro entorno de análisis.
+
+Y los modelos bayesianos aparecerán cuando la pregunta de negocio requiera cuantificar incertidumbre, comparar escenarios o anticipar posibles resultados.
+
+---
+
+# 18. Una primera reflexión sobre los resultados
+
+Aunque esta entrada no pretende realizar un análisis completo de Superstore, las consultas ya nos permiten obtener una pequeña fotografía del dataset.
+
+Tenemos:
+
+* **9.994 registros**;
+* aproximadamente **2,30 millones** en ventas acumuladas;
+* una venta promedio por registro de aproximadamente **229,86**;
+* tres categorías;
+* y los mayores registros individuales de ventas corresponden principalmente a productos de Technology.
+
+Cuando agrupamos las ventas por categoría obtenemos:
+
+* Technology: **836.154,0**
+* Furniture: **741.999,8**
+* Office Supplies: **719.047,0**
+
+Esto muestra la diferencia entre dos tipos de preguntas.
+
+Una pregunta puede ser:
+
+> "¿Cuál es la venta individual más alta?"
+
+Otra muy diferente:
+
+> "¿Cuál es el volumen total de ventas de cada categoría?"
+
+La primera requiere ordenar registros.
+
+La segunda requiere agruparlos y resumirlos.
+
+Ambas pueden responderse mediante SQL, pero representan preguntas empresariales diferentes.
+
+Esta distinción es importante porque **el análisis de datos comienza mucho antes de construir un modelo estadístico**.
+
+Comienza definiendo correctamente qué queremos preguntar.
+
+---
+
+# 19. ¿Qué dejamos para después?
+
+En esta entrada hemos llegado deliberadamente hasta:
+
+```sql
+GROUP BY
+```
+
+No hemos introducido todavía:
+
+* `HAVING`;
+* `CASE`;
+* `JOIN`;
+* subconsultas complejas;
+* CTE;
+* funciones de ventana;
+* `PARTITION BY`.
+
+No es una omisión accidental.
+
+Cada una de estas herramientas permite responder preguntas más complejas y aparecerá progresivamente cuando resulte útil para los proyectos posteriores.
+
+La idea no es aprender SQL de manera aislada.
+
+La idea es aprender **SQL mientras resolvemos problemas de análisis de negocio**.
+
+---
+
+# 20. Cerrar la conexión
+
+Finalmente cerramos nuestra conexión:
+
+```r
+DBI::dbDisconnect(con)
+```
+
+Esto indica que hemos terminado de trabajar con la base de datos.
+
+En este ejercicio utilizamos:
+
+```r
+":memory:"
+```
+
+por lo que la base de datos existía solamente en memoria mientras permanecía abierta la conexión.
+
+Al cerrar la conexión, esa base temporal deja de existir.
+
+Esto es diferente de trabajar con una base de datos almacenada en un archivo.
+
+Si posteriormente utilizáramos, por ejemplo, un archivo SQLite persistente, cerrar la conexión no eliminaría la base de datos almacenada en ese archivo.
+
+---
+
+# 21. Reflexión final
+
+Esta primera incursión en SQL puede parecer sencilla.
+
+Y precisamente esa es la intención.
+
+Antes de utilizar modelos bayesianos para responder preguntas complejas necesitamos ser capaces de trabajar con las tablas que contienen nuestros datos.
+
+En esta entrada hemos aprendido a pasar de:
+
+```text
+archivo CSV
+```
+
+a:
+
+```text
+objeto de R
+```
+
+y posteriormente a:
+
+```text
+tabla SQLite
+```
+
+para finalmente realizar consultas SQL y recuperar los resultados nuevamente en R.
+
+El proceso completo puede resumirse así:
+
+```text
+Superstore CSV
+      ↓
+read_csv()
+      ↓
+objeto superstore en R
+      ↓
+dbWriteTable()
+      ↓
+tabla superstore en SQLite
+      ↓
+SQL
+      ↓
+dbGetQuery()
+      ↓
+resultado en R
+```
+
+Es un flujo pequeño, pero representa una pieza importante de un flujo profesional de análisis de datos.
+
+A partir de aquí podremos aumentar gradualmente la complejidad.
+
+En las siguientes integraciones de SQL ya no se tratará solamente de preguntar qué contiene una tabla.
+
+Comenzaremos a utilizar SQL como una herramienta dentro de proyectos de **Business Analytics**, conectándolo con análisis estadístico, incertidumbre y, cuando la pregunta lo requiera, modelos bayesianos.
+
+La meta no es aprender SQL por aprender SQL.
+
+La meta es utilizarlo para **hacer mejores preguntas a los datos**.
+
+---
+
+# Apéndice: código completo
+
+El siguiente bloque reúne, en orden cronológico, todo el código utilizado en esta entrada.
+
+```{r}
+#| eval: false
+
+# Cargar las librerías necesarias
+
+library(DBI)
+library(RSQLite)
+
+# Evitar la notación científica
+
+options(scipen = 999)
+
+# Conocer la ubicación del dataset
+
+list.files(
+  "/kaggle/input",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+# Cargar la tabla de Superstore Sales
+
+superstore <- readr::read_csv(
+  "/kaggle/input/datasets/jaimevillafuerte/store30/superstore_sales.csv",
+  locale = readr::locale(encoding = "Windows-1252"),
+  show_col_types = FALSE
+)
+
+# Conocer los nombres de las variables
+
+names(superstore)
+
+# Visualizar una vista rápida de la tabla
+
+dplyr::glimpse(superstore)
+
+# Crear un espacio en memoria para alojar la tabla
+
+con <- DBI::dbConnect(
+  RSQLite::SQLite(),
+  ":memory:"
+)
+
+# Escribir la tabla superstore en SQLite
+
+DBI::dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+
+# Conocer las tablas alojadas en la base de datos
+
+DBI::dbListTables(con)
+
+# Seleccionar todas las variables
+# y mostrar las primeras 5 filas
+
+q1 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT *
+  FROM superstore
+  LIMIT 5
+  '
+)
+
+gt::gt(q1)
+
+# Seleccionar cuatro variables
+# y mostrar los primeros 10 registros
+
+q2 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Order Date",
+    "Category",
+    "Sales"
+  FROM superstore
+  LIMIT 10
+  '
+)
+
+gt::gt(q2)
+
+# Seleccionar cuatro variables,
+# filtrar la categoría Technology
+# y mostrar los primeros 10 registros
+
+q3 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Product Name",
+    "Category",
+    "Sales"
+  FROM superstore
+  WHERE "Category" = \'Technology\'
+  LIMIT 10
+  '
+)
+
+gt::gt(q3)
+
+# Seleccionar cuatro variables,
+# ordenar por ventas de forma descendente
+# y mostrar los primeros 10 registros
+
+q4 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Order ID",
+    "Product Name",
+    "Category",
+    "Sales"
+  FROM superstore
+  ORDER BY "Sales" DESC
+  LIMIT 10
+  '
+)
+
+gt::gt(q4)
+
+# Seleccionar producto y ventas,
+# ordenar de forma descendente
+# y mostrar los primeros 5 registros
+
+q5 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Product Name",
+    "Sales"
+  FROM superstore
+  ORDER BY "Sales" DESC
+  LIMIT 5
+  '
+)
+
+gt::gt(q5)
+
+# Calcular las ventas totales
+
+q6 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    SUM("Sales") AS total_sales
+  FROM superstore
+  '
+)
+
+gt::gt(q6)
+
+# Contar las observaciones
+
+q7 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    COUNT(*) AS n_observaciones
+  FROM superstore
+  '
+)
+
+gt::gt(q7)
+
+# Calcular la venta promedio
+
+q8 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    AVG("Sales") AS venta_promedio
+  FROM superstore
+  '
+)
+
+gt::gt(q8)
+
+# Calcular las ventas totales por categoría
+
+q9 <- DBI::dbGetQuery(
+  con,
+  '
+  SELECT
+    "Category",
+    SUM("Sales") AS total_sales
+  FROM superstore
+  GROUP BY "Category"
+  ORDER BY total_sales DESC
+  '
+)
+
+gt::gt(q9)
+
+# Desconectar la base de datos
+
+DBI::dbDisconnect(con)
+```
+

@@ -1,0 +1,3389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-09-02">
+<meta name="description" content="Una introducción práctica a SQL desde R utilizando SQLite y Superstore para consultar, filtrar, ordenar y resumir datos de negocio.">
+
+<title>SQL desde R: una introducción práctica con SQLite y Superstore – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#por-qué-introducir-sql-en-nuestro-flujo-de-trabajo" id="toc-por-qué-introducir-sql-en-nuestro-flujo-de-trabajo" class="nav-link active" data-scroll-target="#por-qué-introducir-sql-en-nuestro-flujo-de-trabajo">1. ¿Por qué introducir SQL en nuestro flujo de trabajo?</a></li>
+  <li><a href="#el-entorno-r-dbi-rsqlite-y-sqlite" id="toc-el-entorno-r-dbi-rsqlite-y-sqlite" class="nav-link" data-scroll-target="#el-entorno-r-dbi-rsqlite-y-sqlite">2. El entorno: R, DBI, RSQLite y SQLite</a></li>
+  <li><a href="#cargar-los-datos-de-superstore" id="toc-cargar-los-datos-de-superstore" class="nav-link" data-scroll-target="#cargar-los-datos-de-superstore">3. Cargar los datos de Superstore</a></li>
+  <li><a href="#conocer-la-estructura-antes-de-utilizar-sql" id="toc-conocer-la-estructura-antes-de-utilizar-sql" class="nav-link" data-scroll-target="#conocer-la-estructura-antes-de-utilizar-sql">4. Conocer la estructura antes de utilizar SQL</a></li>
+  <li><a href="#crear-una-base-de-datos-sqlite-en-memoria" id="toc-crear-una-base-de-datos-sqlite-en-memoria" class="nav-link" data-scroll-target="#crear-una-base-de-datos-sqlite-en-memoria">5. Crear una base de datos SQLite en memoria</a></li>
+  <li><a href="#escribir-superstore-dentro-de-sqlite" id="toc-escribir-superstore-dentro-de-sqlite" class="nav-link" data-scroll-target="#escribir-superstore-dentro-de-sqlite">6. Escribir Superstore dentro de SQLite</a></li>
+  <li><a href="#primera-consulta-observar-la-tabla" id="toc-primera-consulta-observar-la-tabla" class="nav-link" data-scroll-target="#primera-consulta-observar-la-tabla">7. Primera consulta: observar la tabla</a></li>
+  <li><a href="#seleccionar-solamente-algunas-columnas" id="toc-seleccionar-solamente-algunas-columnas" class="nav-link" data-scroll-target="#seleccionar-solamente-algunas-columnas">8. Seleccionar solamente algunas columnas</a></li>
+  <li><a href="#filtrar-información-con-where" id="toc-filtrar-información-con-where" class="nav-link" data-scroll-target="#filtrar-información-con-where">9. Filtrar información con WHERE</a></li>
+  <li><a href="#ordenar-los-resultados" id="toc-ordenar-los-resultados" class="nav-link" data-scroll-target="#ordenar-los-resultados">10. Ordenar los resultados</a></li>
+  <li><a href="#combinar-order-by-y-limit" id="toc-combinar-order-by-y-limit" class="nav-link" data-scroll-target="#combinar-order-by-y-limit">11. Combinar ORDER BY y LIMIT</a></li>
+  <li><a href="#calcular-ventas-totales-con-sum" id="toc-calcular-ventas-totales-con-sum" class="nav-link" data-scroll-target="#calcular-ventas-totales-con-sum">12. Calcular ventas totales con SUM</a></li>
+  <li><a href="#contar-observaciones-con-count" id="toc-contar-observaciones-con-count" class="nav-link" data-scroll-target="#contar-observaciones-con-count">13. Contar observaciones con COUNT</a></li>
+  <li><a href="#calcular-una-venta-promedio-con-avg" id="toc-calcular-una-venta-promedio-con-avg" class="nav-link" data-scroll-target="#calcular-una-venta-promedio-con-avg">14. Calcular una venta promedio con AVG</a></li>
+  <li><a href="#agrupar-información-con-group-by" id="toc-agrupar-información-con-group-by" class="nav-link" data-scroll-target="#agrupar-información-con-group-by">15. Agrupar información con GROUP BY</a></li>
+  <li><a href="#lo-que-hemos-aprendido" id="toc-lo-que-hemos-aprendido" class="nav-link" data-scroll-target="#lo-que-hemos-aprendido">16. Lo que hemos aprendido</a></li>
+  <li><a href="#sql-como-parte-del-flujo-de-business-analytics" id="toc-sql-como-parte-del-flujo-de-business-analytics" class="nav-link" data-scroll-target="#sql-como-parte-del-flujo-de-business-analytics">17. SQL como parte del flujo de Business Analytics</a></li>
+  <li><a href="#una-primera-reflexión-sobre-los-resultados" id="toc-una-primera-reflexión-sobre-los-resultados" class="nav-link" data-scroll-target="#una-primera-reflexión-sobre-los-resultados">18. Una primera reflexión sobre los resultados</a></li>
+  <li><a href="#qué-dejamos-para-después" id="toc-qué-dejamos-para-después" class="nav-link" data-scroll-target="#qué-dejamos-para-después">19. ¿Qué dejamos para después?</a></li>
+  <li><a href="#cerrar-la-conexión" id="toc-cerrar-la-conexión" class="nav-link" data-scroll-target="#cerrar-la-conexión">20. Cerrar la conexión</a></li>
+  <li><a href="#reflexión-final" id="toc-reflexión-final" class="nav-link" data-scroll-target="#reflexión-final">21. Reflexión final</a></li>
+  <li><a href="#apéndice-código-completo" id="toc-apéndice-código-completo" class="nav-link" data-scroll-target="#apéndice-código-completo">Apéndice: código completo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">SQL desde R: una introducción práctica con SQLite y Superstore</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Operaciones</div>
+    <div class="quarto-category">Visualización</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Una introducción práctica a SQL desde R utilizando SQLite y Superstore para consultar, filtrar, ordenar y resumir datos de negocio.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 2, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Hasta ahora hemos trabajado con los datos de Superstore principalmente desde R. Hemos explorado sus variables, construido resúmenes y utilizado modelos para intentar responder preguntas de negocio bajo incertidumbre.</p>
+<p>Pero existe otra herramienta fundamental para trabajar con datos empresariales: <strong>SQL</strong>.</p>
+<p>SQL permite consultar y resumir información almacenada en bases de datos utilizando un lenguaje diseñado específicamente para trabajar con tablas.</p>
+<p>En esta entrada vamos a dar nuestro primer paso en esa dirección utilizando <strong>SQLite desde R</strong>.</p>
+<p>La pregunta práctica que guiará este ejercicio es:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cómo podemos utilizar SQL para consultar y resumir datos de negocio utilizando SQLite desde nuestro entorno de R?</strong></p>
+</blockquote>
+<p>No construiremos todavía ningún modelo bayesiano. Tampoco intentaremos cubrir todo SQL.</p>
+<p>La finalidad es más concreta: entender cómo podemos incorporar SQL a nuestro flujo de trabajo con datos.</p>
+<hr>
+<section id="por-qué-introducir-sql-en-nuestro-flujo-de-trabajo" class="level1">
+<h1>1. ¿Por qué introducir SQL en nuestro flujo de trabajo?</h1>
+<p>R es una herramienta excelente para analizar datos, construir modelos y comunicar resultados.</p>
+<p>SQL cumple otra función.</p>
+<p>Cuando trabajamos con bases de datos, con frecuencia necesitamos responder preguntas como:</p>
+<ul>
+<li>¿Qué columnas contiene una tabla?</li>
+<li>¿Cuáles son los primeros registros?</li>
+<li>¿Qué ventas pertenecen a una determinada categoría?</li>
+<li>¿Cuáles son las ventas más grandes?</li>
+<li>¿Cuántas observaciones existen?</li>
+<li>¿Cuál es la venta promedio?</li>
+<li>¿Cuánto se ha vendido en total?</li>
+<li>¿Cómo se distribuyen las ventas entre categorías?</li>
+</ul>
+<p>Estas preguntas no requieren todavía un modelo estadístico.</p>
+<p>Primero necesitamos <strong>consultar los datos</strong>.</p>
+<p>Aquí aparece SQL.</p>
+<p>Podemos pensar en SQL como un lenguaje para formular preguntas sobre tablas.</p>
+<p>Por ejemplo:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> superstore</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">5</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La pregunta que estamos haciendo es sencilla:</p>
+<blockquote class="blockquote">
+<p>“Muéstrame las primeras cinco filas de la tabla <code>superstore</code>.”</p>
+</blockquote>
+<p>La ventaja de trabajar con SQL desde R es que no necesitamos abandonar nuestro entorno de análisis.</p>
+<p>Podemos utilizar R para conectarnos a una base de datos, escribir consultas SQL y devolver sus resultados a R para continuar trabajando con ellos.</p>
+<p>Nuestro flujo será:</p>
+<p><strong>Superstore → R → SQLite → SQL → resultado → R</strong></p>
+<hr>
+</section>
+<section id="el-entorno-r-dbi-rsqlite-y-sqlite" class="level1">
+<h1>2. El entorno: R, DBI, RSQLite y SQLite</h1>
+<p>Antes de realizar consultas necesitamos entender las piezas que participan en el proceso.</p>
+<p>En este ejercicio utilizaremos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar las librerías</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Evitar la notación científica</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>DBI</code> proporciona una interfaz estándar para que R pueda comunicarse con diferentes sistemas de bases de datos.</p>
+<p><code>RSQLite</code>, por su parte, permite que esa interfaz se comunique específicamente con <strong>SQLite</strong>.</p>
+<p>Podemos imaginarlo de la siguiente manera:</p>
+<pre class="text"><code>R
+│
+├── DBI
+│
+├── RSQLite
+│
+└── SQLite</code></pre>
+<p>La idea importante es que cada componente cumple una función diferente.</p>
+<p><strong>DBI</strong> proporciona la interfaz.</p>
+<p><strong>RSQLite</strong> proporciona la implementación necesaria para comunicarnos con SQLite.</p>
+<p><strong>SQLite</strong> es el sistema de base de datos que almacenará nuestra tabla.</p>
+<p>SQLite resulta especialmente conveniente para este ejercicio porque no necesitamos levantar un servidor de base de datos independiente.</p>
+<p>Además, trabajaremos con una base de datos temporal en memoria.</p>
+<hr>
+</section>
+<section id="cargar-los-datos-de-superstore" class="level1">
+<h1>3. Cargar los datos de Superstore</h1>
+<p>Lo primero que debemos hacer es cargar los datos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"../../data/superstore_sales.csv"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">locale =</span> readr<span class="sc">::</span><span class="fu">locale</span>(<span class="at">encoding =</span> <span class="st">"Windows-1252"</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>El uso de:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>encoding <span class="ot">=</span> <span class="st">"Windows-1252"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>permite que <code>readr</code> interprete correctamente la codificación utilizada por el archivo.</p>
+<p>Por otro lado:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>show_col_types <span class="ot">=</span> <span class="cn">FALSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>evita que <code>read_csv()</code> muestre el mensaje informativo sobre los tipos de columnas detectados.</p>
+<p>En este punto todavía estamos trabajando exclusivamente con R.</p>
+<p><code>superstore</code> es un objeto de R que contiene nuestros datos.</p>
+<hr>
+</section>
+<section id="conocer-la-estructura-antes-de-utilizar-sql" class="level1">
+<h1>4. Conocer la estructura antes de utilizar SQL</h1>
+<p>Antes de introducir los datos en SQLite conviene conocer su estructura.</p>
+<p>Podemos consultar los nombres de las variables:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(superstore)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Nuestro dataset contiene 21 variables:</p>
+<ul>
+<li><code>Row ID</code></li>
+<li><code>Order ID</code></li>
+<li><code>Order Date</code></li>
+<li><code>Ship Date</code></li>
+<li><code>Ship Mode</code></li>
+<li><code>Customer ID</code></li>
+<li><code>Customer Name</code></li>
+<li><code>Segment</code></li>
+<li><code>Country</code></li>
+<li><code>City</code></li>
+<li><code>State</code></li>
+<li><code>Postal Code</code></li>
+<li><code>Region</code></li>
+<li><code>Product ID</code></li>
+<li><code>Category</code></li>
+<li><code>Sub-Category</code></li>
+<li><code>Product Name</code></li>
+<li><code>Sales</code></li>
+<li><code>Quantity</code></li>
+<li><code>Discount</code></li>
+<li><code>Profit</code></li>
+</ul>
+<p>También podemos utilizar:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(superstore)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La inspección confirma que tenemos:</p>
+<p><strong>9.994 filas y 21 columnas.</strong></p>
+<p>Entre ellas encontramos información sobre pedidos, clientes, productos, categorías, ventas, descuentos y ganancias.</p>
+<p>Hay un detalle importante relacionado con las fechas.</p>
+<p><code>Order Date</code> aparece actualmente como:</p>
+<pre class="text"><code>&lt;chr&gt;</code></pre>
+<p>es decir, como texto.</p>
+<p>En esta entrada <strong>no vamos a transformar esa variable</strong>.</p>
+<p>Esto es deliberado.</p>
+<p>En las entradas posteriores de esta colección necesitaremos trabajar con la dimensión temporal de Superstore para estudiar escenarios futuros. Aquí, en cambio, nuestro objetivo es aprender a consultar una tabla mediante SQL.</p>
+<hr>
+</section>
+<section id="crear-una-base-de-datos-sqlite-en-memoria" class="level1">
+<h1>5. Crear una base de datos SQLite en memoria</h1>
+<p>Ahora damos el primer paso propiamente relacionado con la base de datos.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">":memory:"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Aquí aparecen dos elementos importantes.</p>
+<p><code>RSQLite::SQLite()</code> indica que utilizaremos SQLite.</p>
+<p><code>":memory:"</code> le indica a SQLite que cree una base de datos temporal directamente en memoria.</p>
+<p>El objeto:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>con</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>representa nuestra <strong>conexión</strong> con esa base de datos.</p>
+<p>Por eso es habitual utilizar el nombre <code>con</code>, abreviatura de <em>connection</em>.</p>
+<p>Podríamos utilizar otro nombre, pero <code>con</code> es una convención clara y fácil de reconocer.</p>
+<p>Podemos imaginarlo como el canal mediante el cual R se comunica con nuestra base de datos.</p>
+<hr>
+</section>
+<section id="escribir-superstore-dentro-de-sqlite" class="level1">
+<h1>6. Escribir Superstore dentro de SQLite</h1>
+<p>Ahora necesitamos llevar nuestro objeto de R a la base de datos.</p>
+<p>Utilizamos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"superstore"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Aquí es importante distinguir:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="st">"superstore"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>de:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>superstore</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El primero es un <strong>nombre</strong>: indica cómo se llamará la tabla dentro de SQLite.</p>
+<p>El segundo es el <strong>objeto de R que contiene nuestros datos</strong>.</p>
+<p>Por tanto, estamos diciendo:</p>
+<blockquote class="blockquote">
+<p>“Toma el objeto <code>superstore</code> de R y escríbelo en la base de datos conectada mediante <code>con</code>, utilizando <code>superstore</code> como nombre de la tabla.”</p>
+</blockquote>
+<p>El argumento:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>overwrite <span class="ot">=</span> <span class="cn">TRUE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>permite reemplazar una tabla existente con ese mismo nombre si ya estuviera presente.</p>
+<p>Ahora podemos comprobar qué tablas existen:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El resultado es:</p>
+<pre class="text"><code>"superstore"</code></pre>
+<p>Ya tenemos nuestra tabla SQLite.</p>
+<p>Podemos representar mentalmente el proceso así:</p>
+<pre class="text"><code>Objeto de R
+superstore
+     │
+     │ dbWriteTable()
+     ↓
+Base de datos SQLite
+     │
+     └── tabla "superstore"</code></pre>
+<p>Es importante mantener esta distinción durante todo el ejercicio:</p>
+<ul>
+<li><code>superstore</code> = objeto de datos en R.</li>
+<li><code>"superstore"</code> = nombre de la tabla en SQLite.</li>
+<li><code>con</code> = conexión con la base de datos.</li>
+</ul>
+<hr>
+</section>
+<section id="primera-consulta-observar-la-tabla" class="level1">
+<h1>7. Primera consulta: observar la tabla</h1>
+<p>Comencemos con una consulta sencilla.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>q1 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT *</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 5</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>La consulta SQL es:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> superstore</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Podemos leerla prácticamente como una frase:</p>
+<blockquote class="blockquote">
+<p>Selecciona todas las columnas de la tabla <code>superstore</code> y limita el resultado a cinco filas.</p>
+</blockquote>
+<p>El símbolo:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>significa “todas las columnas”.</p>
+<p>El resultado contiene:</p>
+<p><strong>5 filas y 21 columnas.</strong></p>
+<p>En R podemos observarlo con:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="huoctmeijy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#huoctmeijy table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#huoctmeijy thead, #huoctmeijy tbody, #huoctmeijy tfoot, #huoctmeijy tr, #huoctmeijy td, #huoctmeijy th {
+  border-style: none;
+}
+
+#huoctmeijy p {
+  margin: 0;
+  padding: 0;
+}
+
+#huoctmeijy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#huoctmeijy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#huoctmeijy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#huoctmeijy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#huoctmeijy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#huoctmeijy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#huoctmeijy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#huoctmeijy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#huoctmeijy .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#huoctmeijy .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#huoctmeijy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#huoctmeijy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#huoctmeijy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#huoctmeijy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#huoctmeijy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#huoctmeijy .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#huoctmeijy .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#huoctmeijy .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#huoctmeijy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#huoctmeijy .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#huoctmeijy .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#huoctmeijy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#huoctmeijy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#huoctmeijy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#huoctmeijy .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#huoctmeijy .gt_left {
+  text-align: left;
+}
+
+#huoctmeijy .gt_center {
+  text-align: center;
+}
+
+#huoctmeijy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#huoctmeijy .gt_font_normal {
+  font-weight: normal;
+}
+
+#huoctmeijy .gt_font_bold {
+  font-weight: bold;
+}
+
+#huoctmeijy .gt_font_italic {
+  font-style: italic;
+}
+
+#huoctmeijy .gt_super {
+  font-size: 65%;
+}
+
+#huoctmeijy .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#huoctmeijy .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#huoctmeijy .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#huoctmeijy .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#huoctmeijy .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#huoctmeijy .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#huoctmeijy .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#huoctmeijy .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#huoctmeijy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Row-ID" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Row ID</th>
+<th id="Order-ID" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Order ID</th>
+<th id="Order-Date" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Order Date</th>
+<th id="Ship-Date" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Ship Date</th>
+<th id="Ship-Mode" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Ship Mode</th>
+<th id="Customer-ID" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Customer ID</th>
+<th id="Customer-Name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Customer Name</th>
+<th id="Segment" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Segment</th>
+<th id="Country" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Country</th>
+<th id="City" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">City</th>
+<th id="State" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">State</th>
+<th id="Postal-Code" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Postal Code</th>
+<th id="Region" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Region</th>
+<th id="Product-ID" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Product ID</th>
+<th id="Category" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Category</th>
+<th id="Sub-Category" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Sub-Category</th>
+<th id="Product-Name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Product Name</th>
+<th id="Sales" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Sales</th>
+<th id="Quantity" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Quantity</th>
+<th id="Discount" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Discount</th>
+<th id="Profit" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Profit</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="Row ID">1</td>
+<td class="gt_row gt_left" headers="Order ID">CA-2016-152156</td>
+<td class="gt_row gt_right" headers="Order Date">11/8/2016</td>
+<td class="gt_row gt_right" headers="Ship Date">11/11/2016</td>
+<td class="gt_row gt_left" headers="Ship Mode">Second Class</td>
+<td class="gt_row gt_left" headers="Customer ID">CG-12520</td>
+<td class="gt_row gt_left" headers="Customer Name">Claire Gute</td>
+<td class="gt_row gt_left" headers="Segment">Consumer</td>
+<td class="gt_row gt_left" headers="Country">United States</td>
+<td class="gt_row gt_left" headers="City">Henderson</td>
+<td class="gt_row gt_left" headers="State">Kentucky</td>
+<td class="gt_row gt_right" headers="Postal Code">42420</td>
+<td class="gt_row gt_left" headers="Region">South</td>
+<td class="gt_row gt_left" headers="Product ID">FUR-BO-10001798</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_left" headers="Sub-Category">Bookcases</td>
+<td class="gt_row gt_left" headers="Product Name">Bush Somerset Collection Bookcase</td>
+<td class="gt_row gt_right" headers="Sales">261.9600</td>
+<td class="gt_row gt_right" headers="Quantity">2</td>
+<td class="gt_row gt_right" headers="Discount">0.00</td>
+<td class="gt_row gt_right" headers="Profit">41.9136</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Row ID">2</td>
+<td class="gt_row gt_left" headers="Order ID">CA-2016-152156</td>
+<td class="gt_row gt_right" headers="Order Date">11/8/2016</td>
+<td class="gt_row gt_right" headers="Ship Date">11/11/2016</td>
+<td class="gt_row gt_left" headers="Ship Mode">Second Class</td>
+<td class="gt_row gt_left" headers="Customer ID">CG-12520</td>
+<td class="gt_row gt_left" headers="Customer Name">Claire Gute</td>
+<td class="gt_row gt_left" headers="Segment">Consumer</td>
+<td class="gt_row gt_left" headers="Country">United States</td>
+<td class="gt_row gt_left" headers="City">Henderson</td>
+<td class="gt_row gt_left" headers="State">Kentucky</td>
+<td class="gt_row gt_right" headers="Postal Code">42420</td>
+<td class="gt_row gt_left" headers="Region">South</td>
+<td class="gt_row gt_left" headers="Product ID">FUR-CH-10000454</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_left" headers="Sub-Category">Chairs</td>
+<td class="gt_row gt_left" headers="Product Name">Hon Deluxe Fabric Upholstered Stacking Chairs, Rounded Back</td>
+<td class="gt_row gt_right" headers="Sales">731.9400</td>
+<td class="gt_row gt_right" headers="Quantity">3</td>
+<td class="gt_row gt_right" headers="Discount">0.00</td>
+<td class="gt_row gt_right" headers="Profit">219.5820</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Row ID">3</td>
+<td class="gt_row gt_left" headers="Order ID">CA-2016-138688</td>
+<td class="gt_row gt_right" headers="Order Date">6/12/2016</td>
+<td class="gt_row gt_right" headers="Ship Date">6/16/2016</td>
+<td class="gt_row gt_left" headers="Ship Mode">Second Class</td>
+<td class="gt_row gt_left" headers="Customer ID">DV-13045</td>
+<td class="gt_row gt_left" headers="Customer Name">Darrin Van Huff</td>
+<td class="gt_row gt_left" headers="Segment">Corporate</td>
+<td class="gt_row gt_left" headers="Country">United States</td>
+<td class="gt_row gt_left" headers="City">Los Angeles</td>
+<td class="gt_row gt_left" headers="State">California</td>
+<td class="gt_row gt_right" headers="Postal Code">90036</td>
+<td class="gt_row gt_left" headers="Region">West</td>
+<td class="gt_row gt_left" headers="Product ID">OFF-LA-10000240</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_left" headers="Sub-Category">Labels</td>
+<td class="gt_row gt_left" headers="Product Name">Self-Adhesive Address Labels for Typewriters by Universal</td>
+<td class="gt_row gt_right" headers="Sales">14.6200</td>
+<td class="gt_row gt_right" headers="Quantity">2</td>
+<td class="gt_row gt_right" headers="Discount">0.00</td>
+<td class="gt_row gt_right" headers="Profit">6.8714</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="Row ID">4</td>
+<td class="gt_row gt_left" headers="Order ID">US-2015-108966</td>
+<td class="gt_row gt_right" headers="Order Date">10/11/2015</td>
+<td class="gt_row gt_right" headers="Ship Date">10/18/2015</td>
+<td class="gt_row gt_left" headers="Ship Mode">Standard Class</td>
+<td class="gt_row gt_left" headers="Customer ID">SO-20335</td>
+<td class="gt_row gt_left" headers="Customer Name">Sean O'Donnell</td>
+<td class="gt_row gt_left" headers="Segment">Consumer</td>
+<td class="gt_row gt_left" headers="Country">United States</td>
+<td class="gt_row gt_left" headers="City">Fort Lauderdale</td>
+<td class="gt_row gt_left" headers="State">Florida</td>
+<td class="gt_row gt_right" headers="Postal Code">33311</td>
+<td class="gt_row gt_left" headers="Region">South</td>
+<td class="gt_row gt_left" headers="Product ID">FUR-TA-10000577</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_left" headers="Sub-Category">Tables</td>
+<td class="gt_row gt_left" headers="Product Name">Bretford CR4500 Series Slim Rectangular Table</td>
+<td class="gt_row gt_right" headers="Sales">957.5775</td>
+<td class="gt_row gt_right" headers="Quantity">5</td>
+<td class="gt_row gt_right" headers="Discount">0.45</td>
+<td class="gt_row gt_right" headers="Profit">-383.0310</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="Row ID">5</td>
+<td class="gt_row gt_left" headers="Order ID">US-2015-108966</td>
+<td class="gt_row gt_right" headers="Order Date">10/11/2015</td>
+<td class="gt_row gt_right" headers="Ship Date">10/18/2015</td>
+<td class="gt_row gt_left" headers="Ship Mode">Standard Class</td>
+<td class="gt_row gt_left" headers="Customer ID">SO-20335</td>
+<td class="gt_row gt_left" headers="Customer Name">Sean O'Donnell</td>
+<td class="gt_row gt_left" headers="Segment">Consumer</td>
+<td class="gt_row gt_left" headers="Country">United States</td>
+<td class="gt_row gt_left" headers="City">Fort Lauderdale</td>
+<td class="gt_row gt_left" headers="State">Florida</td>
+<td class="gt_row gt_right" headers="Postal Code">33311</td>
+<td class="gt_row gt_left" headers="Region">South</td>
+<td class="gt_row gt_left" headers="Product ID">OFF-ST-10000760</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_left" headers="Sub-Category">Storage</td>
+<td class="gt_row gt_left" headers="Product Name">Eldon Fold 'N Roll Cart System</td>
+<td class="gt_row gt_right" headers="Sales">22.3680</td>
+<td class="gt_row gt_right" headers="Quantity">2</td>
+<td class="gt_row gt_right" headers="Discount">0.20</td>
+<td class="gt_row gt_right" headers="Profit">2.5164</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Lo importante aquí no es todavía el contenido particular de las cinco filas.</p>
+<p>Lo importante es observar el flujo:</p>
+<pre class="text"><code>SQL
+ ↓
+SQLite
+ ↓
+resultado
+ ↓
+R</code></pre>
+<p><code>dbGetQuery()</code> ejecuta la consulta SQL y devuelve el resultado a R.</p>
+<p>Por eso podemos guardar el resultado en:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>q1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>y continuar trabajando con él como un objeto tabular de R.</p>
+<hr>
+</section>
+<section id="seleccionar-solamente-algunas-columnas" class="level1">
+<h1>8. Seleccionar solamente algunas columnas</h1>
+<p>Normalmente no necesitamos recuperar toda la tabla.</p>
+<p>Supongamos que solamente queremos conocer:</p>
+<ul>
+<li>el identificador del pedido;</li>
+<li>la fecha;</li>
+<li>la categoría;</li>
+<li>las ventas.</li>
+</ul>
+<p>Podemos escribir:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>q2 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order Date",</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="iofmbahajp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#iofmbahajp table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#iofmbahajp thead, #iofmbahajp tbody, #iofmbahajp tfoot, #iofmbahajp tr, #iofmbahajp td, #iofmbahajp th {
+  border-style: none;
+}
+
+#iofmbahajp p {
+  margin: 0;
+  padding: 0;
+}
+
+#iofmbahajp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#iofmbahajp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#iofmbahajp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#iofmbahajp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#iofmbahajp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#iofmbahajp .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#iofmbahajp .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#iofmbahajp .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#iofmbahajp .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#iofmbahajp .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#iofmbahajp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#iofmbahajp .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#iofmbahajp .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#iofmbahajp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#iofmbahajp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#iofmbahajp .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#iofmbahajp .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#iofmbahajp .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#iofmbahajp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#iofmbahajp .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#iofmbahajp .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#iofmbahajp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#iofmbahajp .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#iofmbahajp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#iofmbahajp .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#iofmbahajp .gt_left {
+  text-align: left;
+}
+
+#iofmbahajp .gt_center {
+  text-align: center;
+}
+
+#iofmbahajp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#iofmbahajp .gt_font_normal {
+  font-weight: normal;
+}
+
+#iofmbahajp .gt_font_bold {
+  font-weight: bold;
+}
+
+#iofmbahajp .gt_font_italic {
+  font-style: italic;
+}
+
+#iofmbahajp .gt_super {
+  font-size: 65%;
+}
+
+#iofmbahajp .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#iofmbahajp .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#iofmbahajp .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#iofmbahajp .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#iofmbahajp .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#iofmbahajp .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#iofmbahajp .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#iofmbahajp .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#iofmbahajp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Order-ID" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Order ID</th>
+<th id="Order-Date" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Order Date</th>
+<th id="Category" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Category</th>
+<th id="Sales" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Sales</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-152156</td>
+<td class="gt_row gt_right" headers="Order Date">11/8/2016</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_right" headers="Sales">261.9600</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-152156</td>
+<td class="gt_row gt_right" headers="Order Date">11/8/2016</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_right" headers="Sales">731.9400</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-138688</td>
+<td class="gt_row gt_right" headers="Order Date">6/12/2016</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">14.6200</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">US-2015-108966</td>
+<td class="gt_row gt_right" headers="Order Date">10/11/2015</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_right" headers="Sales">957.5775</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">US-2015-108966</td>
+<td class="gt_row gt_right" headers="Order Date">10/11/2015</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">22.3680</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_right" headers="Order Date">6/9/2014</td>
+<td class="gt_row gt_left" headers="Category">Furniture</td>
+<td class="gt_row gt_right" headers="Sales">48.8600</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_right" headers="Order Date">6/9/2014</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">7.2800</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_right" headers="Order Date">6/9/2014</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">907.1520</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_right" headers="Order Date">6/9/2014</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">18.5040</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_right" headers="Order Date">6/9/2014</td>
+<td class="gt_row gt_left" headers="Category">Office Supplies</td>
+<td class="gt_row gt_right" headers="Sales">114.9000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Aquí hemos reemplazado:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>por una lista específica de columnas.</p>
+<p>El resultado contiene <strong>10 filas y 4 columnas</strong>.</p>
+<p>Las primeras filas permiten observar, por ejemplo, que un mismo pedido puede aparecer en varios registros y que diferentes productos pueden pertenecer a diferentes categorías.</p>
+<p>También podemos observar que <code>Sales</code> es numérica mientras que <code>Order Date</code> permanece como texto.</p>
+<p>Esta consulta introduce una idea fundamental de SQL:</p>
+<blockquote class="blockquote">
+<p><strong>No siempre necesitamos recuperar toda la información disponible. Podemos solicitar solamente las columnas necesarias para responder una pregunta concreta.</strong></p>
+</blockquote>
+<p>En un contexto empresarial, esta forma de trabajar ayuda a construir consultas más enfocadas.</p>
+<hr>
+</section>
+<section id="filtrar-información-con-where" class="level1">
+<h1>9. Filtrar información con WHERE</h1>
+<p>Ahora podemos formular una pregunta un poco más específica:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué registros pertenecen a la categoría Technology?</strong></p>
+</blockquote>
+<p>Utilizamos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>q3 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="st">  WHERE "Category" = </span><span class="sc">\'</span><span class="st">Technology</span><span class="sc">\'</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q3) <span class="co"># produce:</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="koaxnhdvoy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#koaxnhdvoy table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#koaxnhdvoy thead, #koaxnhdvoy tbody, #koaxnhdvoy tfoot, #koaxnhdvoy tr, #koaxnhdvoy td, #koaxnhdvoy th {
+  border-style: none;
+}
+
+#koaxnhdvoy p {
+  margin: 0;
+  padding: 0;
+}
+
+#koaxnhdvoy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#koaxnhdvoy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#koaxnhdvoy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#koaxnhdvoy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#koaxnhdvoy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#koaxnhdvoy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#koaxnhdvoy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#koaxnhdvoy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#koaxnhdvoy .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#koaxnhdvoy .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#koaxnhdvoy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#koaxnhdvoy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#koaxnhdvoy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#koaxnhdvoy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#koaxnhdvoy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#koaxnhdvoy .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#koaxnhdvoy .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#koaxnhdvoy .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#koaxnhdvoy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#koaxnhdvoy .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#koaxnhdvoy .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#koaxnhdvoy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#koaxnhdvoy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#koaxnhdvoy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#koaxnhdvoy .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#koaxnhdvoy .gt_left {
+  text-align: left;
+}
+
+#koaxnhdvoy .gt_center {
+  text-align: center;
+}
+
+#koaxnhdvoy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#koaxnhdvoy .gt_font_normal {
+  font-weight: normal;
+}
+
+#koaxnhdvoy .gt_font_bold {
+  font-weight: bold;
+}
+
+#koaxnhdvoy .gt_font_italic {
+  font-style: italic;
+}
+
+#koaxnhdvoy .gt_super {
+  font-size: 65%;
+}
+
+#koaxnhdvoy .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#koaxnhdvoy .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#koaxnhdvoy .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#koaxnhdvoy .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#koaxnhdvoy .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#koaxnhdvoy .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#koaxnhdvoy .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#koaxnhdvoy .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#koaxnhdvoy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Order-ID" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Order ID</th>
+<th id="Product-Name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Product Name</th>
+<th id="Category" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Category</th>
+<th id="Sales" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Sales</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_left" headers="Product Name">Mitel 5320 IP Phone VoIP phone</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">907.152</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-115812</td>
+<td class="gt_row gt_left" headers="Product Name">Konftel 250 Conference&nbsp;phone&nbsp;- Charcoal black</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">911.424</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2014-143336</td>
+<td class="gt_row gt_left" headers="Product Name">Cisco SPA 501G IP Phone</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">213.480</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-121755</td>
+<td class="gt_row gt_left" headers="Product Name">Imation&nbsp;8GB Mini TravelDrive USB 2.0&nbsp;Flash Drive</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">90.570</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-117590</td>
+<td class="gt_row gt_left" headers="Product Name">GE 30524EE4</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">1097.544</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2015-117415</td>
+<td class="gt_row gt_left" headers="Product Name">Plantronics HL10 Handset Lifter</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">371.168</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2017-120999</td>
+<td class="gt_row gt_left" headers="Product Name">Panasonic Kx-TS550</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">147.168</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-118255</td>
+<td class="gt_row gt_left" headers="Product Name">Verbatim 25 GB 6x Blu-ray Single Layer Recordable Disc, 25/Pack</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">45.980</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-169194</td>
+<td class="gt_row gt_left" headers="Product Name">Imation&nbsp;8gb Micro Traveldrive Usb 2.0&nbsp;Flash Drive</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">45.000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Order ID">CA-2016-169194</td>
+<td class="gt_row gt_left" headers="Product Name">LF Elite 3D Dazzle Designer Hard Case Cover, Lf Stylus Pen and Wiper For Apple Iphone 5c Mini Lite</td>
+<td class="gt_row gt_left" headers="Category">Technology</td>
+<td class="gt_row gt_right" headers="Sales">21.800</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>La parte nueva es:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="ot">"Category"</span> <span class="op">=</span> <span class="st">'Technology'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>WHERE</code> permite establecer una condición.</p>
+<p>En lenguaje natural estamos diciendo:</p>
+<blockquote class="blockquote">
+<p>“Selecciona solamente las filas cuya categoría sea Technology.”</p>
+</blockquote>
+<p>El resultado contiene diez registros de esa categoría.</p>
+<p>Entre ellos aparecen productos como:</p>
+<ul>
+<li>Mitel 5320 IP Phone VoIP phone;</li>
+<li>Konftel 250 Conference phone;</li>
+<li>Cisco SPA 501G IP Phone;</li>
+<li>GE 30524EE4;</li>
+<li>Panasonic Kx-TS550.</li>
+</ul>
+<p>Aquí aparece además una pequeña particularidad sintáctica.</p>
+<p>Las comillas dobles:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ot">"Category"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>delimitan el <strong>nombre de una columna</strong>.</p>
+<p>En cambio, las comillas simples:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="st">'Technology'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>delimitan un <strong>valor de texto</strong>.</p>
+<p>Esta diferencia es importante cuando comenzamos a escribir SQL desde R.</p>
+<p>En nuestro caso, además, la consulta SQL está dentro de una cadena de texto de R delimitada por comillas simples. Por eso necesitamos escapar las comillas simples que rodean <code>Technology</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>\<span class="st">'Technology</span><span class="sc">\'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La codificación Windows-1252 utilizada al leer el CSV y esta cuestión de las comillas pertenecen a problemas completamente diferentes.</p>
+<hr>
+</section>
+<section id="ordenar-los-resultados" class="level1">
+<h1>10. Ordenar los resultados</h1>
+<p>Otra pregunta frecuente es:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuáles son los registros con mayores ventas?</strong></p>
+</blockquote>
+<p>Para responderla podemos ordenar la información.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>q4 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY "Sales"</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="st">  DESC</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>La parte nueva es:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> <span class="ot">"Sales"</span> <span class="kw">DESC</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>ORDER BY</code> indica que queremos ordenar los resultados.</p>
+<p><code>DESC</code> significa <strong>descendente</strong>.</p>
+<p>Por tanto, estamos solicitando:</p>
+<blockquote class="blockquote">
+<p>“Ordena los registros según <code>Sales</code>, desde el valor más alto hasta el más bajo.”</p>
+</blockquote>
+<p>Los diez primeros registros incluyen:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 70%">
+<col style="width: 18%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Producto</th>
+<th>Categoría</th>
+<th style="text-align: right;">Ventas</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cisco TelePresence System EX90 Videoconferencing Unit</td>
+<td>Technology</td>
+<td style="text-align: right;">22.638,48</td>
+</tr>
+<tr class="even">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td>Technology</td>
+<td style="text-align: right;">17.499,95</td>
+</tr>
+<tr class="odd">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td>Technology</td>
+<td style="text-align: right;">13.999,96</td>
+</tr>
+<tr class="even">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td>Technology</td>
+<td style="text-align: right;">11.199,97</td>
+</tr>
+<tr class="odd">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td>Technology</td>
+<td style="text-align: right;">10.499,97</td>
+</tr>
+<tr class="even">
+<td>GBC Ibimaster 500 Manual ProClick Binding System</td>
+<td>Office Supplies</td>
+<td style="text-align: right;">9.892,74</td>
+</tr>
+<tr class="odd">
+<td>Ibico EPK-21 Electric Binding System</td>
+<td>Office Supplies</td>
+<td style="text-align: right;">9.449,95</td>
+</tr>
+<tr class="even">
+<td>3D Systems Cube Printer, 2nd Generation, Magenta</td>
+<td>Technology</td>
+<td style="text-align: right;">9.099,93</td>
+</tr>
+<tr class="odd">
+<td>HP Designjet T520 Inkjet Large Format Printer - 24” Color</td>
+<td>Technology</td>
+<td style="text-align: right;">8.749,95</td>
+</tr>
+<tr class="even">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td>Technology</td>
+<td style="text-align: right;">8.399,98</td>
+</tr>
+</tbody>
+</table>
+<p>Esta consulta permite identificar rápidamente los registros con las ventas individuales más elevadas.</p>
+<p>También podemos observar que varios de los valores más altos corresponden a productos de Technology y que el producto Canon imageCLASS 2200 Advanced Copier aparece varias veces.</p>
+<p>No debemos confundir esta observación con una conclusión general sobre la rentabilidad o el desempeño de una categoría.</p>
+<p>Aquí solamente estamos <strong>ordenando registros según ventas</strong>.</p>
+<hr>
+</section>
+<section id="combinar-order-by-y-limit" class="level1">
+<h1>11. Combinar ORDER BY y LIMIT</h1>
+<p>Podemos hacer la consulta todavía más pequeña:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>q5 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY "Sales" DESC</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 5</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Ahora solamente solicitamos:</p>
+<ul>
+<li>nombre del producto;</li>
+<li>ventas.</li>
+</ul>
+<p>Y pedimos los cinco valores más altos.</p>
+<p>El resultado es:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Producto</th>
+<th style="text-align: right;">Ventas</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cisco TelePresence System EX90 Videoconferencing Unit</td>
+<td style="text-align: right;">22.638,48</td>
+</tr>
+<tr class="even">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td style="text-align: right;">17.499,95</td>
+</tr>
+<tr class="odd">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td style="text-align: right;">13.999,96</td>
+</tr>
+<tr class="even">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td style="text-align: right;">11.199,97</td>
+</tr>
+<tr class="odd">
+<td>Canon imageCLASS 2200 Advanced Copier</td>
+<td style="text-align: right;">10.499,97</td>
+</tr>
+</tbody>
+</table>
+<p>Aquí podemos observar una idea importante:</p>
+<p><code>LIMIT</code> no cambia los datos originales.</p>
+<p>Simplemente limita <strong>cuántas filas devuelve nuestra consulta</strong>.</p>
+<p>Esto resulta especialmente útil cuando estamos explorando una tabla grande y queremos observar rápidamente los primeros resultados después de aplicar algún criterio de ordenamiento.</p>
+<hr>
+</section>
+<section id="calcular-ventas-totales-con-sum" class="level1">
+<h1>12. Calcular ventas totales con SUM</h1>
+<p>Hasta ahora hemos seleccionado y ordenado registros individuales.</p>
+<p>Ahora queremos responder una pregunta diferente:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuánto representan en total las ventas de Superstore?</strong></p>
+</blockquote>
+<p>Para ello podemos utilizar una función de agregación:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SUM</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Nuestra consulta es:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>q6 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="st">    SUM("Sales") AS total_sales</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>La parte:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SUM</span>(<span class="ot">"Sales"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>suma los valores de la columna <code>Sales</code>.</p>
+<p>Después utilizamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">AS</span> total_sales</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>para darle un nombre al resultado.</p>
+<p><code>AS</code> permite crear un alias.</p>
+<p>En este caso:</p>
+<pre class="text"><code>SUM("Sales") → total_sales</code></pre>
+<p>El resultado obtenido es:</p>
+<p><strong>2.297.201</strong></p>
+<p>Es decir, la suma de los valores de <code>Sales</code> en las 9.994 filas del dataset es aproximadamente <strong>2,30 millones</strong>.</p>
+<p>La consulta devuelve una sola fila porque ya no estamos solicitando registros individuales.</p>
+<p>Estamos calculando un <strong>resumen de toda la tabla</strong>.</p>
+<hr>
+</section>
+<section id="contar-observaciones-con-count" class="level1">
+<h1>13. Contar observaciones con COUNT</h1>
+<p>Otra pregunta básica es:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuántos registros contiene nuestra tabla?</strong></p>
+</blockquote>
+<p>Podemos utilizar:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">COUNT</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Nuestra consulta es:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>q7 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="st">    COUNT(*) AS n_observaciones</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Aquí:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">COUNT</span>(<span class="op">*</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>cuenta las filas de la tabla.</p>
+<p>El alias:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">AS</span> n_observaciones</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>nos permite darle un nombre claro al resultado.</p>
+<p>Obtenemos:</p>
+<pre class="text"><code>n_observaciones
+9994</code></pre>
+<p>Este resultado coincide con la inspección inicial realizada mediante <code>glimpse()</code>.</p>
+<p>Tenemos, por tanto:</p>
+<p><strong>9.994 observaciones.</strong></p>
+<p>Este pequeño ejemplo muestra algo importante: SQL también puede utilizarse para obtener rápidamente métricas básicas de una tabla.</p>
+<hr>
+</section>
+<section id="calcular-una-venta-promedio-con-avg" class="level1">
+<h1>14. Calcular una venta promedio con AVG</h1>
+<p>Podemos formular una pregunta adicional:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuál es la venta promedio por registro?</strong></p>
+</blockquote>
+<p>Para ello utilizamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AVG</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La consulta es:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>q8 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="st">    AVG("Sales") AS venta_promedio</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>El resultado es:</p>
+<pre class="text"><code>venta_promedio
+229.858</code></pre>
+<p>Por tanto, la venta promedio por registro del dataset es aproximadamente:</p>
+<p><strong>229,86</strong></p>
+<p>Aquí debemos tener cuidado con la interpretación.</p>
+<p>Este valor representa el promedio de la variable <code>Sales</code> a nivel de <strong>registro de la tabla</strong>, no necesariamente el valor promedio de una compra individual, de un pedido completo o de un cliente.</p>
+<p>La diferencia importa porque el dataset contiene múltiples registros asociados con pedidos y productos.</p>
+<p>Por ahora nos basta con reconocer que <code>AVG()</code> permite calcular el promedio de una variable numérica.</p>
+<hr>
+</section>
+<section id="agrupar-información-con-group-by" class="level1">
+<h1>15. Agrupar información con GROUP BY</h1>
+<p>Hasta este momento hemos calculado resúmenes para toda la tabla.</p>
+<p>Pero una pregunta de negocio suele requerir comparar grupos.</p>
+<p>Por ejemplo:</p>
+<blockquote class="blockquote">
+<p><strong>¿Cuánto representan las ventas totales de cada categoría?</strong></p>
+</blockquote>
+<p>Aquí aparece <code>GROUP BY</code>.</p>
+<p>Nuestra consulta es:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>q9 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="st">    SUM("Sales") AS total_sales</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY "Category"</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY total_sales DESC</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Esta consulta contiene varias piezas que ya conocemos.</p>
+<p>Primero:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="ot">"Category"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>indica que queremos trabajar con la categoría.</p>
+<p>Después:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">SUM</span>(<span class="ot">"Sales"</span>) <span class="kw">AS</span> total_sales</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>calcula las ventas totales y les asigna el nombre <code>total_sales</code>.</p>
+<p>Luego:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb51"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="ot">"Category"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>le indica a SQLite que debe realizar ese cálculo <strong>por cada categoría</strong>, en lugar de calcular una única suma para toda la tabla.</p>
+<p>Finalmente:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> total_sales <span class="kw">DESC</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ordena las categorías desde la mayor venta total hasta la menor.</p>
+<p>El resultado es:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Categoría</th>
+<th style="text-align: right;">Ventas totales</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Technology</td>
+<td style="text-align: right;">836.154,0</td>
+</tr>
+<tr class="even">
+<td>Furniture</td>
+<td style="text-align: right;">741.999,8</td>
+</tr>
+<tr class="odd">
+<td>Office Supplies</td>
+<td style="text-align: right;">719.047,0</td>
+</tr>
+</tbody>
+</table>
+<p>Aquí SQL nos ha permitido pasar de una pregunta sobre registros individuales a una pregunta sobre <strong>grupos de negocio</strong>.</p>
+<p>La suma total de las ventas por categoría permite observar cómo se distribuye el volumen de ventas entre las tres categorías presentes en el dataset.</p>
+<p>Nuevamente, conviene mantener la interpretación dentro de los límites de la consulta.</p>
+<p>Estos son <strong>totales de ventas</strong>, no ganancias.</p>
+<p>Una categoría con mayores ventas no necesariamente tiene mayores beneficios.</p>
+<p>Para estudiar esa cuestión necesitaríamos utilizar <code>Profit</code> y formular otra consulta.</p>
+<hr>
+</section>
+<section id="lo-que-hemos-aprendido" class="level1">
+<h1>16. Lo que hemos aprendido</h1>
+<p>En esta primera aproximación hemos utilizado solamente unas pocas instrucciones de SQL:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Instrucción</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>SELECT</code></td>
+<td>Elegir columnas o expresiones</td>
+</tr>
+<tr class="even">
+<td><code>FROM</code></td>
+<td>Indicar la tabla de origen</td>
+</tr>
+<tr class="odd">
+<td><code>WHERE</code></td>
+<td>Filtrar filas</td>
+</tr>
+<tr class="even">
+<td><code>ORDER BY</code></td>
+<td>Ordenar resultados</td>
+</tr>
+<tr class="odd">
+<td><code>LIMIT</code></td>
+<td>Limitar el número de filas</td>
+</tr>
+<tr class="even">
+<td><code>SUM()</code></td>
+<td>Calcular una suma</td>
+</tr>
+<tr class="odd">
+<td><code>COUNT()</code></td>
+<td>Contar registros</td>
+</tr>
+<tr class="even">
+<td><code>AVG()</code></td>
+<td>Calcular un promedio</td>
+</tr>
+<tr class="odd">
+<td><code>GROUP BY</code></td>
+<td>Agrupar registros</td>
+</tr>
+</tbody>
+</table>
+<p>Con estas herramientas ya podemos realizar consultas bastante útiles sobre una tabla empresarial.</p>
+<p>Nuestro recorrido ha sido progresivo:</p>
+<pre class="text"><code>SELECT *
+      ↓
+seleccionar columnas
+      ↓
+WHERE
+      ↓
+ORDER BY
+      ↓
+LIMIT
+      ↓
+SUM / COUNT / AVG
+      ↓
+GROUP BY</code></pre>
+<p>No hemos necesitado todavía modelos estadísticos.</p>
+<p>Tampoco hemos necesitado gráficos.</p>
+<p>Simplemente hemos aprendido a <strong>hacer preguntas a los datos</strong>.</p>
+<hr>
+</section>
+<section id="sql-como-parte-del-flujo-de-business-analytics" class="level1">
+<h1>17. SQL como parte del flujo de Business Analytics</h1>
+<p>Esta entrada tiene una función deliberadamente introductoria.</p>
+<p>SQL no sustituye a R.</p>
+<p>Tampoco R sustituye a SQL.</p>
+<p>Cada herramienta puede ocupar un lugar diferente dentro de un flujo de análisis.</p>
+<p>En nuestro caso podemos pensar en el siguiente proceso:</p>
+<pre class="text"><code>Datos de negocio
+      ↓
+     SQL
+      ↓
+Consultas y resúmenes
+      ↓
+      R
+      ↓
+Análisis estadístico
+      ↓
+Modelos bayesianos
+      ↓
+Incertidumbre
+      ↓
+Interpretación
+      ↓
+Decisión</code></pre>
+<p>Esta separación será especialmente importante en las próximas entradas.</p>
+<p>SQL nos permitirá preparar y consultar los datos.</p>
+<p>R continuará siendo nuestro entorno de análisis.</p>
+<p>Y los modelos bayesianos aparecerán cuando la pregunta de negocio requiera cuantificar incertidumbre, comparar escenarios o anticipar posibles resultados.</p>
+<hr>
+</section>
+<section id="una-primera-reflexión-sobre-los-resultados" class="level1">
+<h1>18. Una primera reflexión sobre los resultados</h1>
+<p>Aunque esta entrada no pretende realizar un análisis completo de Superstore, las consultas ya nos permiten obtener una pequeña fotografía del dataset.</p>
+<p>Tenemos:</p>
+<ul>
+<li><strong>9.994 registros</strong>;</li>
+<li>aproximadamente <strong>2,30 millones</strong> en ventas acumuladas;</li>
+<li>una venta promedio por registro de aproximadamente <strong>229,86</strong>;</li>
+<li>tres categorías;</li>
+<li>y los mayores registros individuales de ventas corresponden principalmente a productos de Technology.</li>
+</ul>
+<p>Cuando agrupamos las ventas por categoría obtenemos:</p>
+<ul>
+<li>Technology: <strong>836.154,0</strong></li>
+<li>Furniture: <strong>741.999,8</strong></li>
+<li>Office Supplies: <strong>719.047,0</strong></li>
+</ul>
+<p>Esto muestra la diferencia entre dos tipos de preguntas.</p>
+<p>Una pregunta puede ser:</p>
+<blockquote class="blockquote">
+<p>“¿Cuál es la venta individual más alta?”</p>
+</blockquote>
+<p>Otra muy diferente:</p>
+<blockquote class="blockquote">
+<p>“¿Cuál es el volumen total de ventas de cada categoría?”</p>
+</blockquote>
+<p>La primera requiere ordenar registros.</p>
+<p>La segunda requiere agruparlos y resumirlos.</p>
+<p>Ambas pueden responderse mediante SQL, pero representan preguntas empresariales diferentes.</p>
+<p>Esta distinción es importante porque <strong>el análisis de datos comienza mucho antes de construir un modelo estadístico</strong>.</p>
+<p>Comienza definiendo correctamente qué queremos preguntar.</p>
+<hr>
+</section>
+<section id="qué-dejamos-para-después" class="level1">
+<h1>19. ¿Qué dejamos para después?</h1>
+<p>En esta entrada hemos llegado deliberadamente hasta:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb55"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>No hemos introducido todavía:</p>
+<ul>
+<li><code>HAVING</code>;</li>
+<li><code>CASE</code>;</li>
+<li><code>JOIN</code>;</li>
+<li>subconsultas complejas;</li>
+<li>CTE;</li>
+<li>funciones de ventana;</li>
+<li><code>PARTITION BY</code>.</li>
+</ul>
+<p>No es una omisión accidental.</p>
+<p>Cada una de estas herramientas permite responder preguntas más complejas y aparecerá progresivamente cuando resulte útil para los proyectos posteriores.</p>
+<p>La idea no es aprender SQL de manera aislada.</p>
+<p>La idea es aprender <strong>SQL mientras resolvemos problemas de análisis de negocio</strong>.</p>
+<hr>
+</section>
+<section id="cerrar-la-conexión" class="level1">
+<h1>20. Cerrar la conexión</h1>
+<p>Finalmente cerramos nuestra conexión:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Esto indica que hemos terminado de trabajar con la base de datos.</p>
+<p>En este ejercicio utilizamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="st">":memory:"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>por lo que la base de datos existía solamente en memoria mientras permanecía abierta la conexión.</p>
+<p>Al cerrar la conexión, esa base temporal deja de existir.</p>
+<p>Esto es diferente de trabajar con una base de datos almacenada en un archivo.</p>
+<p>Si posteriormente utilizáramos, por ejemplo, un archivo SQLite persistente, cerrar la conexión no eliminaría la base de datos almacenada en ese archivo.</p>
+<hr>
+</section>
+<section id="reflexión-final" class="level1">
+<h1>21. Reflexión final</h1>
+<p>Esta primera incursión en SQL puede parecer sencilla.</p>
+<p>Y precisamente esa es la intención.</p>
+<p>Antes de utilizar modelos bayesianos para responder preguntas complejas necesitamos ser capaces de trabajar con las tablas que contienen nuestros datos.</p>
+<p>En esta entrada hemos aprendido a pasar de:</p>
+<pre class="text"><code>archivo CSV</code></pre>
+<p>a:</p>
+<pre class="text"><code>objeto de R</code></pre>
+<p>y posteriormente a:</p>
+<pre class="text"><code>tabla SQLite</code></pre>
+<p>para finalmente realizar consultas SQL y recuperar los resultados nuevamente en R.</p>
+<p>El proceso completo puede resumirse así:</p>
+<pre class="text"><code>Superstore CSV
+      ↓
+read_csv()
+      ↓
+objeto superstore en R
+      ↓
+dbWriteTable()
+      ↓
+tabla superstore en SQLite
+      ↓
+SQL
+      ↓
+dbGetQuery()
+      ↓
+resultado en R</code></pre>
+<p>Es un flujo pequeño, pero representa una pieza importante de un flujo profesional de análisis de datos.</p>
+<p>A partir de aquí podremos aumentar gradualmente la complejidad.</p>
+<p>En las siguientes integraciones de SQL ya no se tratará solamente de preguntar qué contiene una tabla.</p>
+<p>Comenzaremos a utilizar SQL como una herramienta dentro de proyectos de <strong>Business Analytics</strong>, conectándolo con análisis estadístico, incertidumbre y, cuando la pregunta lo requiera, modelos bayesianos.</p>
+<p>La meta no es aprender SQL por aprender SQL.</p>
+<p>La meta es utilizarlo para <strong>hacer mejores preguntas a los datos</strong>.</p>
+<hr>
+</section>
+<section id="apéndice-código-completo" class="level1">
+<h1>Apéndice: código completo</h1>
+<p>El siguiente bloque reúne, en orden cronológico, todo el código utilizado en esta entrada.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar las librerías necesarias</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Evitar la notación científica</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer la ubicación del dataset</span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(</span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/kaggle/input"</span>,</span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">recursive =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-17"><a href="#cb62-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-18"><a href="#cb62-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar la tabla de Superstore Sales</span></span>
+<span id="cb62-19"><a href="#cb62-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-20"><a href="#cb62-20" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(</span>
+<span id="cb62-21"><a href="#cb62-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"/kaggle/input/datasets/jaimevillafuerte/store30/superstore_sales.csv"</span>,</span>
+<span id="cb62-22"><a href="#cb62-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">locale =</span> readr<span class="sc">::</span><span class="fu">locale</span>(<span class="at">encoding =</span> <span class="st">"Windows-1252"</span>),</span>
+<span id="cb62-23"><a href="#cb62-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb62-24"><a href="#cb62-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-25"><a href="#cb62-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-26"><a href="#cb62-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer los nombres de las variables</span></span>
+<span id="cb62-27"><a href="#cb62-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-28"><a href="#cb62-28" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(superstore)</span>
+<span id="cb62-29"><a href="#cb62-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-30"><a href="#cb62-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizar una vista rápida de la tabla</span></span>
+<span id="cb62-31"><a href="#cb62-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-32"><a href="#cb62-32" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(superstore)</span>
+<span id="cb62-33"><a href="#cb62-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-34"><a href="#cb62-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear un espacio en memoria para alojar la tabla</span></span>
+<span id="cb62-35"><a href="#cb62-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-36"><a href="#cb62-36" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbConnect</span>(</span>
+<span id="cb62-37"><a href="#cb62-37" aria-hidden="true" tabindex="-1"></a>  RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(),</span>
+<span id="cb62-38"><a href="#cb62-38" aria-hidden="true" tabindex="-1"></a>  <span class="st">":memory:"</span></span>
+<span id="cb62-39"><a href="#cb62-39" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-40"><a href="#cb62-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-41"><a href="#cb62-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Escribir la tabla superstore en SQLite</span></span>
+<span id="cb62-42"><a href="#cb62-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-43"><a href="#cb62-43" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(</span>
+<span id="cb62-44"><a href="#cb62-44" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-45"><a href="#cb62-45" aria-hidden="true" tabindex="-1"></a>  <span class="st">"superstore"</span>,</span>
+<span id="cb62-46"><a href="#cb62-46" aria-hidden="true" tabindex="-1"></a>  superstore,</span>
+<span id="cb62-47"><a href="#cb62-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb62-48"><a href="#cb62-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-49"><a href="#cb62-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-50"><a href="#cb62-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer las tablas alojadas en la base de datos</span></span>
+<span id="cb62-51"><a href="#cb62-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-52"><a href="#cb62-52" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbListTables</span>(con)</span>
+<span id="cb62-53"><a href="#cb62-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-54"><a href="#cb62-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar todas las variables</span></span>
+<span id="cb62-55"><a href="#cb62-55" aria-hidden="true" tabindex="-1"></a><span class="co"># y mostrar las primeras 5 filas</span></span>
+<span id="cb62-56"><a href="#cb62-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-57"><a href="#cb62-57" aria-hidden="true" tabindex="-1"></a>q1 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-58"><a href="#cb62-58" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-59"><a href="#cb62-59" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-60"><a href="#cb62-60" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT *</span></span>
+<span id="cb62-61"><a href="#cb62-61" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-62"><a href="#cb62-62" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 5</span></span>
+<span id="cb62-63"><a href="#cb62-63" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-64"><a href="#cb62-64" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-65"><a href="#cb62-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-66"><a href="#cb62-66" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q1)</span>
+<span id="cb62-67"><a href="#cb62-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-68"><a href="#cb62-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar cuatro variables</span></span>
+<span id="cb62-69"><a href="#cb62-69" aria-hidden="true" tabindex="-1"></a><span class="co"># y mostrar los primeros 10 registros</span></span>
+<span id="cb62-70"><a href="#cb62-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-71"><a href="#cb62-71" aria-hidden="true" tabindex="-1"></a>q2 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-72"><a href="#cb62-72" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-73"><a href="#cb62-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-74"><a href="#cb62-74" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-75"><a href="#cb62-75" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb62-76"><a href="#cb62-76" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order Date",</span></span>
+<span id="cb62-77"><a href="#cb62-77" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb62-78"><a href="#cb62-78" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb62-79"><a href="#cb62-79" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-80"><a href="#cb62-80" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb62-81"><a href="#cb62-81" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-82"><a href="#cb62-82" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-83"><a href="#cb62-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-84"><a href="#cb62-84" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q2)</span>
+<span id="cb62-85"><a href="#cb62-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-86"><a href="#cb62-86" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar cuatro variables,</span></span>
+<span id="cb62-87"><a href="#cb62-87" aria-hidden="true" tabindex="-1"></a><span class="co"># filtrar la categoría Technology</span></span>
+<span id="cb62-88"><a href="#cb62-88" aria-hidden="true" tabindex="-1"></a><span class="co"># y mostrar los primeros 10 registros</span></span>
+<span id="cb62-89"><a href="#cb62-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-90"><a href="#cb62-90" aria-hidden="true" tabindex="-1"></a>q3 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-91"><a href="#cb62-91" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-92"><a href="#cb62-92" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-93"><a href="#cb62-93" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-94"><a href="#cb62-94" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb62-95"><a href="#cb62-95" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb62-96"><a href="#cb62-96" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb62-97"><a href="#cb62-97" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb62-98"><a href="#cb62-98" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-99"><a href="#cb62-99" aria-hidden="true" tabindex="-1"></a><span class="st">  WHERE "Category" = </span><span class="sc">\'</span><span class="st">Technology</span><span class="sc">\'</span></span>
+<span id="cb62-100"><a href="#cb62-100" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb62-101"><a href="#cb62-101" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-102"><a href="#cb62-102" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-103"><a href="#cb62-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-104"><a href="#cb62-104" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q3)</span>
+<span id="cb62-105"><a href="#cb62-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-106"><a href="#cb62-106" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar cuatro variables,</span></span>
+<span id="cb62-107"><a href="#cb62-107" aria-hidden="true" tabindex="-1"></a><span class="co"># ordenar por ventas de forma descendente</span></span>
+<span id="cb62-108"><a href="#cb62-108" aria-hidden="true" tabindex="-1"></a><span class="co"># y mostrar los primeros 10 registros</span></span>
+<span id="cb62-109"><a href="#cb62-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-110"><a href="#cb62-110" aria-hidden="true" tabindex="-1"></a>q4 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-111"><a href="#cb62-111" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-112"><a href="#cb62-112" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-113"><a href="#cb62-113" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-114"><a href="#cb62-114" aria-hidden="true" tabindex="-1"></a><span class="st">    "Order ID",</span></span>
+<span id="cb62-115"><a href="#cb62-115" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb62-116"><a href="#cb62-116" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb62-117"><a href="#cb62-117" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb62-118"><a href="#cb62-118" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-119"><a href="#cb62-119" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY "Sales" DESC</span></span>
+<span id="cb62-120"><a href="#cb62-120" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 10</span></span>
+<span id="cb62-121"><a href="#cb62-121" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-122"><a href="#cb62-122" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-123"><a href="#cb62-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-124"><a href="#cb62-124" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q4)</span>
+<span id="cb62-125"><a href="#cb62-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-126"><a href="#cb62-126" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar producto y ventas,</span></span>
+<span id="cb62-127"><a href="#cb62-127" aria-hidden="true" tabindex="-1"></a><span class="co"># ordenar de forma descendente</span></span>
+<span id="cb62-128"><a href="#cb62-128" aria-hidden="true" tabindex="-1"></a><span class="co"># y mostrar los primeros 5 registros</span></span>
+<span id="cb62-129"><a href="#cb62-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-130"><a href="#cb62-130" aria-hidden="true" tabindex="-1"></a>q5 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-131"><a href="#cb62-131" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-132"><a href="#cb62-132" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-133"><a href="#cb62-133" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-134"><a href="#cb62-134" aria-hidden="true" tabindex="-1"></a><span class="st">    "Product Name",</span></span>
+<span id="cb62-135"><a href="#cb62-135" aria-hidden="true" tabindex="-1"></a><span class="st">    "Sales"</span></span>
+<span id="cb62-136"><a href="#cb62-136" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-137"><a href="#cb62-137" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY "Sales" DESC</span></span>
+<span id="cb62-138"><a href="#cb62-138" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 5</span></span>
+<span id="cb62-139"><a href="#cb62-139" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-140"><a href="#cb62-140" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-141"><a href="#cb62-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-142"><a href="#cb62-142" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q5)</span>
+<span id="cb62-143"><a href="#cb62-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-144"><a href="#cb62-144" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las ventas totales</span></span>
+<span id="cb62-145"><a href="#cb62-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-146"><a href="#cb62-146" aria-hidden="true" tabindex="-1"></a>q6 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-147"><a href="#cb62-147" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-148"><a href="#cb62-148" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-149"><a href="#cb62-149" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-150"><a href="#cb62-150" aria-hidden="true" tabindex="-1"></a><span class="st">    SUM("Sales") AS total_sales</span></span>
+<span id="cb62-151"><a href="#cb62-151" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-152"><a href="#cb62-152" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-153"><a href="#cb62-153" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-154"><a href="#cb62-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-155"><a href="#cb62-155" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q6)</span>
+<span id="cb62-156"><a href="#cb62-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-157"><a href="#cb62-157" aria-hidden="true" tabindex="-1"></a><span class="co"># Contar las observaciones</span></span>
+<span id="cb62-158"><a href="#cb62-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-159"><a href="#cb62-159" aria-hidden="true" tabindex="-1"></a>q7 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-160"><a href="#cb62-160" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-161"><a href="#cb62-161" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-162"><a href="#cb62-162" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-163"><a href="#cb62-163" aria-hidden="true" tabindex="-1"></a><span class="st">    COUNT(*) AS n_observaciones</span></span>
+<span id="cb62-164"><a href="#cb62-164" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-165"><a href="#cb62-165" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-166"><a href="#cb62-166" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-167"><a href="#cb62-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-168"><a href="#cb62-168" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q7)</span>
+<span id="cb62-169"><a href="#cb62-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-170"><a href="#cb62-170" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular la venta promedio</span></span>
+<span id="cb62-171"><a href="#cb62-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-172"><a href="#cb62-172" aria-hidden="true" tabindex="-1"></a>q8 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-173"><a href="#cb62-173" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-174"><a href="#cb62-174" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-175"><a href="#cb62-175" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-176"><a href="#cb62-176" aria-hidden="true" tabindex="-1"></a><span class="st">    AVG("Sales") AS venta_promedio</span></span>
+<span id="cb62-177"><a href="#cb62-177" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-178"><a href="#cb62-178" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-179"><a href="#cb62-179" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-180"><a href="#cb62-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-181"><a href="#cb62-181" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q8)</span>
+<span id="cb62-182"><a href="#cb62-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-183"><a href="#cb62-183" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las ventas totales por categoría</span></span>
+<span id="cb62-184"><a href="#cb62-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-185"><a href="#cb62-185" aria-hidden="true" tabindex="-1"></a>q9 <span class="ot">&lt;-</span> DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(</span>
+<span id="cb62-186"><a href="#cb62-186" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb62-187"><a href="#cb62-187" aria-hidden="true" tabindex="-1"></a>  <span class="st">'</span></span>
+<span id="cb62-188"><a href="#cb62-188" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb62-189"><a href="#cb62-189" aria-hidden="true" tabindex="-1"></a><span class="st">    "Category",</span></span>
+<span id="cb62-190"><a href="#cb62-190" aria-hidden="true" tabindex="-1"></a><span class="st">    SUM("Sales") AS total_sales</span></span>
+<span id="cb62-191"><a href="#cb62-191" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb62-192"><a href="#cb62-192" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY "Category"</span></span>
+<span id="cb62-193"><a href="#cb62-193" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY total_sales DESC</span></span>
+<span id="cb62-194"><a href="#cb62-194" aria-hidden="true" tabindex="-1"></a><span class="st">  '</span></span>
+<span id="cb62-195"><a href="#cb62-195" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb62-196"><a href="#cb62-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-197"><a href="#cb62-197" aria-hidden="true" tabindex="-1"></a>gt<span class="sc">::</span><span class="fu">gt</span>(q9)</span>
+<span id="cb62-198"><a href="#cb62-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-199"><a href="#cb62-199" aria-hidden="true" tabindex="-1"></a><span class="co"># Desconectar la base de datos</span></span>
+<span id="cb62-200"><a href="#cb62-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-201"><a href="#cb62-201" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbDisconnect</span>(con)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
