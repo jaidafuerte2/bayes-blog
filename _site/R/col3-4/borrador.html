@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>borrador – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#pronosticar-las-ventas-mensuales-de-superstore-con-un-modelo-bayesiano" id="toc-pronosticar-las-ventas-mensuales-de-superstore-con-un-modelo-bayesiano" class="nav-link active" data-scroll-target="#pronosticar-las-ventas-mensuales-de-superstore-con-un-modelo-bayesiano">Pronosticar las ventas mensuales de Superstore con un modelo bayesiano</a>
+  <ul class="collapse">
+  <li><a href="#introducción" id="toc-introducción" class="nav-link" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#conocer-primero-la-estructura-real-de-los-datos" id="toc-conocer-primero-la-estructura-real-de-los-datos" class="nav-link" data-scroll-target="#conocer-primero-la-estructura-real-de-los-datos">1. Conocer primero la estructura real de los datos</a></li>
+  <li><a href="#convertir-y-validar-las-fechas" id="toc-convertir-y-validar-las-fechas" class="nav-link" data-scroll-target="#convertir-y-validar-las-fechas">2. Convertir y validar las fechas</a></li>
+  </ul></li>
+  <li><a href="#utilizar-sqlite-para-construir-la-serie-mensual" id="toc-utilizar-sqlite-para-construir-la-serie-mensual" class="nav-link" data-scroll-target="#utilizar-sqlite-para-construir-la-serie-mensual">3. Utilizar SQLite para construir la serie mensual</a>
+  <ul class="collapse">
+  <li><a href="#preparar-la-información-para-el-análisis" id="toc-preparar-la-información-para-el-análisis" class="nav-link" data-scroll-target="#preparar-la-información-para-el-análisis">4. Preparar la información para el análisis</a></li>
+  </ul></li>
+  <li><a href="#observar-primero-la-historia-de-las-ventas" id="toc-observar-primero-la-historia-de-las-ventas" class="nav-link" data-scroll-target="#observar-primero-la-historia-de-las-ventas">5. Observar primero la historia de las ventas</a></li>
+  <li><a href="#crear-las-variables-temporales" id="toc-crear-las-variables-temporales" class="nav-link" data-scroll-target="#crear-las-variables-temporales">6. Crear las variables temporales</a></li>
+  <li><a href="#separar-entrenamiento-y-evaluación" id="toc-separar-entrenamiento-y-evaluación" class="nav-link" data-scroll-target="#separar-entrenamiento-y-evaluación">7. Separar entrenamiento y evaluación</a></li>
+  <li><a href="#construir-un-modelo-bayesiano-sencillo" id="toc-construir-un-modelo-bayesiano-sencillo" class="nav-link" data-scroll-target="#construir-un-modelo-bayesiano-sencillo">8. Construir un modelo bayesiano sencillo</a>
+  <ul class="collapse">
+  <li><a href="#cómo-interpretar-estos-resultados" id="toc-cómo-interpretar-estos-resultados" class="nav-link" data-scroll-target="#cómo-interpretar-estos-resultados">¿Cómo interpretar estos resultados?</a></li>
+  </ul></li>
+  <li><a href="#generar-predicciones-para-los-seis-meses-reservados" id="toc-generar-predicciones-para-los-seis-meses-reservados" class="nav-link" data-scroll-target="#generar-predicciones-para-los-seis-meses-reservados">9. Generar predicciones para los seis meses reservados</a></li>
+  <li><a href="#resumir-las-predicciones" id="toc-resumir-las-predicciones" class="nav-link" data-scroll-target="#resumir-las-predicciones">10. Resumir las predicciones</a></li>
+  <li><a href="#comparar-las-predicciones-con-lo-que-realmente-ocurrió" id="toc-comparar-las-predicciones-con-lo-que-realmente-ocurrió" class="nav-link" data-scroll-target="#comparar-las-predicciones-con-lo-que-realmente-ocurrió">11. Comparar las predicciones con lo que realmente ocurrió</a></li>
+  <li><a href="#medir-el-error-del-pronóstico" id="toc-medir-el-error-del-pronóstico" class="nav-link" data-scroll-target="#medir-el-error-del-pronóstico">12. Medir el error del pronóstico</a>
+  <ul class="collapse">
+  <li><a href="#mae" id="toc-mae" class="nav-link" data-scroll-target="#mae">MAE</a></li>
+  <li><a href="#rmse" id="toc-rmse" class="nav-link" data-scroll-target="#rmse">RMSE</a></li>
+  <li><a href="#cobertura-del-intervalo-predictivo" id="toc-cobertura-del-intervalo-predictivo" class="nav-link" data-scroll-target="#cobertura-del-intervalo-predictivo">Cobertura del intervalo predictivo</a></li>
+  </ul></li>
+  <li><a href="#observar-directamente-los-errores" id="toc-observar-directamente-los-errores" class="nav-link" data-scroll-target="#observar-directamente-los-errores">13. Observar directamente los errores</a></li>
+  <li><a href="#qué-aprendimos" id="toc-qué-aprendimos" class="nav-link" data-scroll-target="#qué-aprendimos">14. ¿Qué aprendimos?</a></li>
+  <li><a href="#la-importancia-de-evaluar-con-datos-no-utilizados" id="toc-la-importancia-de-evaluar-con-datos-no-utilizados" class="nav-link" data-scroll-target="#la-importancia-de-evaluar-con-datos-no-utilizados">15. La importancia de evaluar con datos no utilizados</a></li>
+  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">Conclusión</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">borrador</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="pronosticar-las-ventas-mensuales-de-superstore-con-un-modelo-bayesiano" class="level1">
+<h1>Pronosticar las ventas mensuales de Superstore con un modelo bayesiano</h1>
+<p><strong>Colección 3 — Anticipar el futuro</strong></p>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>En las entradas anteriores de esta colección comenzamos a utilizar SQL desde R para explorar la información de Superstore. Ahora podemos dar un paso más: utilizar los datos históricos para construir un modelo que nos permita <strong>anticipar las ventas de los meses siguientes</strong>.</p>
+<p>La pregunta de esta entrada es sencilla:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué tan bien podemos pronosticar las ventas mensuales de Superstore utilizando la tendencia temporal y el comportamiento asociado a cada mes del año?</strong></p>
+</blockquote>
+<p>No buscamos construir un sistema sofisticado de forecasting. El objetivo es más práctico: construir un modelo relativamente sencillo, producir predicciones probabilísticas y, sobre todo, <strong>evaluarlas con datos que el modelo no utilizó durante su construcción</strong>.</p>
+<p>Esta última parte es fundamental. Un modelo puede describir razonablemente bien los datos que ya conocemos y, aun así, producir pronósticos poco útiles para datos futuros.</p>
+<p>Por eso dividiremos la información en dos partes:</p>
+<ul>
+<li><strong>Entrenamiento:</strong> los primeros 42 meses.</li>
+<li><strong>Evaluación:</strong> los últimos 6 meses.</li>
+</ul>
+<p>De esta manera podemos construir el modelo con información disponible hasta junio de 2017 y posteriormente comprobar cómo se comporta al intentar anticipar las ventas entre julio y diciembre de 2017.</p>
+<hr>
+</section>
+<section id="conocer-primero-la-estructura-real-de-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="conocer-primero-la-estructura-real-de-los-datos">1. Conocer primero la estructura real de los datos</h2>
+<p>Antes de comenzar cualquier análisis temporal conviene revisar la estructura efectiva del dataset.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Cargamos Superstore:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"/kaggle/input/datasets/……/store34/superstore_sales.csv"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">locale =</span> <span class="fu">locale</span>(<span class="at">encoding =</span> <span class="st">"Windows-1252"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Revisamos las variables:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(superstore)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El dataset contiene <strong>9.994 filas y 21 variables</strong>.</p>
+<p>Entre ellas encontramos:</p>
+<ul>
+<li><code>Order ID</code></li>
+<li><code>Order Date</code></li>
+<li><code>Ship Date</code></li>
+<li><code>Customer ID</code></li>
+<li><code>Segment</code></li>
+<li><code>Region</code></li>
+<li><code>Category</code></li>
+<li><code>Sub-Category</code></li>
+<li><code>Sales</code></li>
+<li><code>Quantity</code></li>
+<li><code>Discount</code></li>
+<li><code>Profit</code></li>
+</ul>
+<p>La variable que necesitamos para construir la serie temporal es <code>Order Date</code>.</p>
+<p>Sin embargo, <code>glimpse()</code> muestra que esta variable fue cargada como texto:</p>
+<pre class="text"><code>$ `Order Date` &lt;chr&gt; "11/8/2016", "11/8/2016",
+"6/12/2016", ...</code></pre>
+<p>Por ello debemos convertirla explícitamente a una fecha.</p>
+<hr>
+</section>
+<section id="convertir-y-validar-las-fechas" class="level2">
+<h2 class="anchored" data-anchor-id="convertir-y-validar-las-fechas">2. Convertir y validar las fechas</h2>
+<p>Primero comprobamos que las fechas tengan el patrón esperado:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fecha_patron_valido <span class="ot">&lt;-</span> <span class="fu">grepl</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Luego realizamos la conversión:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>order_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Podemos comprobar los primeros valores:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>order_date[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El resultado es:</p>
+<pre class="text"><code>2016-11-08
+2016-11-08
+2016-06-12
+2015-10-11
+2015-10-11</code></pre>
+<p>Antes de continuar, es conveniente comprobar que la conversión no haya producido valores faltantes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span>fecha_patron_valido) <span class="sc">||</span> <span class="fu">anyNA</span>(order_date)) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"Order Date no pudo validarse con el formato observado."</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Incorporamos entonces la nueva variable al dataset:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">order_date =</span> order_date)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Podemos observar algunos valores:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(superstore<span class="sc">$</span>order_date)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(superstore<span class="sc">$</span>order_date, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Finalmente comprobamos el rango de fechas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_minima =</span> <span class="fu">min</span>(order_date),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_maxima =</span> <span class="fu">max</span>(order_date),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fechas_no_convertidas =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(order_date))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Obtenemos:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Indicador</th>
+<th style="text-align: right;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Fecha mínima</td>
+<td style="text-align: right;">2014-01-03</td>
+</tr>
+<tr class="even">
+<td>Fecha máxima</td>
+<td style="text-align: right;">2017-12-30</td>
+</tr>
+<tr class="odd">
+<td>Fechas no convertidas</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>Tenemos, por tanto, información desde enero de 2014 hasta diciembre de 2017 y no encontramos fechas que hayan quedado sin convertir.</p>
+<p>Este paso parece pequeño, pero es importante: <strong>antes de construir una serie temporal debemos comprobar que realmente estamos trabajando con fechas válidas</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="utilizar-sqlite-para-construir-la-serie-mensual" class="level1">
+<h1>3. Utilizar SQLite para construir la serie mensual</h1>
+<p>Ahora utilizaremos SQLite para agrupar las ventas por mes.</p>
+<p>Abrimos una base de datos temporal en memoria:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(<span class="fu">SQLite</span>(), <span class="st">":memory:"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Y escribimos allí el dataset:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    con,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"superstore"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    superstore,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La consulta SQL será:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    con,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">      strftime(</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">        '%Y-%m-01',</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">        date('1970-01-01', order_date || ' days')</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">      ) AS period,</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">      SUM(Sales) AS sales,</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="st">      AVG(Sales) AS average_sale,</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="st">      COUNT(*) AS transactions</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM superstore</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE order_date IS NOT NULL</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY period</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY period</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="st">    "</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Aquí estamos utilizando la representación numérica de las fechas que SQLite recibe desde R. La expresión:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">date</span>(<span class="st">'1970-01-01'</span>, order_date <span class="op">||</span> <span class="st">' days'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>permite interpretar correctamente ese valor como un número de días desde el origen temporal utilizado por R.</p>
+<p>Después:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>strftime(<span class="st">'%Y-%m-01'</span>, <span class="op">..</span>.)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>convierte la fecha en una representación mensual como:</p>
+<pre class="text"><code>2014-01-01
+2014-02-01
+2014-03-01</code></pre>
+<p>Aunque existen otras formas de realizar esta transformación, esta es la solución que hemos comprobado con la estructura real de nuestro dataset y que produce correctamente los períodos mensuales.</p>
+<p>El resultado comienza así:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>period</th>
+<th style="text-align: right;">sales</th>
+<th style="text-align: right;">average_sale</th>
+<th style="text-align: right;">transactions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2014-01-01</td>
+<td style="text-align: right;">14236.895</td>
+<td style="text-align: right;">180.21386</td>
+<td style="text-align: right;">79</td>
+</tr>
+<tr class="even">
+<td>2014-02-01</td>
+<td style="text-align: right;">4519.892</td>
+<td style="text-align: right;">98.25852</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr class="odd">
+<td>2014-03-01</td>
+<td style="text-align: right;">55691.009</td>
+<td style="text-align: right;">354.71980</td>
+<td style="text-align: right;">157</td>
+</tr>
+<tr class="even">
+<td>2014-04-01</td>
+<td style="text-align: right;">28295.345</td>
+<td style="text-align: right;">209.59515</td>
+<td style="text-align: right;">135</td>
+</tr>
+<tr class="odd">
+<td>2014-05-01</td>
+<td style="text-align: right;">23648.287</td>
+<td style="text-align: right;">193.83842</td>
+<td style="text-align: right;">122</td>
+</tr>
+</tbody>
+</table>
+<p>Desconectamos SQLite:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(con)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Una característica interesante es que <code>ventas_mensuales</code> continúa disponible en R. La conexión con SQLite desaparece, pero el resultado que recuperamos mediante <code>dbGetQuery()</code> ya es un objeto de R.</p>
+<hr>
+<section id="preparar-la-información-para-el-análisis" class="level2">
+<h2 class="anchored" data-anchor-id="preparar-la-información-para-el-análisis">4. Preparar la información para el análisis</h2>
+<p>En este momento <code>period</code> es un texto. Para trabajar cómodamente con las fechas en R lo convertimos a <code>Date</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">period =</span> <span class="fu">as.Date</span>(period),</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">sales =</span> <span class="fu">as.numeric</span>(sales),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">average_sale =</span> <span class="fu">as.numeric</span>(average_sale),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">transactions =</span> <span class="fu">as.integer</span>(transactions)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ahora tenemos:</p>
+<pre class="text"><code>period        &lt;date&gt;
+sales         &lt;dbl&gt;
+average_sale  &lt;dbl&gt;
+transactions  &lt;int&gt;</code></pre>
+<p>La conversión de <code>period</code> a <code>Date</code> es útil porque posteriormente podremos ordenar, filtrar y representar correctamente la dimensión temporal.</p>
+<hr>
+</section>
+</section>
+<section id="observar-primero-la-historia-de-las-ventas" class="level1">
+<h1>5. Observar primero la historia de las ventas</h1>
+<p>Antes de construir un modelo conviene mirar los datos.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ventas_mensuales, <span class="fu">aes</span>(<span class="at">x =</span> period, <span class="at">y =</span> sales)) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.8</span>) <span class="sc">+</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">"Ventas mensuales de Superstore"</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">subtitle =</span> <span class="st">"La serie histórica que utilizaremos para construir y evaluar el pronóstico"</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El gráfico permite observar dos características importantes.</p>
+<p>La primera es una <strong>tendencia general ascendente</strong>. Los máximos mensuales aumentan con el paso de los años: en 2014 encontramos valores superiores a 80.000 dólares; en 2015 los máximos se encuentran alrededor de 75.000; en 2016 aparecen valores cercanos a 100.000 y en 2017 se alcanza un máximo cercano a 118.000 dólares.</p>
+<p>La segunda característica es un <strong>patrón estacional</strong>. Los últimos meses del año, especialmente noviembre y diciembre, presentan ventas elevadas, mientras que enero y febrero tienden a presentar valores más bajos.</p>
+<p>Esto sugiere que un modelo que solamente considere el paso del tiempo podría quedarse corto. Por eso utilizaremos dos componentes:</p>
+<ol type="1">
+<li>una variable que represente la evolución de las ventas a través del tiempo;</li>
+<li>una variable que represente el mes del año.</li>
+</ol>
+<hr>
+</section>
+<section id="crear-las-variables-temporales" class="level1">
+<h1>6. Crear las variables temporales</h1>
+<p>Primero numeramos cronológicamente los meses:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ventas_mensuales <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(period) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">time_index =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">month =</span> <span class="fu">factor</span>(</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>          <span class="fu">format</span>(period, <span class="st">"%m"</span>),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">levels =</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>time_index</code> toma valores consecutivos:</p>
+<pre class="text"><code>1, 2, 3, ..., 48</code></pre>
+<p>Mientras que <code>month</code> identifica el mes del año.</p>
+<p>Por ejemplo:</p>
+<pre class="text"><code>2014-01-01 → 01
+2014-02-01 → 02
+2014-03-01 → 03
+...</code></pre>
+<p>De esta manera podemos representar simultáneamente:</p>
+<ul>
+<li>el cambio general de las ventas con el tiempo;</li>
+<li>las diferencias sistemáticas entre los meses del año.</li>
+</ul>
+<hr>
+</section>
+<section id="separar-entrenamiento-y-evaluación" class="level1">
+<h1>7. Separar entrenamiento y evaluación</h1>
+<p>Ahora llega una de las partes más importantes del análisis.</p>
+<p>No utilizaremos los 48 meses para construir el modelo.</p>
+<p>Reservaremos los últimos seis meses como período de evaluación:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>periodos_evaluacion <span class="ot">&lt;-</span> <span class="fu">tail</span>(ventas_mensuales<span class="sc">$</span>period, <span class="dv">6</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>periodos_evaluacion</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Obtenemos:</p>
+<pre class="text"><code>2017-07-01
+2017-08-01
+2017-09-01
+2017-10-01
+2017-11-01
+2017-12-01</code></pre>
+<p>Construimos entonces dos conjuntos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>period <span class="sc">%in%</span> periodos_evaluacion)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> ventas_mensuales <span class="sc">%&gt;%</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(period <span class="sc">%in%</span> periodos_evaluacion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La división queda así:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Conjunto</th>
+<th>Período</th>
+<th style="text-align: right;">Meses</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Entrenamiento</td>
+<td>enero 2014 – junio 2017</td>
+<td style="text-align: right;">42</td>
+</tr>
+<tr class="even">
+<td>Evaluación</td>
+<td>julio 2017 – diciembre 2017</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+<p>Esta separación imita una situación de pronóstico real.</p>
+<p>El modelo solamente conoce la información hasta junio de 2017. Los seis meses siguientes se reservan para comprobar cómo se comportan sus predicciones.</p>
+<hr>
+</section>
+<section id="construir-un-modelo-bayesiano-sencillo" class="level1">
+<h1>8. Construir un modelo bayesiano sencillo</h1>
+<p>Ahora podemos construir nuestro modelo:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>modelo <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    sales <span class="sc">~</span> time_index <span class="sc">+</span> month,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> train,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El modelo relaciona las ventas con:</p>
+<ul>
+<li><code>time_index</code>: la evolución temporal;</li>
+<li><code>month</code>: el efecto asociado al mes del año.</li>
+</ul>
+<p>Los resultados centrales son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parámetro</th>
+<th style="text-align: right;">Mediana</th>
+<th style="text-align: right;">MAD_SD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intercept</td>
+<td style="text-align: right;">14648.2</td>
+<td style="text-align: right;">5193.9</td>
+</tr>
+<tr class="even">
+<td>time_index</td>
+<td style="text-align: right;">472.4</td>
+<td style="text-align: right;">109.3</td>
+</tr>
+<tr class="odd">
+<td>month02</td>
+<td style="text-align: right;">-9090.3</td>
+<td style="text-align: right;">6269.6</td>
+</tr>
+<tr class="even">
+<td>month03</td>
+<td style="text-align: right;">26709.7</td>
+<td style="text-align: right;">5922.2</td>
+</tr>
+<tr class="odd">
+<td>month04</td>
+<td style="text-align: right;">9499.7</td>
+<td style="text-align: right;">6076.2</td>
+</tr>
+<tr class="even">
+<td>month05</td>
+<td style="text-align: right;">13095.0</td>
+<td style="text-align: right;">5995.9</td>
+</tr>
+<tr class="odd">
+<td>month06</td>
+<td style="text-align: right;">12479.4</td>
+<td style="text-align: right;">5899.1</td>
+</tr>
+<tr class="even">
+<td>month07</td>
+<td style="text-align: right;">10173.6</td>
+<td style="text-align: right;">6649.2</td>
+</tr>
+<tr class="odd">
+<td>month08</td>
+<td style="text-align: right;">7880.3</td>
+<td style="text-align: right;">6570.7</td>
+</tr>
+<tr class="even">
+<td>month09</td>
+<td style="text-align: right;">48683.8</td>
+<td style="text-align: right;">6272.3</td>
+</tr>
+<tr class="odd">
+<td>month10</td>
+<td style="text-align: right;">15243.1</td>
+<td style="text-align: right;">6489.8</td>
+</tr>
+<tr class="even">
+<td>month11</td>
+<td style="text-align: right;">52180.0</td>
+<td style="text-align: right;">7073.4</td>
+</tr>
+<tr class="odd">
+<td>month12</td>
+<td style="text-align: right;">54746.9</td>
+<td style="text-align: right;">6418.4</td>
+</tr>
+</tbody>
+</table>
+<p>El parámetro <code>sigma</code> tiene una mediana aproximada de:</p>
+<pre class="text"><code>8489.6</code></pre>
+<section id="cómo-interpretar-estos-resultados" class="level2">
+<h2 class="anchored" data-anchor-id="cómo-interpretar-estos-resultados">¿Cómo interpretar estos resultados?</h2>
+<p>Es importante hacer una precisión sobre el intercepto.</p>
+<p>El valor de 14.648 dólares <strong>no debe interpretarse directamente como las ventas observadas del primer mes</strong>. En este modelo <code>time_index</code> comienza en 1, mientras que el intercepto corresponde matemáticamente al punto en que <code>time_index = 0</code>. Por ello funciona principalmente como un nivel de referencia desde el cual se construyen las predicciones.</p>
+<p>Mucho más interesante es el coeficiente de <code>time_index</code>.</p>
+<p>Su mediana es:</p>
+<pre class="text"><code>472.4</code></pre>
+<p>Esto significa que, manteniendo constante el efecto del mes, el modelo estima un incremento promedio de aproximadamente <strong>472 dólares por cada mes adicional</strong>.</p>
+<p>Este resultado representa la tendencia temporal que el modelo encuentra en los 42 meses de entrenamiento.</p>
+<p>Los coeficientes de <code>month</code>, por su parte, representan diferencias respecto al mes de referencia, que en este caso es enero (<code>01</code>).</p>
+<p>Por ejemplo:</p>
+<pre class="text"><code>month02 = -9090.3</code></pre>
+<p>indica que febrero tiene, según el modelo, un nivel de ventas aproximadamente 9.090 dólares inferior al de enero, después de tener en cuenta la tendencia temporal.</p>
+<p>En cambio:</p>
+<pre class="text"><code>month11 = 52180.0</code></pre>
+<p>indica un nivel estimado considerablemente mayor que el de enero.</p>
+<p>El resultado es coherente con lo que ya habíamos observado visualmente: <strong>la evolución de las ventas no parece depender solamente de una tendencia creciente; también existe un patrón asociado al mes del año</strong>.</p>
+<p>Esto es precisamente lo que queríamos capturar con el modelo.</p>
+<hr>
+</section>
+</section>
+<section id="generar-predicciones-para-los-seis-meses-reservados" class="level1">
+<h1>9. Generar predicciones para los seis meses reservados</h1>
+<p>Una vez construido el modelo podemos pedirle predicciones para los datos que dejamos fuera del entrenamiento:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>predicciones <span class="ot">&lt;-</span> <span class="fu">posterior_predict</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    modelo,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">newdata =</span> test</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>posterior_predict()</code> genera muestras de la <strong>distribución predictiva posterior</strong>.</p>
+<p>En nuestro caso obtenemos 1.000 predicciones posteriores para cada uno de los seis meses de evaluación.</p>
+<p>No obtenemos simplemente un único número para cada mes. Obtenemos una distribución de posibles valores.</p>
+<p>Esto es importante porque una predicción empresarial rara vez debería interpretarse como un número completamente cierto.</p>
+<hr>
+</section>
+<section id="resumir-las-predicciones" class="level1">
+<h1>10. Resumir las predicciones</h1>
+<p>Podemos resumir las 1.000 predicciones para cada mes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>pred_resumen <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">period =</span> test<span class="sc">$</span>period,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed =</span> test<span class="sc">$</span>sales,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted_median =</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, median),</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower_90 =</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.05</span>),</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper_90 =</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">apply</span>(predicciones, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.95</span>)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El resultado es una tabla que contiene:</p>
+<ul>
+<li>la fecha;</li>
+<li>las ventas realmente observadas;</li>
+<li>la mediana de las predicciones;</li>
+<li>el límite inferior del 90%;</li>
+<li>el límite superior del 90%.</li>
+</ul>
+<p>Los resultados obtenidos son aproximadamente:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 12%">
+<col style="width: 21%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Mes</th>
+<th style="text-align: right;">Observado</th>
+<th style="text-align: right;">Mediana predicha</th>
+<th style="text-align: right;">Límite inferior 90%</th>
+<th style="text-align: right;">Límite superior 90%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Julio</td>
+<td style="text-align: right;">45.264</td>
+<td style="text-align: right;">45.563</td>
+<td style="text-align: right;">28.842</td>
+<td style="text-align: right;">62.124</td>
+</tr>
+<tr class="even">
+<td>Agosto</td>
+<td style="text-align: right;">63.121</td>
+<td style="text-align: right;">43.288</td>
+<td style="text-align: right;">27.275</td>
+<td style="text-align: right;">60.519</td>
+</tr>
+<tr class="odd">
+<td>Septiembre</td>
+<td style="text-align: right;">87.867</td>
+<td style="text-align: right;">85.033</td>
+<td style="text-align: right;">67.824</td>
+<td style="text-align: right;">101.641</td>
+</tr>
+<tr class="even">
+<td>Octubre</td>
+<td style="text-align: right;">77.777</td>
+<td style="text-align: right;">52.116</td>
+<td style="text-align: right;">35.535</td>
+<td style="text-align: right;">68.010</td>
+</tr>
+<tr class="odd">
+<td>Noviembre</td>
+<td style="text-align: right;">118.448</td>
+<td style="text-align: right;">89.576</td>
+<td style="text-align: right;">74.057</td>
+<td style="text-align: right;">106.790</td>
+</tr>
+<tr class="even">
+<td>Diciembre</td>
+<td style="text-align: right;">83.829</td>
+<td style="text-align: right;">91.922</td>
+<td style="text-align: right;">73.038</td>
+<td style="text-align: right;">109.385</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="comparar-las-predicciones-con-lo-que-realmente-ocurrió" class="level1">
+<h1>11. Comparar las predicciones con lo que realmente ocurrió</h1>
+<p>Ahora podemos visualizar simultáneamente las ventas observadas y las predicciones:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pred_resumen, <span class="fu">aes</span>(<span class="at">x =</span> period)) <span class="sc">+</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">ymin =</span> lower_90,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">ymax =</span> upper_90</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">alpha =</span> <span class="fl">0.20</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(<span class="at">y =</span> observed),</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="dv">1</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(<span class="at">y =</span> observed),</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(<span class="at">y =</span> predicted_median),</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">linewidth =</span> <span class="fl">0.9</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">aes</span>(<span class="at">y =</span> predicted_median),</span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">"Predicciones frente a las ventas observadas"</span>,</span>
+<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">subtitle =</span> <span class="st">"La banda representa el intervalo predictivo del 90%"</span>,</span>
+<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> <span class="st">"Ventas"</span></span>
+<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El gráfico permite observar varias situaciones diferentes.</p>
+<p>En <strong>julio</strong>, la predicción central está prácticamente sobre el valor observado.</p>
+<p>En <strong>agosto</strong>, la venta observada es considerablemente mayor que la predicción central y se encuentra incluso ligeramente por encima del límite superior del intervalo predictivo del 90%.</p>
+<p>En <strong>septiembre</strong>, la predicción se comporta mucho mejor: el valor observado está por encima de la predicción central, pero permanece dentro del intervalo predictivo.</p>
+<p>En <strong>octubre</strong>, vuelve a aparecer una diferencia importante. La venta observada supera tanto la predicción central como el límite superior del intervalo predictivo.</p>
+<p>En <strong>noviembre</strong>, la diferencia es todavía mayor: las ventas reales alcanzan aproximadamente 118.448 dólares, mientras que la predicción central se encuentra alrededor de 89.576 dólares. Además, el valor observado supera el límite superior del intervalo predictivo.</p>
+<p>Finalmente, en <strong>diciembre</strong> ocurre lo contrario: el modelo predice alrededor de 91.922 dólares y las ventas observadas son aproximadamente 83.829 dólares. En este caso el valor real se encuentra dentro del intervalo predictivo.</p>
+<p>Hay entonces un patrón interesante:</p>
+<blockquote class="blockquote">
+<p>El modelo consigue seguir razonablemente bien algunos meses, pero tiene dificultades para anticipar determinados aumentos importantes de las ventas, especialmente en agosto, octubre y noviembre.</p>
+</blockquote>
+<p>Esto no significa necesariamente que el modelo sea inútil. Más bien nos muestra <strong>qué parte del comportamiento histórico no está siendo capturada por las variables que hemos utilizado</strong>.</p>
+<hr>
+</section>
+<section id="medir-el-error-del-pronóstico" class="level1">
+<h1>12. Medir el error del pronóstico</h1>
+<p>Una inspección visual es útil, pero también necesitamos algunas medidas numéricas.</p>
+<p>Calculamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>metricas <span class="ot">&lt;-</span> pred_resumen <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">MAE =</span> <span class="fu">mean</span>(</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(observed <span class="sc">-</span> predicted_median)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">RMSE =</span> <span class="fu">sqrt</span>(</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mean</span>(</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>              (observed <span class="sc">-</span> predicted_median)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">cobertura_90 =</span> <span class="fu">mean</span>(</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>          observed <span class="sc">&gt;=</span> lower_90 <span class="sc">&amp;</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>          observed <span class="sc">&lt;=</span> upper_90</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Los resultados son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Métrica</th>
+<th style="text-align: right;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MAE</td>
+<td style="text-align: right;">14.265</td>
+</tr>
+<tr class="even">
+<td>RMSE</td>
+<td style="text-align: right;">18.069</td>
+</tr>
+<tr class="odd">
+<td>Cobertura 90%</td>
+<td style="text-align: right;">0,50</td>
+</tr>
+</tbody>
+</table>
+<p>Estas tres métricas responden preguntas diferentes.</p>
+<section id="mae" class="level3">
+<h3 class="anchored" data-anchor-id="mae">MAE</h3>
+<p>El <strong>MAE (Mean Absolute Error)</strong> es el error absoluto medio.</p>
+<p>En nuestro caso:</p>
+<pre class="text"><code>MAE = 14.265 dólares</code></pre>
+<p>Esto significa que, en promedio, la distancia absoluta entre las ventas observadas y la predicción central fue de aproximadamente <strong>14.265 dólares por mes</strong> durante los seis meses de evaluación.</p>
+<p>La ventaja del MAE es que resulta relativamente fácil de interpretar porque conserva las mismas unidades de la variable original: dólares.</p>
+</section>
+<section id="rmse" class="level3">
+<h3 class="anchored" data-anchor-id="rmse">RMSE</h3>
+<p>El <strong>RMSE (Root Mean Squared Error)</strong> también mide el tamaño de los errores, pero da mayor peso a los errores grandes.</p>
+<p>Obtuvimos:</p>
+<pre class="text"><code>RMSE = 18.069 dólares</code></pre>
+<p>El hecho de que el RMSE sea mayor que el MAE es coherente con la presencia de algunos errores particularmente grandes, como los observados en octubre y noviembre.</p>
+<p>Por ello podemos pensar en:</p>
+<ul>
+<li><strong>MAE:</strong> ¿cuál es el tamaño absoluto típico del error?</li>
+<li><strong>RMSE:</strong> ¿qué tan importantes son también los errores grandes?</li>
+</ul>
+</section>
+<section id="cobertura-del-intervalo-predictivo" class="level3">
+<h3 class="anchored" data-anchor-id="cobertura-del-intervalo-predictivo">Cobertura del intervalo predictivo</h3>
+<p>Finalmente tenemos:</p>
+<pre class="text"><code>cobertura_90 = 0.50</code></pre>
+<p>Esto significa que <strong>3 de los 6 valores observados</strong> quedaron dentro de sus respectivos intervalos predictivos del 90%.</p>
+<p>Por tanto, la cobertura observada en este pequeño período de evaluación fue del <strong>50%</strong>.</p>
+<p>Aquí debemos ser cuidadosos con la interpretación.</p>
+<p>Un intervalo predictivo del 90% no significa que necesariamente el 90% de cualquier conjunto pequeño de seis observaciones vaya a caer dentro del intervalo. Con solamente seis meses, la cobertura empírica puede variar considerablemente.</p>
+<p>Sin embargo, una cobertura de 50% frente al 90% esperado bajo el procedimiento predictivo es una señal útil: <strong>en este período concreto los intervalos no lograron contener tantos valores observados como esperaríamos de ellos</strong>.</p>
+<p>Esto sugiere que el modelo puede estar subestimando parte de la variabilidad real de las ventas o que existen patrones en los datos que todavía no estamos incorporando.</p>
+<hr>
+</section>
+</section>
+<section id="observar-directamente-los-errores" class="level1">
+<h1>13. Observar directamente los errores</h1>
+<p>Podemos calcular ahora el error de cada mes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>errores <span class="ot">&lt;-</span> pred_resumen <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> observed <span class="sc">-</span> predicted_median</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El resultado es:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Mes</th>
+<th style="text-align: right;">Observado</th>
+<th style="text-align: right;">Predicción</th>
+<th style="text-align: right;">Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Julio</td>
+<td style="text-align: right;">45.264</td>
+<td style="text-align: right;">45.263</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td>Agosto</td>
+<td style="text-align: right;">63.121</td>
+<td style="text-align: right;">43.595</td>
+<td style="text-align: right;">19.525</td>
+</tr>
+<tr class="odd">
+<td>Septiembre</td>
+<td style="text-align: right;">87.867</td>
+<td style="text-align: right;">84.628</td>
+<td style="text-align: right;">3.238</td>
+</tr>
+<tr class="even">
+<td>Octubre</td>
+<td style="text-align: right;">77.777</td>
+<td style="text-align: right;">52.466</td>
+<td style="text-align: right;">25.311</td>
+</tr>
+<tr class="odd">
+<td>Noviembre</td>
+<td style="text-align: right;">118.448</td>
+<td style="text-align: right;">88.951</td>
+<td style="text-align: right;">29.497</td>
+</tr>
+<tr class="even">
+<td>Diciembre</td>
+<td style="text-align: right;">83.829</td>
+<td style="text-align: right;">91.525</td>
+<td style="text-align: right;">-7.695</td>
+</tr>
+</tbody>
+</table>
+<p>Recordemos que:</p>
+<pre class="text"><code>error = observado − predicción</code></pre>
+<p>Por ello:</p>
+<ul>
+<li>un error <strong>positivo</strong> significa que el modelo subestimó las ventas;</li>
+<li>un error <strong>negativo</strong> significa que el modelo sobreestimó las ventas;</li>
+<li>un error cercano a <strong>cero</strong> significa que la predicción estuvo cerca del valor observado.</li>
+</ul>
+<p>Podemos visualizarlo:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(errores, <span class="fu">aes</span>(<span class="at">x =</span> period, <span class="at">y =</span> error)) <span class="sc">+</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">yintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.8</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Errores de pronóstico durante el período de evaluación"</span>,</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Error = venta observada − predicción central"</span>,</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Error"</span></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Este gráfico permite interpretar el comportamiento del modelo de una manera particularmente directa.</p>
+<p>En <strong>julio</strong>, el error es prácticamente cero. El modelo estuvo casi exactamente sobre el valor observado.</p>
+<p>En <strong>agosto</strong>, el error es positivo y cercano a 20.000 dólares. El modelo subestimó las ventas en esa magnitud aproximada.</p>
+<p>En <strong>septiembre</strong>, el error vuelve a acercarse a cero: alrededor de 3.200 dólares.</p>
+<p>En <strong>octubre</strong>, el error vuelve a crecer y supera los 25.000 dólares. Nuevamente, el modelo subestimó las ventas.</p>
+<p>En <strong>noviembre</strong>, encontramos el error positivo más grande del período, cercano a 30.000 dólares. Esto significa que el modelo quedó considerablemente por debajo de las ventas que finalmente se observaron.</p>
+<p>Finalmente, en <strong>diciembre</strong>, el error se vuelve negativo, alrededor de -7.700 dólares. En este caso el modelo <strong>sobreestimó</strong> las ventas: esperaba un nivel superior al que finalmente se observó.</p>
+<p>Esta secuencia resulta más interesante que simplemente decir que algunos errores son grandes.</p>
+<p>Durante buena parte del período de evaluación observamos errores positivos:</p>
+<pre class="text"><code>Julio       ≈ 0
+Agosto      +19.500
+Septiembre  +3.200
+Octubre     +25.300
+Noviembre   +29.500
+Diciembre   -7.700</code></pre>
+<p>Esto indica que el modelo tendió a <strong>subestimar las ventas entre agosto y noviembre</strong>, especialmente durante octubre y noviembre.</p>
+<p>La presencia de varios errores positivos consecutivos puede ser una señal de que el modelo está dejando fuera algún componente del comportamiento de las ventas. Por ejemplo, podría existir una dinámica temporal más compleja, cambios en el nivel de ventas, efectos asociados a determinadas campañas comerciales u otras variables que no están presentes en este modelo.</p>
+<p>No podemos saber cuál de esas explicaciones es correcta solamente con este análisis. Lo que sí podemos afirmar es que <strong>el patrón de los errores proporciona una pista sobre las limitaciones del modelo</strong>.</p>
+<hr>
+</section>
+<section id="qué-aprendimos" class="level1">
+<h1>14. ¿Qué aprendimos?</h1>
+<p>Este análisis nos permite pasar de una simple descripción histórica a una evaluación de pronósticos.</p>
+<p>Primero observamos que las ventas mensuales de Superstore presentan una tendencia general ascendente y diferencias importantes entre los meses del año.</p>
+<p>Después utilizamos esos dos componentes para construir un modelo bayesiano sencillo:</p>
+<pre class="text"><code>ventas ~ tiempo + mes</code></pre>
+<p>El modelo estimó una tendencia positiva de aproximadamente <strong>472 dólares adicionales por mes</strong>, manteniendo constante el efecto mensual.</p>
+<p>Posteriormente reservamos seis meses que el modelo no había visto y generamos predicciones posteriores para ellos.</p>
+<p>El resultado fue mixto.</p>
+<p>Algunas predicciones estuvieron muy cerca de las ventas observadas, mientras que otras quedaron considerablemente por debajo. En particular, octubre y noviembre mostraron errores importantes y los valores observados quedaron fuera de los intervalos predictivos del 90%.</p>
+<p>Las métricas resumen esta situación:</p>
+<pre class="text"><code>MAE          ≈ 14.265 dólares
+RMSE         ≈ 18.069 dólares
+Cobertura 90%      50%</code></pre>
+<p>Más que considerar estos números como una calificación aislada del modelo, podemos utilizarlos para formular nuevas preguntas.</p>
+<p>¿Por qué el modelo subestimó las ventas de octubre y noviembre?</p>
+<p>¿Existe alguna variable que explique esos aumentos?</p>
+<p>¿El comportamiento de las ventas depende de categorías, regiones o segmentos de clientes?</p>
+<p>¿Podríamos mejorar el pronóstico incorporando otras características del negocio?</p>
+<p>Estas preguntas nos llevan naturalmente hacia modelos más completos.</p>
+<hr>
+</section>
+<section id="la-importancia-de-evaluar-con-datos-no-utilizados" class="level1">
+<h1>15. La importancia de evaluar con datos no utilizados</h1>
+<p>Una de las ideas más importantes de esta entrada no es una función de R ni una particularidad de <code>rstanarm</code>.</p>
+<p>Es la separación entre <strong>construir un modelo y comprobarlo</strong>.</p>
+<p>Si hubiéramos utilizado los 48 meses para construir el modelo y después hubiéramos evaluado sus predicciones sobre esos mismos 48 meses, estaríamos comprobando principalmente qué tan bien el modelo describe información que ya conoció.</p>
+<p>Aquí hicimos algo diferente.</p>
+<p>El modelo solamente recibió:</p>
+<pre class="text"><code>enero 2014 → junio 2017</code></pre>
+<p>y posteriormente fue evaluado con:</p>
+<pre class="text"><code>julio 2017 → diciembre 2017</code></pre>
+<p>Esta separación nos proporciona una evaluación más cercana a la situación que enfrentaríamos en un problema real de pronóstico: utilizar información histórica para tomar una decisión sobre un período todavía desconocido.</p>
+<hr>
+</section>
+<section id="conclusión" class="level1">
+<h1>Conclusión</h1>
+<p>El propósito de un modelo de forecasting no debería ser producir un número que parezca preciso.</p>
+<p>Su utilidad está en ayudarnos a <strong>tomar decisiones bajo incertidumbre</strong>.</p>
+<p>En este ejercicio construimos un modelo sencillo que utiliza la tendencia temporal y el mes del año para anticipar las ventas mensuales de Superstore. El modelo consiguió aproximarse bastante bien a algunos meses, pero también mostró errores importantes en otros.</p>
+<p>Precisamente ahí aparece el valor del análisis.</p>
+<p>Los errores no son simplemente algo que debemos ocultar después de construir un modelo. También contienen información sobre <strong>lo que el modelo todavía no consigue explicar</strong>.</p>
+<p>En nuestro caso, la subestimación repetida entre agosto y noviembre sugiere que existe algún componente del comportamiento de las ventas que no está siendo capturado por la combinación de tendencia y estacionalidad utilizada.</p>
+<p>La siguiente pregunta ya no es solamente:</p>
+<blockquote class="blockquote">
+<p><strong>¿Podemos pronosticar las ventas?</strong></p>
+</blockquote>
+<p>Ahora podemos preguntar:</p>
+<blockquote class="blockquote">
+<p><strong>¿Qué información adicional necesitamos para producir pronósticos más útiles para el negocio?</strong></p>
+</blockquote>
+<p>Ese es el siguiente paso de nuestro análisis.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

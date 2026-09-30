@@ -1,0 +1,726 @@
+---
+title: "¿Qué tan confiables parecen nuestros pronósticos?"
+description: "Evaluamos pronósticos de ventas con datos históricos, SQL y un modelo bayesiano para distinguir predicciones razonables de incertidumbre ignorada."
+author: "David Villafuerte"
+date: "2026-09-23"
+categories: [Forecasting, Retail, Comunicación]
+format:
+  html:
+    toc: true
+    number-sections: false
+---
+
+# La pregunta de negocio
+
+Un pronóstico puede parecer convincente simplemente porque produce una línea que continúa la tendencia histórica.
+
+Pero eso no es suficiente.
+
+Si queremos utilizar un pronóstico para planificar inventario, recursos o ventas futuras, necesitamos una pregunta más exigente:
+
+> **¿Qué tan razonables parecen nuestras predicciones cuando las comparamos con ventas que realmente ocurrieron?**
+
+En esta entrada vamos a trabajar con las ventas mensuales de Superstore. La idea es sencilla: utilizaremos una parte de la historia para construir el modelo y reservaremos los últimos meses para comprobar cómo se comportan sus predicciones frente a datos que el modelo no utilizó para aprender.
+
+Esta separación es importante. Evaluar un pronóstico con los mismos datos que utilizamos para construirlo puede producir una impresión demasiado optimista.
+
+Además, introduciremos SQL por primera vez dentro de esta colección. SQL tendrá una función concreta: ayudarnos a transformar los datos transaccionales de Superstore en una tabla mensual que podamos utilizar en el análisis.
+
+# Comprendiendo el problema
+
+Superstore contiene 9.994 registros de ventas y una fecha de pedido para cada observación. En los datos utilizados en este proyecto, `Order Date` llega a R como texto.
+
+Antes de transformar esa columna debemos comprobar su estructura real. No vamos a asumir que una fecha almacenada como texto puede convertirse correctamente simplemente porque conocemos el dataset.
+
+## Validar la fecha
+
+Primero cargamos los datos siguiendo el procedimiento utilizado en el proyecto y comprobamos las columnas y el formato real de `Order Date`.
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+
+path <- list.files(
+  "/kaggle/input",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+path <- path[
+  grepl("superstore_sales\\.csv$", path, ignore.case = TRUE)
+][1]
+
+superstore <- read_csv(
+  path,
+  locale = locale(encoding = "Windows-1252"),
+  show_col_types = FALSE
+)
+
+glimpse(superstore)
+
+# Validar el patrón real de las fechas antes de transformarlas.
+fecha_patron_valido <- grepl(
+  "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$",
+  superstore$`Order Date`
+)
+
+order_date <- as.Date(
+  superstore$`Order Date`,
+  format = "%m/%d/%Y"
+)
+
+if (any(!fecha_patron_valido) || anyNA(order_date)) {
+  stop("Order Date no pudo validarse con el formato observado.")
+}
+
+superstore <- superstore %>%
+  mutate(order_date = order_date)
+
+tibble(
+  fecha_minima = min(order_date),
+  fecha_maxima = max(order_date),
+  fechas_no_convertidas = sum(is.na(order_date))
+)
+```
+
+**Resultado pendiente:** comprobar que la transformación produce cero fechas no convertidas y documentar el intervalo temporal observado.
+
+En los datos utilizados para este proyecto, la columna tiene el formato `mes/día/año`, por ejemplo `11/8/2016`. Una vez comprobado esto, podemos continuar.
+
+# Explorando las ventas históricas
+
+Antes de pronosticar necesitamos entender qué estamos intentando predecir.
+
+Los datos originales son transaccionales: cada fila representa una observación de venta. Para forecasting mensual necesitamos cambiar la unidad de análisis.
+
+Aquí aparece nuestra primera utilización de SQL.
+
+No estamos utilizando SQL para sustituir a R. Lo estamos utilizando para responder una pregunta concreta:
+
+> **¿Cómo podemos convertir las transacciones en una serie mensual de ventas?**
+
+## De transacciones a meses con SQL
+
+Copiamos los datos ya validados a una base SQLite temporal y utilizamos `SELECT`, `WHERE`, `GROUP BY` y funciones de agregación.
+
+```{r}
+#| echo: false
+
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+
+ventas_mensuales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    strftime('%Y-%m-01', order_date) AS period,
+    SUM(Sales) AS sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  WHERE order_date IS NOT NULL
+  GROUP BY period
+  ORDER BY period
+  "
+)
+
+dbDisconnect(con)
+
+ventas_mensuales <- ventas_mensuales %>%
+  mutate(
+    period = as.Date(period),
+    sales = as.numeric(sales),
+    average_sale = as.numeric(average_sale),
+    transactions = as.integer(transactions)
+  )
+```
+
+SQL acaba de hacer algo sencillo pero importante: transformar miles de transacciones en una estructura mensual.
+
+Para este artículo, la variable que nos interesa pronosticar es `sales`, el total de ventas de cada mes.
+
+```{r}
+#| echo: false
+
+ggplot(ventas_mensuales, aes(x = period, y = sales)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  labs(
+    title = "Ventas mensuales de Superstore",
+    subtitle = "La serie histórica que utilizaremos para construir y evaluar el pronóstico",
+    x = NULL,
+    y = "Ventas"
+  ) +
+  theme_minimal()
+```
+
+Este gráfico es nuestro punto de partida.
+
+**Interpretación pendiente:** describir la evolución observada, destacando tendencia, variaciones entre meses y posibles patrones estacionales sin atribuir causas que los datos no permiten identificar.
+
+No necesitamos que cada fluctuación tenga una explicación. Para forecasting basta reconocer que el futuro puede depender, al menos parcialmente, de la estructura temporal que observamos en el pasado.
+
+# Separar aprendizaje y evaluación
+
+Ahora viene una decisión metodológica fundamental.
+
+Si utilizáramos todos los meses para construir el modelo y después preguntáramos si el modelo predice bien esos mismos meses, estaríamos evaluando el modelo con información que ya conocía.
+
+En lugar de eso, vamos a reservar los últimos seis meses como un pequeño período de evaluación.
+
+El modelo aprenderá de los meses anteriores y después producirá predicciones para los seis meses que quedaron fuera del entrenamiento.
+
+La lógica es similar a la que encontraríamos en un escenario empresarial real:
+
+**historia conocida → modelo → futuro desconocido en el momento de entrenar → comparación con lo que finalmente ocurrió.**
+
+```{r}
+#| echo: false
+
+ventas_mensuales <- ventas_mensuales %>%
+  arrange(period) %>%
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+# Los últimos seis meses quedan completamente fuera del entrenamiento.
+periodos_evaluacion <- tail(ventas_mensuales$period, 6)
+
+train <- ventas_mensuales %>%
+  filter(!period %in% periodos_evaluacion)
+
+test <- ventas_mensuales %>%
+  filter(period %in% periodos_evaluacion)
+
+tibble(
+  entrenamiento_desde = min(train$period),
+  entrenamiento_hasta = max(train$period),
+  evaluacion_desde = min(test$period),
+  evaluacion_hasta = max(test$period),
+  meses_entrenamiento = nrow(train),
+  meses_evaluacion = nrow(test)
+)
+```
+
+**Resultado pendiente:** documentar las fechas exactas del período de entrenamiento y del período reservado para evaluación.
+
+La separación temporal evita mezclar información futura con información disponible durante el entrenamiento.
+
+# Construyendo el modelo
+
+No necesitamos un modelo excesivamente complejo para formular esta primera evaluación.
+
+Utilizaremos una regresión bayesiana temporal con dos componentes principales:
+
+- una tendencia temporal;
+- un efecto para el mes del año.
+
+La idea es que las ventas puedan cambiar gradualmente a través del tiempo y que, al mismo tiempo, ciertos meses presenten comportamientos diferentes.
+
+El modelo no nos dirá qué ocurrirá exactamente. Nos permitirá generar una distribución de posibles ventas futuras.
+
+Eso cambia la pregunta.
+
+En lugar de preguntar:
+
+> "¿Cuál será la venta de septiembre?"
+
+preguntamos:
+
+> "¿Qué valores de ventas futuras son compatibles con la información que tenemos?"
+
+```{r}
+#| echo: false
+
+modelo <- stan_glm(
+  sales ~ time_index + month,
+  data = train,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+```
+
+Una vez ajustado el modelo, podemos generar predicciones para los meses que dejamos fuera del entrenamiento.
+
+Aquí utilizamos `posterior_predict()`. La diferencia es importante: no obtenemos solamente una línea central, sino muchas predicciones posibles provenientes de la distribución predictiva posterior.
+
+```{r}
+#| echo: false
+
+predicciones <- posterior_predict(
+  modelo,
+  newdata = test
+)
+
+pred_resumen <- tibble(
+  period = test$period,
+  observed = test$sales,
+  predicted_median = apply(predicciones, 2, median),
+  lower_90 = apply(predicciones, 2, quantile, probs = 0.05),
+  upper_90 = apply(predicciones, 2, quantile, probs = 0.95)
+)
+
+pred_resumen
+```
+
+**Resultado pendiente:** revisar la tabla y comprobar que las predicciones y sus intervalos tienen sentido en relación con las ventas observadas.
+
+# ¿Qué tan cerca estuvieron las predicciones?
+
+Ahora podemos hacer la comparación que motivó todo el análisis.
+
+```{r}
+#| echo: false
+
+ggplot(pred_resumen, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = lower_90, ymax = upper_90),
+    alpha = 0.20
+  ) +
+  geom_line(
+    aes(y = observed),
+    linewidth = 1
+  ) +
+  geom_point(
+    aes(y = observed),
+    size = 2
+  ) +
+  geom_line(
+    aes(y = predicted_median),
+    linetype = "dashed",
+    linewidth = 0.9
+  ) +
+  geom_point(
+    aes(y = predicted_median),
+    size = 2
+  ) +
+  labs(
+    title = "Predicciones frente a las ventas observadas",
+    subtitle = "La banda representa el intervalo predictivo del 90%",
+    x = NULL,
+    y = "Ventas"
+  ) +
+  theme_minimal()
+```
+
+La línea de puntos representa la predicción central. La banda muestra un conjunto más amplio de resultados plausibles.
+
+Aquí debemos resistir una tentación habitual: juzgar el pronóstico únicamente por si la línea central coincide exactamente con cada observación.
+
+Un pronóstico probabilístico puede ser razonable aunque su valor central no coincida con el valor observado. La pregunta también es si los resultados observados se encuentran dentro de una región predictiva que el modelo consideraba plausible.
+
+**Interpretación pendiente:** describir visualmente qué tan cerca estuvieron las predicciones centrales y cuántas observaciones quedaron dentro de los intervalos predictivos.
+
+# Medir el error
+
+La visualización nos ayuda a entender el comportamiento del pronóstico, pero podemos resumirlo con algunas medidas sencillas.
+
+Calcularemos:
+
+- **MAE:** error absoluto medio;
+- **RMSE:** penaliza con mayor fuerza los errores grandes;
+- **cobertura del intervalo predictivo del 90%:** proporción de observaciones que quedaron dentro de la banda predictiva.
+
+```{r}
+#| echo: false
+
+metricas <- pred_resumen %>%
+  summarise(
+    MAE = mean(abs(observed - predicted_median)),
+    RMSE = sqrt(mean((observed - predicted_median)^2)),
+    cobertura_90 = mean(
+      observed >= lower_90 &
+        observed <= upper_90
+    )
+  )
+
+metricas
+```
+
+**Resultado pendiente:** incorporar los valores reales de MAE, RMSE y cobertura obtenidos al ejecutar el análisis.
+
+Estas métricas deben interpretarse conjuntamente.
+
+Un MAE o un RMSE no tiene mucho significado empresarial por sí solo. Su utilidad depende de la escala de las ventas y del propósito del pronóstico.
+
+Por otra parte, la cobertura nos ayuda a estudiar si la incertidumbre predictiva está siendo razonablemente amplia o demasiado estrecha.
+
+# ¿Dónde se equivocó el pronóstico?
+
+Los errores también contienen información.
+
+```{r}
+#| echo: false
+
+errores <- pred_resumen %>%
+  mutate(
+    error = observed - predicted_median
+  )
+
+ggplot(errores, aes(x = error)) +
+  geom_histogram(bins = 8) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    linewidth = 0.8
+  ) +
+  labs(
+    title = "Distribución de los errores de pronóstico",
+    subtitle = "Error = venta observada − predicción central",
+    x = "Error",
+    y = "Número de meses"
+  ) +
+  theme_minimal()
+```
+
+Un error positivo significa que las ventas reales estuvieron por encima de la predicción. Un error negativo significa que el modelo sobreestimó las ventas.
+
+**Interpretación pendiente:** identificar si los errores parecen concentrarse alrededor de cero, si existe algún sesgo visible y si aparecen errores particularmente grandes.
+
+Esto es más útil que simplemente preguntar si el modelo "acertó". Nos permite investigar **cómo** se equivocó.
+
+# Lo que aprendimos
+
+Después de separar entrenamiento y evaluación, generar predicciones y compararlas con los datos observados, podemos responder la pregunta inicial con mayor cuidado.
+
+**Resultado pendiente:** sintetizar aquí los hallazgos reales:
+
+- comportamiento de las predicciones centrales;
+- amplitud de los intervalos predictivos;
+- MAE y RMSE;
+- cobertura del intervalo del 90%;
+- meses con mayores errores;
+- posibles señales de sobreestimación o subestimación.
+
+La conclusión no debería ser "el modelo es bueno" o "el modelo es malo".
+
+La pregunta empresarial es diferente:
+
+> **¿La incertidumbre que presenta el modelo resulta suficientemente informativa para apoyar la planificación?**
+
+Un modelo puede tener errores relativamente pequeños pero intervalos demasiado estrechos. También puede producir intervalos muy amplios que cubran casi cualquier resultado, pero que sean poco útiles para decidir.
+
+La utilidad de un pronóstico está precisamente en encontrar un equilibrio entre **información y honestidad sobre la incertidumbre**.
+
+# ¿Qué haría un analista con esta información?
+
+Un analista no debería entregar únicamente una cifra de ventas futuras.
+
+Entregaría algo más parecido a un escenario:
+
+- una predicción central;
+- un rango de resultados plausibles;
+- una medida del desempeño observado en el período de evaluación;
+- una explicación de las principales fuentes de incertidumbre.
+
+Esto permite que una decisión empresarial tenga en cuenta el riesgo.
+
+Por ejemplo, si una planificación de inventario requiere prepararse para un nivel de demanda alto, puede ser más relevante conocer el extremo superior de la distribución predictiva que concentrarse únicamente en la mediana.
+
+**Resultado pendiente:** adaptar esta recomendación a los resultados reales obtenidos, especialmente a la cobertura observada y a los errores del período de evaluación.
+
+# Reflexión bayesiana
+
+Un pronóstico no es una promesa sobre el futuro.
+
+Es una forma estructurada de representar lo que creemos que podría ocurrir, dadas las evidencias disponibles y las incertidumbres que permanecen.
+
+En este análisis comenzamos con datos transaccionales, utilizamos SQL para estructurarlos y después empleamos R y un modelo bayesiano para producir predicciones.
+
+El paso más importante, sin embargo, no fue generar una cifra.
+
+Fue reservar información que el modelo no había visto y preguntarnos qué tan bien se comportaban sus predicciones frente a la realidad.
+
+Esa es una idea fundamental en Business Analytics:
+
+**predecir no significa eliminar la incertidumbre; significa aprender a medirla y comunicarla.**
+
+## Apéndice — Código completo
+
+El siguiente código reúne, en el mismo orden cronológico, las instrucciones utilizadas durante el análisis. Se presenta con `eval: false` para evitar una segunda ejecución durante el renderizado.
+
+### Cargar y validar los datos
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+
+path <- list.files(
+  "/kaggle/input",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+path <- path[
+  grepl("superstore_sales\\.csv$", path, ignore.case = TRUE)
+][1]
+
+superstore <- read_csv(
+  path,
+  locale = locale(encoding = "Windows-1252"),
+  show_col_types = FALSE
+)
+
+glimpse(superstore)
+
+fecha_patron_valido <- grepl(
+  "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$",
+  superstore$`Order Date`
+)
+
+order_date <- as.Date(
+  superstore$`Order Date`,
+  format = "%m/%d/%Y"
+)
+
+if (any(!fecha_patron_valido) || anyNA(order_date)) {
+  stop("Order Date no pudo validarse con el formato observado.")
+}
+
+superstore <- superstore %>%
+  mutate(order_date = order_date)
+
+tibble(
+  fecha_minima = min(order_date),
+  fecha_maxima = max(order_date),
+  fechas_no_convertidas = sum(is.na(order_date))
+)
+```
+
+### Preparar la tabla mensual con SQL
+
+```{r}
+#| eval: false
+
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+
+ventas_mensuales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    strftime('%Y-%m-01', order_date) AS period,
+    SUM(Sales) AS sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  WHERE order_date IS NOT NULL
+  GROUP BY period
+  ORDER BY period
+  "
+)
+
+dbDisconnect(con)
+
+ventas_mensuales <- ventas_mensuales %>%
+  mutate(
+    period = as.Date(period),
+    sales = as.numeric(sales),
+    average_sale = as.numeric(average_sale),
+    transactions = as.integer(transactions)
+  )
+```
+
+### Visualizar las ventas históricas
+
+```{r}
+#| eval: false
+
+ggplot(ventas_mensuales, aes(x = period, y = sales)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  labs(
+    title = "Ventas mensuales de Superstore",
+    subtitle = "La serie histórica que utilizaremos para construir y evaluar el pronóstico",
+    x = NULL,
+    y = "Ventas"
+  ) +
+  theme_minimal()
+```
+
+### Separar entrenamiento y evaluación
+
+```{r}
+#| eval: false
+
+ventas_mensuales <- ventas_mensuales %>%
+  arrange(period) %>%
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+periodos_evaluacion <- tail(ventas_mensuales$period, 6)
+
+train <- ventas_mensuales %>%
+  filter(!period %in% periodos_evaluacion)
+
+test <- ventas_mensuales %>%
+  filter(period %in% periodos_evaluacion)
+
+tibble(
+  entrenamiento_desde = min(train$period),
+  entrenamiento_hasta = max(train$period),
+  evaluacion_desde = min(test$period),
+  evaluacion_hasta = max(test$period),
+  meses_entrenamiento = nrow(train),
+  meses_evaluacion = nrow(test)
+)
+```
+
+### Ajustar el modelo bayesiano
+
+```{r}
+#| eval: false
+
+modelo <- stan_glm(
+  sales ~ time_index + month,
+  data = train,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+```
+
+### Generar predicciones
+
+```{r}
+#| eval: false
+
+predicciones <- posterior_predict(
+  modelo,
+  newdata = test
+)
+
+pred_resumen <- tibble(
+  period = test$period,
+  observed = test$sales,
+  predicted_median = apply(predicciones, 2, median),
+  lower_90 = apply(predicciones, 2, quantile, probs = 0.05),
+  upper_90 = apply(predicciones, 2, quantile, probs = 0.95)
+)
+
+pred_resumen
+```
+
+### Comparar predicciones y observaciones
+
+```{r}
+#| eval: false
+
+ggplot(pred_resumen, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = lower_90, ymax = upper_90),
+    alpha = 0.20
+  ) +
+  geom_line(
+    aes(y = observed),
+    linewidth = 1
+  ) +
+  geom_point(
+    aes(y = observed),
+    size = 2
+  ) +
+  geom_line(
+    aes(y = predicted_median),
+    linetype = "dashed",
+    linewidth = 0.9
+  ) +
+  geom_point(
+    aes(y = predicted_median),
+    size = 2
+  ) +
+  labs(
+    title = "Predicciones frente a las ventas observadas",
+    subtitle = "La banda representa el intervalo predictivo del 90%",
+    x = NULL,
+    y = "Ventas"
+  ) +
+  theme_minimal()
+```
+
+### Calcular métricas
+
+```{r}
+#| eval: false
+
+metricas <- pred_resumen %>%
+  summarise(
+    MAE = mean(abs(observed - predicted_median)),
+    RMSE = sqrt(mean((observed - predicted_median)^2)),
+    cobertura_90 = mean(
+      observed >= lower_90 &
+        observed <= upper_90
+    )
+  )
+
+metricas
+```
+
+### Analizar los errores
+
+```{r}
+#| eval: false
+
+errores <- pred_resumen %>%
+  mutate(
+    error = observed - predicted_median
+  )
+
+ggplot(errores, aes(x = error)) +
+  geom_histogram(bins = 8) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dashed",
+    linewidth = 0.8
+  ) +
+  labs(
+    title = "Distribución de los errores de pronóstico",
+    subtitle = "Error = venta observada − predicción central",
+    x = "Error",
+    y = "Número de meses"
+  ) +
+  theme_minimal()
+```

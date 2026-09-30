@@ -1,0 +1,286 @@
+---
+title: "codigo"
+format: html
+---
+
+```{r}
+library(tidyverse) 
+library(DBI) 
+library(RSQLite) 
+#library(rstanarm) 
+library(posterior) 
+library(bayesplot) 
+library(ggplot2) 
+
+options(scipen = 999)
+```
+
+```{r}
+superstore <- read_csv( 
+    "../../data/superstore_sales.csv", 
+    locale = locale(encoding = "Windows-1252"), 
+    show_col_types = FALSE 
+)
+```
+
+```{r}
+# Cargar los modelos
+predicciones <- 
+  readRDS("../../R/col3-4/predicciones.rds")
+```
+
+
+
+```{r}
+glimpse(superstore)
+
+```
+
+```{r}
+fecha_patron_valido <- grepl( 
+    "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$", 
+    superstore$`Order Date` 
+) 
+
+order_date <- as.Date( 
+    superstore$`Order Date`, 
+    format = "%m/%d/%Y" 
+)
+
+order_date[1:5]
+```
+
+```{r}
+if (any(!fecha_patron_valido) || anyNA(order_date)) { 
+    stop("Order Date no pudo validarse con el formato observado.") 
+}
+```
+
+```{r}
+superstore <- superstore %>% 
+  mutate(order_date = order_date)
+#class(superstore$order_date) # produce: Date
+unique(superstore$order_date)[1:20]
+```
+
+```{r}
+tibble( 
+    fecha_minima = min(order_date), 
+    fecha_maxima = max(order_date), 
+    fechas_no_convertidas = sum(is.na(order_date)) 
+)
+```
+
+```{r}
+con <- dbConnect(SQLite(), ":memory:") 
+
+dbWriteTable( 
+    con, 
+    "superstore", 
+    superstore, 
+    overwrite = TRUE 
+)
+```
+
+```{r}
+ventas_mensuales <- dbGetQuery( 
+    con, 
+    " 
+    SELECT 
+      strftime(
+      '%Y-%m-01',
+      date('1970-01-01', order_date || ' days')
+      ) AS period,
+      SUM(Sales) AS sales, 
+      AVG(Sales) AS average_sale, 
+      COUNT(*) AS transactions 
+    FROM superstore 
+    WHERE order_date IS NOT NULL 
+    GROUP BY period 
+    ORDER BY period 
+    " 
+)
+ventas_mensuales[1:5,]
+```
+
+```{r}
+dbDisconnect(con)
+```
+
+```{r}
+ventas_mensuales[1:5,] # produce:
+```
+
+```{r}
+ventas_mensuales <- ventas_mensuales %>% 
+  mutate( 
+      period = as.Date(period), 
+      sales = as.numeric(sales), 
+      average_sale = as.numeric(average_sale), 
+      transactions = as.integer(transactions) 
+  )
+ventas_mensuales[1:5,]
+```
+
+```{r}
+ggplot(ventas_mensuales, aes(x = period, y = sales)) + 
+  geom_line(linewidth = 0.8) + 
+  geom_point(size = 1.8) + 
+  labs( 
+      title = "Ventas mensuales de Superstore", 
+      subtitle = "La serie histórica que utilizaremos para construir y evaluar el pronóstico", 
+      x = NULL, 
+      y = "Ventas" 
+  ) + 
+theme_minimal()
+```
+
+```{r}
+ventas_mensuales <- ventas_mensuales %>% 
+  arrange(period) %>% 
+  mutate( 
+      time_index = row_number(), 
+      month = factor( 
+          format(period, "%m"), 
+          levels = sprintf("%02d", 1:12) 
+      ) 
+  )
+ventas_mensuales[1:15,]
+```
+
+```{r}
+periodos_evaluacion <- tail(ventas_mensuales$period, 6)
+periodos_evaluacion
+```
+
+```{r}
+train <- ventas_mensuales %>% 
+  filter(!period %in% periodos_evaluacion)
+train
+```
+
+```{r}
+test <- ventas_mensuales %>% 
+    filter(period %in% periodos_evaluacion)
+test
+```
+
+```{r}
+tibble( 
+    entrenamiento_desde = min(train$period), 
+    entrenamiento_hasta = max(train$period), 
+    evaluacion_desde = min(test$period), 
+    evaluacion_hasta = max(test$period), 
+    meses_entrenamiento = nrow(train), 
+    meses_evaluacion = nrow(test) 
+)
+```
+
+```r
+#| eval: false
+
+modelo <- stan_glm( 
+    sales ~ time_index + month, 
+    data = train, 
+    family = gaussian(), 
+    chains = 2, 
+    iter = 1000, 
+    seed = 1234, 
+    refresh = 0 
+)
+modelo
+```
+
+```r
+predicciones <- posterior_predict( 
+    modelo, 
+    newdata = test 
+)
+```
+
+
+```{r}
+predicciones
+```
+
+```{r}
+pred_resumen <- tibble( 
+    period = test$period, 
+    observed = test$sales, 
+    predicted_median = apply(predicciones, 2, median), 
+    lower_90 = apply(predicciones, 2, quantile, probs = 0.05), 
+    upper_90 = apply(predicciones, 2, quantile, probs = 0.95) 
+)
+pred_resumen
+```
+
+```{r}
+ggplot(pred_resumen, aes(x = period)) + 
+  geom_ribbon( 
+      aes(ymin = lower_90, 
+          ymax = upper_90), 
+      alpha = 0.20 ) + 
+  geom_line( 
+      aes(y = observed), 
+      linewidth = 1 
+  ) + 
+  geom_point( 
+      aes(y = observed), 
+      size = 2 
+  ) + 
+  geom_line( 
+      aes(y = predicted_median), 
+      linetype = "dashed", 
+      linewidth = 0.9 
+  ) + 
+  geom_point( 
+      aes(y = predicted_median), 
+      size = 2 
+  ) + 
+  labs( 
+      title = "Predicciones frente a las ventas observadas", 
+      subtitle = "La banda representa el intervalo predictivo del 90%", 
+      x = NULL, 
+      y = "Ventas" 
+  ) + 
+  theme_minimal()
+```
+
+```{r}
+metricas <- pred_resumen %>% 
+  summarise(
+      MAE = mean(abs(observed - predicted_median)), 
+      RMSE = sqrt(mean((observed - predicted_median)^2)), 
+      cobertura_90 = mean( 
+          observed >= lower_90 & 
+          observed <= upper_90 
+      ) 
+  )
+metricas
+```
+
+```{r}
+errores <- pred_resumen %>% 
+  mutate( 
+      error = observed - predicted_median 
+  )
+errores
+```
+
+```{r}
+ggplot(errores, aes(x = error)) + 
+  geom_histogram(bins = 8) + 
+  geom_vline( 
+      xintercept = 0, 
+      linetype = "dashed", 
+      linewidth = 0.8 
+  ) + 
+  labs( 
+      title = "Distribución de los errores de pronóstico", 
+      subtitle = "Error = venta observada − predicción central", 
+      x = "Error", 
+      y = "Número de meses" 
+  ) + 
+  theme_minimal()
+```
+
