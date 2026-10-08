@@ -1,0 +1,1039 @@
+---
+title: "¿Qué escenarios debería considerar un gerente antes de tomar una decisión?"
+description: "Cómo combinar SQL y forecasting bayesiano para transformar ventas históricas en escenarios probabilísticos útiles para planificar decisiones."
+author: "David Villafuerte"
+date: "2026-10-01"
+categories:
+  - Retail
+  - Forecasting
+  - Comunicación
+format:
+  html:
+    toc: true
+    number-sections: false
+    code-fold: false
+---
+
+# La pregunta de negocio
+
+Un pronóstico puede decirnos qué valores futuros son compatibles con los datos, pero una persona responsable de planificar ventas necesita algo más concreto:
+
+> **¿Qué escenarios debería considerar antes de tomar una decisión?**
+
+Esta pregunta cambia ligeramente la forma de utilizar un modelo de forecasting.
+
+No buscamos una cifra única para el futuro. Buscamos una forma razonable de representar distintos resultados posibles y de comunicar la incertidumbre asociada a ellos.
+
+En esta entrada continuamos el análisis de ventas mensuales de **Superstore Sales**. En los artículos anteriores construimos un pronóstico bayesiano utilizando la evolución temporal de las ventas y la estacionalidad mensual.
+
+Ahora incorporaremos una segunda capa al análisis: utilizaremos SQL para resumir y clasificar el comportamiento histórico antes de convertir la predicción probabilística en escenarios de planificación.
+
+La idea será sencilla:
+
+**SQL organiza la información; el modelo cuantifica la incertidumbre; los escenarios ayudan a pensar en la decisión.**
+
+```r
+library(tidyverse)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+```
+
+# Comprendiendo el problema
+
+Imaginemos que un gerente necesita planificar los próximos seis meses.
+
+Una previsión puntual podría producir, por ejemplo, una cantidad esperada de ventas para cada mes. Pero esa cifra no representa todo lo que el modelo considera posible.
+
+Una planificación basada únicamente en el valor central puede ser insuficiente.
+
+Si las ventas futuras pueden terminar bastante por debajo o bastante por encima de ese valor, la decisión debería considerar esa dispersión.
+
+Por eso vamos a trabajar con tres referencias:
+
+- un **escenario conservador**, asociado a una zona baja de la distribución predictiva;
+- un **escenario central**, representado por la mediana;
+- un **escenario optimista**, asociado a una zona alta de la distribución predictiva.
+
+Estos nombres no significan que el modelo conozca de antemano cuál de ellos ocurrirá. Son etiquetas de planificación para comunicar diferentes puntos de la distribución predictiva.
+
+Antes de llegar al pronóstico, necesitamos asegurarnos de que estamos trabajando con la estructura real de los datos.
+
+# Los datos reales de Superstore
+
+La base utilizada en este proyecto contiene registros de ventas de Superstore.
+
+Antes de transformar cualquier variable temporal, comprobamos directamente en R cómo aparece `Order Date`. Esto es especialmente importante porque una fecha almacenada como texto, como fecha o como número requiere tratamientos diferentes.
+
+```r
+# Ajustar únicamente el nombre del archivo si cambia al cargarlo en Posit Cloud.
+archivo <- "superstore_sales(6).csv"
+
+superstore <- read_csv(
+  archivo,
+  locale = locale(encoding = "Latin1"),
+  show_col_types = FALSE
+)
+
+estructura_inicial <- tibble(
+  variable = c("Order Date", "Sales"),
+  clase = c(class(superstore$`Order Date`)[1],
+            class(superstore$Sales)[1]),
+  ejemplo = c(as.character(superstore$`Order Date`[1]),
+              format(superstore$Sales[1], big.mark = ",", scientific = FALSE))
+)
+
+estructura_inicial
+```
+
+En la versión utilizada para este proyecto, `Order Date` aparece inicialmente como texto y `Sales` como una variable numérica.
+
+No debemos dar por terminada la validación todavía. Antes de convertir las fechas comprobaremos que el formato observado puede transformarse correctamente.
+
+```r
+fecha_prueba <- as.Date(superstore$`Order Date`, format = "%m/%d/%Y")
+
+if (anyNA(fecha_prueba)) {
+  stop("La transformación de Order Date produjo NA inesperados. Revisar el formato antes de continuar.")
+}
+
+superstore <- superstore %>%
+  mutate(
+    order_date = fecha_prueba,
+    period = as.Date(format(order_date, "%Y-%m-01"))
+  )
+
+validacion_fechas <- tibble(
+  fecha_minima = min(superstore$order_date),
+  fecha_maxima = max(superstore$order_date),
+  periodos_mensuales = n_distinct(superstore$period)
+)
+
+validacion_fechas
+```
+
+La validación es una pequeña etapa, pero tiene una función importante: evita construir todo el análisis temporal sobre una conversión incorrecta.
+
+En este proyecto trabajaremos con ventas mensuales.
+
+# SQL: convertir registros en métricas
+
+Hasta ahora hemos comprobado la estructura de los datos y preparado la variable temporal.
+
+El siguiente paso consiste en resumir miles de registros individuales en una tabla que podamos interpretar.
+
+Aquí SQL cumple una función instrumental.
+
+No necesitamos enseñar SQL por separado. Necesitamos responder una pregunta concreta:
+
+> **¿Cómo se comportaron las ventas de cada mes?**
+
+Primero crearemos una base SQLite y copiaremos allí los datos que ya fueron validados en R.
+
+```r
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(con, "superstore", superstore, overwrite = TRUE)
+
+monthly_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    SUM(Sales) AS monthly_sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  GROUP BY period
+  ORDER BY period
+  "
+)
+
+monthly_sales <- monthly_sales %>%
+  mutate(
+    period = as.Date(period)
+  )
+
+monthly_sales %>%
+  slice_head(n = 6)
+```
+
+La agregación transforma los registros individuales en una serie mensual.
+
+Para el forecasting necesitaremos además una secuencia temporal que indique el orden de cada mes.
+
+```r
+monthly_sales <- monthly_sales %>%
+  arrange(period) %>%
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+```
+
+La variable `time_index` representa el paso del tiempo. La variable `month` conserva la información estacional de cada mes del año.
+
+# ¿Qué meses superan un criterio histórico?
+
+Una vez que tenemos las métricas mensuales, aparece una necesidad típica de negocio:
+
+> **¿Qué meses estuvieron por encima del comportamiento mensual promedio?**
+
+Aquí `HAVING` resulta útil porque queremos filtrar **grupos después de una agregación**.
+
+La consulta no busca filas individuales. Busca meses cuyo total de ventas supera el promedio histórico de ventas mensuales.
+
+```r
+dbWriteTable(
+  con,
+  "monthly_sales",
+  monthly_sales %>%
+    mutate(period = as.character(period)),
+  overwrite = TRUE
+)
+
+months_above_average <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    monthly_sales,
+    transactions
+  FROM monthly_sales
+  GROUP BY period, monthly_sales, transactions
+  HAVING monthly_sales >
+    (
+      SELECT AVG(monthly_sales)
+      FROM monthly_sales
+    )
+  ORDER BY period
+  "
+)
+
+months_above_average
+```
+
+Este resultado no es todavía un pronóstico.
+
+Es una descripción del pasado que nos ayuda a entender cómo se comportan los meses cuando los resumimos con una regla explícita.
+
+Y eso es precisamente lo que nos interesa de SQL en esta entrada: **convertir información detallada en estructuras que puedan utilizarse para razonar sobre el negocio.**
+
+# De métricas a categorías
+
+Un gerente también puede necesitar categorías sencillas para comunicar resultados.
+
+En lugar de entregar una lista de 48 valores mensuales, podemos clasificar cada mes respecto de una referencia histórica.
+
+Utilizaremos tres categorías descriptivas:
+
+- **Conservador:** ventas inferiores al 90 % del promedio mensual;
+- **Central:** ventas entre el 90 % y el 110 % del promedio;
+- **Optimista:** ventas superiores al 110 % del promedio.
+
+Estas categorías describen el comportamiento histórico. No son todavía los escenarios futuros del modelo.
+
+La clasificación se realizará con `CASE`.
+
+```r
+monthly_scenarios <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    monthly_sales,
+    transactions,
+    CASE
+      WHEN monthly_sales <
+        0.90 * (SELECT AVG(monthly_sales) FROM monthly_sales)
+        THEN 'Conservador'
+      WHEN monthly_sales <=
+        1.10 * (SELECT AVG(monthly_sales) FROM monthly_sales)
+        THEN 'Central'
+      ELSE 'Optimista'
+    END AS historical_scenario
+  FROM monthly_sales
+  ORDER BY period
+  "
+)
+
+monthly_scenarios
+```
+
+La ventaja de esta clasificación no está en los nombres por sí mismos.
+
+Está en que hacemos explícita una regla de negocio.
+
+En lugar de decir simplemente que un mes "parece bajo", establecemos qué significa bajo respecto de una referencia determinada.
+
+Podemos resumir ahora cuántos meses históricos pertenecen a cada categoría.
+
+```r
+scenario_summary <- monthly_scenarios %>%
+  count(historical_scenario, name = "months") %>%
+  mutate(
+    percentage = months / sum(months)
+  )
+
+scenario_summary
+```
+
+Este resumen será útil como contexto histórico, pero no debemos confundirlo con una probabilidad futura.
+
+Una frecuencia observada en el pasado no equivale automáticamente a una probabilidad de que el mismo escenario ocurra en el futuro.
+
+Para hablar de escenarios futuros necesitamos el modelo predictivo.
+
+# Del historial al futuro
+
+La serie mensual contiene 48 periodos.
+
+En los artículos anteriores utilizamos un modelo bayesiano que relaciona las ventas mensuales con:
+
+- una tendencia temporal;
+- el mes del año.
+
+La especificación es:
+
+```text
+ventas mensuales ~ tiempo + mes del año
+```
+
+El objetivo no es obtener una fórmula perfecta para las ventas.
+
+El objetivo es construir una distribución de posibles ventas futuras que incorpore tanto la información observada como la incertidumbre del modelo.
+
+Antes de utilizar el modelo para proyectar los próximos seis meses, conservaremos la misma lógica de validación temporal utilizada anteriormente: los últimos seis meses históricos se mantienen separados como periodo de prueba.
+
+```r
+n_test <- 6
+
+train_data <- monthly_sales %>%
+  slice_head(n = n() - n_test)
+
+test_data <- monthly_sales %>%
+  slice_tail(n = n_test)
+
+modelo_validacion <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = train_data,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+```
+
+El periodo de prueba nos permite evaluar cómo se comporta el modelo frente a datos que no utilizó para estimar sus parámetros.
+
+Generaremos predicciones para esos seis meses.
+
+```r
+pred_test_draws <- posterior_predict(
+  modelo_validacion,
+  newdata = test_data,
+  draws = 1000
+)
+
+pred_test_summary <- tibble(
+  period = test_data$period,
+  actual = test_data$monthly_sales,
+  predicted_median = apply(pred_test_draws, 2, median),
+  predicted_lower = apply(pred_test_draws, 2, quantile, probs = 0.05),
+  predicted_upper = apply(pred_test_draws, 2, quantile, probs = 0.95)
+)
+
+pred_test_summary
+```
+
+Ahora podemos representar las predicciones junto con los valores observados.
+
+```r
+ggplot(pred_test_summary, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = predicted_lower, ymax = predicted_upper),
+    alpha = 0.20
+  ) +
+  geom_line(
+    aes(y = predicted_median),
+    linewidth = 1
+  ) +
+  geom_point(
+    aes(y = actual),
+    size = 2
+  ) +
+  labs(
+    title = "Validación temporal del pronóstico",
+    subtitle = "Mediana predictiva e intervalo predictivo del 90%",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+```
+
+**Interpretación pendiente:** describir, después de ejecutar el análisis, qué tan bien cubre la banda predictiva los valores observados y qué patrón se observa en los errores. No convertir esta evaluación en una afirmación de exactitud absoluta.
+
+Podemos resumir la validación con dos métricas sencillas: MAE y RMSE.
+
+```r
+validation_metrics <- pred_test_summary %>%
+  summarise(
+    MAE = mean(abs(actual - predicted_median)),
+    RMSE = sqrt(mean((actual - predicted_median)^2)),
+    coverage_90 = mean(
+      actual >= predicted_lower &
+      actual <= predicted_upper
+    )
+  )
+
+validation_metrics
+```
+
+**Resultado pendiente:** interpretar las métricas obtenidas y, especialmente, la cobertura del intervalo predictivo. La interpretación deberá hacerse sobre los seis meses reservados para prueba y no generalizarse automáticamente a otros periodos.
+
+# Pronosticar los próximos seis meses
+
+Una vez realizada la validación, podemos volver a utilizar toda la historia disponible para estimar el modelo que servirá para la proyección futura.
+
+Esto es importante: no necesitamos desperdiciar los seis meses de prueba cuando el objetivo final es construir el pronóstico después de haber evaluado previamente el procedimiento.
+
+```r
+modelo_final <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = monthly_sales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+```
+
+Construiremos ahora los seis periodos siguientes.
+
+```r
+ultimo_periodo <- max(monthly_sales$period)
+
+future_data <- tibble(
+  period = seq.Date(
+    from = ultimo_periodo %m+% months(1),
+    by = "month",
+    length.out = 6
+  )
+) %>%
+  mutate(
+    time_index = max(monthly_sales$time_index) + row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+```
+
+Para evitar depender de funciones adicionales de otros paquetes, la secuencia futura se construirá a partir de los componentes de fecha.
+
+```r
+future_data <- tibble(
+  time_index = (max(monthly_sales$time_index) + 1):
+    (max(monthly_sales$time_index) + 6)
+) %>%
+  mutate(
+    period = as.Date(
+      paste0(
+        format(ultimo_periodo %m+% months(row_number()), "%Y-%m"),
+        "-01"
+      )
+    ),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+```
+
+Ahora generaremos muestras de la distribución predictiva.
+
+Cada fila representa una posible trayectoria futura del modelo.
+
+```r
+future_draws <- posterior_predict(
+  modelo_final,
+  newdata = future_data,
+  draws = 2000
+)
+```
+
+Aquí aparece una diferencia importante respecto de un pronóstico puntual.
+
+El modelo no nos entrega una única respuesta para cada mes.
+
+Nos entrega una distribución de respuestas posibles.
+
+# La distribución predictiva
+
+Podemos visualizar las distribuciones predictivas de los seis meses futuros.
+
+```r
+future_long <- as_tibble(future_draws) %>%
+  setNames(as.character(future_data$period)) %>%
+  pivot_longer(
+    everything(),
+    names_to = "period",
+    values_to = "sales"
+  ) %>%
+  mutate(
+    period = as.Date(period)
+  )
+
+ggplot(future_long, aes(x = sales)) +
+  geom_density() +
+  facet_wrap(~ period, scales = "free") +
+  labs(
+    title = "Distribuciones predictivas de los próximos seis meses",
+    x = "Ventas mensuales posibles",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+**Interpretación pendiente:** describir la posición y dispersión de las distribuciones observadas. Señalar si algunos meses presentan mayor incertidumbre que otros y evitar afirmar que una distribución representa una probabilidad de ocurrencia de un único valor.
+
+# De miles de predicciones a tres escenarios
+
+Para planificar no necesitamos entregar las 2.000 simulaciones a un gerente.
+
+Podemos resumirlas utilizando cuantiles de la distribución predictiva.
+
+En esta entrada utilizaremos:
+
+- percentil 10: escenario conservador;
+- percentil 50: escenario central;
+- percentil 90: escenario optimista.
+
+Los tres puntos pertenecen a la misma distribución predictiva.
+
+Por eso no son tres pronósticos independientes.
+
+Son tres formas de comunicar diferentes zonas del mismo conjunto de resultados posibles.
+
+```r
+future_scenarios <- tibble(
+  period = future_data$period,
+  conservative = apply(
+    future_draws, 2, quantile, probs = 0.10
+  ),
+  central = apply(
+    future_draws, 2, quantile, probs = 0.50
+  ),
+  optimistic = apply(
+    future_draws, 2, quantile, probs = 0.90
+  )
+)
+
+future_scenarios
+```
+
+La comparación resulta más intuitiva cuando la mostramos gráficamente.
+
+```r
+future_scenarios_long <- future_scenarios %>%
+  pivot_longer(
+    cols = -period,
+    names_to = "scenario",
+    values_to = "sales"
+  )
+
+ggplot(
+  future_scenarios_long,
+  aes(x = period, y = sales, group = scenario)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Tres escenarios para los próximos seis meses",
+    subtitle = "Percentiles 10, 50 y 90 de la distribución predictiva",
+    x = NULL,
+    y = "Ventas mensuales",
+    color = NULL
+  ) +
+  theme_minimal()
+```
+
+**Interpretación pendiente:** explicar cómo se separan los tres escenarios y qué significa esa separación para la planificación. No describir el escenario central como una certeza ni el optimista como el resultado esperado.
+
+# Una pregunta más útil para planificar
+
+Hasta ahora hemos visto los escenarios mes a mes.
+
+Pero un gerente puede estar interesado en una pregunta diferente:
+
+> **¿Cuánto podrían sumar las ventas durante los próximos seis meses?**
+
+Esta pregunta es especialmente útil porque una decisión de planificación puede depender del acumulado del periodo y no de un solo mes.
+
+Como cada simulación contiene una trayectoria de seis meses, podemos sumar cada trayectoria.
+
+Así obtenemos una distribución predictiva para las ventas acumuladas del horizonte completo.
+
+```r
+future_total_draws <- rowSums(future_draws)
+
+total_scenarios <- tibble(
+  scenario = c(
+    "Conservador",
+    "Central",
+    "Optimista"
+  ),
+  sales_total = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+)
+
+total_scenarios
+```
+
+Esta tabla será uno de los resultados principales de la entrada.
+
+**Resultado pendiente:** sustituir la interpretación genérica por los valores reales obtenidos después de ejecutar el modelo.
+
+Podemos visualizar la distribución completa del acumulado.
+
+```r
+ggplot(
+  tibble(total_sales = future_total_draws),
+  aes(x = total_sales)
+) +
+  geom_density() +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.10),
+    linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.50),
+    linetype = "solid"
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.90),
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Distribución predictiva de las ventas acumuladas",
+    subtitle = "Horizonte de seis meses",
+    x = "Ventas acumuladas",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+**Interpretación pendiente:** describir la posición, dispersión y asimetría de la distribución acumulada si resultara relevante.
+
+# ¿Qué aporta SQL a los escenarios?
+
+Hasta aquí hemos utilizado SQL para resumir y clasificar el comportamiento histórico.
+
+Es importante no exagerar su función.
+
+SQL no produjo la incertidumbre del pronóstico.
+
+Tampoco decidió cuáles son los escenarios futuros.
+
+Su función fue preparar una estructura de información que permite formular reglas explícitas sobre el comportamiento histórico.
+
+`HAVING` nos permitió seleccionar grupos después de agregarlos.
+
+`CASE` nos permitió convertir una métrica numérica en categorías comprensibles.
+
+El modelo bayesiano hizo algo diferente: utilizó la información histórica para construir una distribución de posibles resultados futuros.
+
+Esta separación de responsabilidades es útil:
+
+**SQL organiza.**
+
+**El modelo cuantifica la incertidumbre.**
+
+**Los escenarios comunican posibilidades para planificar.**
+
+# ¿Qué haría un analista con esta información?
+
+La utilidad del análisis aparece cuando dejamos de preguntar cuál es "el pronóstico correcto" y empezamos a preguntar qué decisiones serían razonables bajo diferentes resultados.
+
+Un responsable de planificación podría utilizar el escenario conservador para evaluar si los recursos actuales serían suficientes incluso ante un nivel bajo de ventas.
+
+El escenario central puede servir como referencia para una planificación intermedia.
+
+El escenario optimista puede utilizarse para explorar qué ocurriría si las ventas se sitúan en una zona alta de la distribución predictiva.
+
+Pero estos escenarios no deben convertirse automáticamente en órdenes de compra, presupuestos o metas comerciales.
+
+Una decisión real necesitaría incorporar también información que no está presente en este modelo: inventario, capacidad operativa, precios, promociones, cambios en el mercado, costos y otros factores relevantes.
+
+El valor del análisis está en hacer explícita una incertidumbre que de otro modo podría quedar escondida detrás de una única cifra.
+
+# Una última precaución
+
+Hay una diferencia importante entre **clasificar el pasado** y **predecir el futuro**.
+
+Las categorías históricas que construimos con SQL fueron creadas mediante reglas basadas en el comportamiento observado.
+
+Los escenarios predictivos, en cambio, provienen de la distribución generada por el modelo.
+
+No debemos interpretar que porque cierta categoría haya aparecido muchas veces en el pasado exista automáticamente la misma probabilidad de observarla en los próximos seis meses.
+
+La distribución predictiva incorpora la estructura temporal del modelo y su incertidumbre.
+
+Y aun así, sigue siendo un modelo.
+
+No es una garantía sobre lo que ocurrirá.
+
+# Reflexión bayesiana
+
+Un buen pronóstico no elimina la incertidumbre.
+
+La hace visible.
+
+En lugar de preguntar:
+
+> "¿Cuánto venderemos?"
+
+podemos formular una pregunta más útil:
+
+> "¿Qué resultados futuros son compatibles con la información disponible y qué implicaciones tendría cada uno?"
+
+Ese cambio parece pequeño, pero modifica la forma de planificar.
+
+SQL ayuda a organizar la evidencia histórica.
+
+R permite explorarla y comunicarla.
+
+El modelo bayesiano transforma esa evidencia en una distribución predictiva.
+
+Y los escenarios convierten esa distribución en una herramienta para pensar sobre decisiones.
+
+La ventaja no consiste en adivinar el futuro.
+
+Consiste en estar mejor preparados para varios futuros plausibles.
+
+# Apéndice — Código completo
+
+El siguiente código reúne, en el mismo orden en que aparece en el análisis, las instrucciones utilizadas para reproducir la entrada.
+
+Todos los bloques del apéndice utilizan `eval: false` para evitar una segunda ejecución durante el renderizado.
+
+## 1. Librerías y opciones
+
+```{r}
+#| eval: false
+
+library(tidyverse)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+```
+
+## 2. Carga y validación inicial
+
+```{r}
+#| eval: false
+
+archivo <- "superstore_sales(6).csv"
+
+superstore <- read_csv(
+  archivo,
+  locale = locale(encoding = "Latin1"),
+  show_col_types = FALSE
+)
+
+estructura_inicial <- tibble(
+  variable = c("Order Date", "Sales"),
+  clase = c(class(superstore$`Order Date`)[1],
+            class(superstore$Sales)[1]),
+  ejemplo = c(as.character(superstore$`Order Date`[1]),
+              format(superstore$Sales[1], big.mark = ",", scientific = FALSE))
+)
+
+estructura_inicial
+```
+
+## 3. Transformación y validación de fechas
+
+```{r}
+#| eval: false
+
+fecha_prueba <- as.Date(superstore$`Order Date`, format = "%m/%d/%Y")
+
+if (anyNA(fecha_prueba)) {
+  stop("La transformación de Order Date produjo NA inesperados. Revisar el formato antes de continuar.")
+}
+
+superstore <- superstore %>%
+  mutate(
+    order_date = fecha_prueba,
+    period = as.Date(format(order_date, "%Y-%m-01"))
+  )
+
+validacion_fechas <- tibble(
+  fecha_minima = min(superstore$order_date),
+  fecha_maxima = max(superstore$order_date),
+  periodos_mensuales = n_distinct(superstore$period)
+)
+
+validacion_fechas
+```
+
+## 4. SQLite y agregación mensual
+
+```{r}
+#| eval: false
+
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(con, "superstore", superstore, overwrite = TRUE)
+
+monthly_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    SUM(Sales) AS monthly_sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  GROUP BY period
+  ORDER BY period
+  "
+)
+
+monthly_sales <- monthly_sales %>%
+  mutate(
+    period = as.Date(period)
+  ) %>%
+  arrange(period) %>%
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+```
+
+## 5. SQL con HAVING
+
+```{r}
+#| eval: false
+
+dbWriteTable(
+  con,
+  "monthly_sales",
+  monthly_sales %>%
+    mutate(period = as.character(period)),
+  overwrite = TRUE
+)
+
+months_above_average <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    monthly_sales,
+    transactions
+  FROM monthly_sales
+  GROUP BY period, monthly_sales, transactions
+  HAVING monthly_sales >
+    (
+      SELECT AVG(monthly_sales)
+      FROM monthly_sales
+    )
+  ORDER BY period
+  "
+)
+
+months_above_average
+```
+
+## 6. SQL con CASE
+
+```{r}
+#| eval: false
+
+monthly_scenarios <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    monthly_sales,
+    transactions,
+    CASE
+      WHEN monthly_sales <
+        0.90 * (SELECT AVG(monthly_sales) FROM monthly_sales)
+        THEN 'Conservador'
+      WHEN monthly_sales <=
+        1.10 * (SELECT AVG(monthly_sales) FROM monthly_sales)
+        THEN 'Central'
+      ELSE 'Optimista'
+    END AS historical_scenario
+  FROM monthly_sales
+  ORDER BY period
+  "
+)
+
+monthly_scenarios
+```
+
+## 7. Resumen histórico de escenarios
+
+```{r}
+#| eval: false
+
+scenario_summary <- monthly_scenarios %>%
+  count(historical_scenario, name = "months") %>%
+  mutate(
+    percentage = months / sum(months)
+  )
+
+scenario_summary
+```
+
+## 8. Validación temporal
+
+```{r}
+#| eval: false
+
+n_test <- 6
+
+train_data <- monthly_sales %>%
+  slice_head(n = n() - n_test)
+
+test_data <- monthly_sales %>%
+  slice_tail(n = n_test)
+
+modelo_validacion <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = train_data,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+pred_test_draws <- posterior_predict(
+  modelo_validacion,
+  newdata = test_data,
+  draws = 1000
+)
+
+pred_test_summary <- tibble(
+  period = test_data$period,
+  actual = test_data$monthly_sales,
+  predicted_median = apply(pred_test_draws, 2, median),
+  predicted_lower = apply(pred_test_draws, 2, quantile, probs = 0.05),
+  predicted_upper = apply(pred_test_draws, 2, quantile, probs = 0.95)
+)
+
+validation_metrics <- pred_test_summary %>%
+  summarise(
+    MAE = mean(abs(actual - predicted_median)),
+    RMSE = sqrt(mean((actual - predicted_median)^2)),
+    coverage_90 = mean(
+      actual >= predicted_lower &
+      actual <= predicted_upper
+    )
+  )
+
+validation_metrics
+```
+
+## 9. Modelo final y pronóstico
+
+```{r}
+#| eval: false
+
+modelo_final <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = monthly_sales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+ultimo_periodo <- max(monthly_sales$period)
+
+future_data <- tibble(
+  time_index = (max(monthly_sales$time_index) + 1):
+    (max(monthly_sales$time_index) + 6)
+) %>%
+  mutate(
+    period = as.Date(
+      paste0(
+        format(ultimo_periodo %m+% months(row_number()), "%Y-%m"),
+        "-01"
+      )
+    ),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+future_draws <- posterior_predict(
+  modelo_final,
+  newdata = future_data,
+  draws = 2000
+)
+```
+
+## 10. Escenarios mensuales y acumulados
+
+```{r}
+#| eval: false
+
+future_scenarios <- tibble(
+  period = future_data$period,
+  conservative = apply(
+    future_draws, 2, quantile, probs = 0.10
+  ),
+  central = apply(
+    future_draws, 2, quantile, probs = 0.50
+  ),
+  optimistic = apply(
+    future_draws, 2, quantile, probs = 0.90
+  )
+)
+
+future_total_draws <- rowSums(future_draws)
+
+total_scenarios <- tibble(
+  scenario = c(
+    "Conservador",
+    "Central",
+    "Optimista"
+  ),
+  sales_total = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+)
+
+future_scenarios
+total_scenarios
+```
