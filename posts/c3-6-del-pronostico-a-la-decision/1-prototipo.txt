@@ -1,0 +1,798 @@
+---
+title: "Del pronóstico a la decisión: cómo planificar bajo incertidumbre"
+description: "Integra pronósticos bayesianos, validación y escenarios de ventas para convertir la incertidumbre de Superstore en decisiones de planificación."
+author: "David Villafuerte"
+date: "2026-10-09"
+categories: [Retail, Forecasting, Finanzas]
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    theme: lux
+execute:
+  warning: false
+  message: false
+---
+
+# 1. La pregunta de negocio
+
+En las entradas anteriores de esta colección recorrimos varias partes de un mismo problema. Primero construimos un pronóstico de ventas; después aprendimos a comunicarlo sin presentar una estimación como si fuera una certeza; luego exploramos cómo utilizar escenarios para pensar en inventario y planificación; finalmente, incorporamos la validación temporal y resumimos los resultados en métricas y escenarios.
+
+Ahora podemos reunir esas piezas alrededor de una pregunta práctica:
+
+**¿Cómo utiliza un analista un forecast para apoyar decisiones estratégicas?**
+
+Una empresa no toma decisiones porque exista un pronóstico. Toma decisiones porque necesita comprar inventario, asignar personal, organizar operaciones o preparar su liquidez antes de conocer las ventas reales.
+
+Por eso, el objetivo de esta entrada no es construir un modelo nuevo ni producir otra cifra de ventas. Es mostrar cómo conectar cuatro elementos:
+
+- la historia que cuentan los datos;
+- los escenarios que produce el modelo;
+- la evidencia sobre el desempeño predictivo;
+- las consecuencias empresariales de equivocarse.
+
+El pronóstico es una pieza del proceso. La decisión requiere además conocer el contexto, los recursos disponibles y el costo de los distintos errores.
+
+# 2. Comprender el problema: de transacciones a una perspectiva de planificación
+
+Superstore Sales contiene 9.994 registros y 21 columnas. Para la serie temporal que hemos trabajado en esta colección, la variable `Order Date` se cargó como texto y sus valores siguen el formato mes/día/año. En las entradas anteriores comprobamos la estructura real de esa columna antes de convertirla.
+
+El período histórico va desde enero de 2014 hasta diciembre de 2017. Al sumar las ventas por mes, obtenemos 48 observaciones mensuales. Esta transformación cambia el nivel de análisis: dejamos de estudiar cada transacción individual y pasamos a estudiar la evolución mensual de las ventas.
+
+En los análisis anteriores también vimos que el comportamiento no se resume en una línea perfectamente regular. Existe una tendencia temporal, variaciones importantes entre meses y diferencias que parecen asociarse con la época del año.
+
+Estas características importan para la planificación. Una cifra promedio puede ocultar meses altos y bajos; una tendencia general no garantiza que el siguiente mes se comporte como el anterior.
+
+## Preparar y validar los datos
+
+Antes de utilizar `Order Date`, comprobamos su formato y detenemos el análisis si la conversión genera fechas faltantes inesperadas. Después agrupamos las ventas por mes mediante SQLite. SQL cumple aquí una función instrumental: organiza las transacciones en una tabla mensual que podemos explorar y modelar en R.
+
+```r
+#| echo: false
+library(tidyverse)
+library(lubridate)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+
+# Ajustar únicamente si la ubicación real del archivo en el proyecto es distinta.
+path <- "../../data/superstore_sales.csv"
+
+superstore <- read_csv(
+  path,
+  guess_max = 10000,
+  show_col_types = FALSE
+)
+
+# Inspeccionar la estructura real antes de transformar la fecha.
+glimpse(superstore)
+```
+
+La inspección debe confirmar que `Order Date` existe y está almacenada como texto. No asumimos el formato únicamente por el nombre del dataset: comprobamos el patrón y validamos la conversión antes de continuar.
+
+```r
+#| echo: false
+fecha_patron_valido <- grepl(
+  "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$",
+  superstore$`Order Date`
+)
+
+order_date <- as.Date(
+  superstore$`Order Date`,
+  format = "%m/%d/%Y"
+)
+
+if (any(!fecha_patron_valido) || anyNA(order_date)) {
+  stop(
+    "Order Date no se convirtió correctamente. ",
+    "Revisar los valores y su formato antes de continuar."
+  )
+}
+
+superstore <- superstore |>
+  mutate(
+    order_date = order_date,
+    period = as.Date(format(order_date, "%Y-%m-01"))
+  )
+
+validacion_fechas <- tibble(
+  fecha_minima = min(superstore$order_date),
+  fecha_maxima = max(superstore$order_date),
+  periodos_mensuales = n_distinct(superstore$period),
+  fechas_faltantes = sum(is.na(superstore$order_date))
+)
+
+validacion_fechas
+```
+
+Los resultados de las entradas anteriores sitúan el período entre el 3 de enero de 2014 y el 30 de diciembre de 2017, con 48 períodos mensuales y sin fechas faltantes tras la transformación. Si la validación de esta ejecución no coincide con ese patrón, debemos investigar la diferencia antes de seguir.
+
+```r
+#| echo: false
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+
+monthly_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    SUM(Sales) AS monthly_sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  GROUP BY period
+  ORDER BY period
+  "
+) |>
+  mutate(period = as.Date(period)) |>
+  arrange(period) |>
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+monthly_sales
+```
+
+## ¿Qué historia debemos tener presente?
+
+```r
+#| echo: false
+ggplot(monthly_sales, aes(x = period, y = monthly_sales)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  labs(
+    title = "Ventas mensuales observadas",
+    subtitle = "Superstore Sales, enero de 2014 a diciembre de 2017",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+```
+
+La serie presenta una trayectoria general creciente, pero también una variabilidad mensual considerable. En las entradas anteriores observamos meses con ventas elevadas hacia el final de algunos años y meses mucho más bajos al inicio del año.
+
+La consecuencia para la decisión es sencilla: una tendencia resume parte del comportamiento, pero no elimina las oscilaciones. La planificación necesita tanto una referencia central como una idea de cuánto pueden apartarse las ventas de ella.
+
+# 3. Construir un pronóstico no es lo mismo que confiar en él
+
+En la colección utilizamos una regresión lineal bayesiana que incorpora el paso del tiempo y el mes del año:
+
+\[
+\text{Ventas mensuales} \sim \text{índice temporal} + \text{mes}
+\]
+
+Esta especificación es un paso más allá del modelo inicial basado únicamente en el tiempo. El índice temporal representa la tendencia general, mientras que el mes permite recoger diferencias sistemáticas entre meses. Aun así, no incluye todos los factores que podrían afectar las ventas, como promociones, cambios en la oferta o acontecimientos comerciales.
+
+Para convertir el pronóstico en una herramienta de planificación necesitamos responder dos preguntas distintas:
+
+1. ¿Qué escenarios son compatibles con los datos y el modelo?
+2. ¿Qué tan bien funcionó el modelo al pronosticar períodos que no utilizó para estimarse?
+
+La primera pregunta describe la incertidumbre predictiva. La segunda aporta evidencia sobre el desempeño del procedimiento de pronóstico.
+
+# 4. Evaluar antes de utilizar
+
+Una práctica importante de las entradas anteriores fue reservar los últimos seis meses observados como período de prueba. El modelo se ajustó con los meses anteriores y generó predicciones para los seis meses reservados. De ese modo, la comparación se realizó con observaciones que no participaron en el ajuste de ese modelo.
+
+```r
+#| echo: false
+n_test <- 6
+n_total <- nrow(monthly_sales)
+
+if (n_total <= n_test) {
+  stop("No hay suficientes observaciones para separar entrenamiento y prueba.")
+}
+
+train_data <- monthly_sales |>
+  slice(1:(n_total - n_test))
+
+test_data <- monthly_sales |>
+  slice((n_total - n_test + 1):n_total)
+
+modelo_validacion <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = train_data,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+pred_test_draws <- posterior_predict(
+  modelo_validacion,
+  newdata = test_data,
+  draws = 1000
+)
+
+pred_test_summary <- tibble(
+  period = test_data$period,
+  actual = test_data$monthly_sales,
+  predicted_median = apply(pred_test_draws, 2, median),
+  predicted_lower = apply(
+    pred_test_draws, 2, quantile, probs = 0.05
+  ),
+  predicted_upper = apply(
+    pred_test_draws, 2, quantile, probs = 0.95
+  )
+)
+
+ggplot(pred_test_summary, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = predicted_lower, ymax = predicted_upper),
+    alpha = 0.20
+  ) +
+  geom_line(aes(y = predicted_median), linewidth = 0.8) +
+  geom_point(aes(y = actual), size = 2) +
+  labs(
+    title = "Pronósticos frente a ventas observadas",
+    subtitle = "Seis meses reservados para validación; banda predictiva del 90%",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+```
+
+En la versión definitiva interpretaremos este gráfico con los resultados de la ejecución actual. La línea central representa la mediana predictiva; los puntos representan las ventas observadas y la banda recoge el intervalo predictivo del 90 %. Que una observación quede fuera de la banda no significa por sí solo que todo el modelo sea inútil, pero sí es una señal que merece atención.
+
+```r
+#| echo: false
+validation_metrics <- pred_test_summary |>
+  summarise(
+    MAE = mean(abs(actual - predicted_median)),
+    RMSE = sqrt(mean((actual - predicted_median)^2)),
+    coverage_90 = mean(
+      actual >= predicted_lower & actual <= predicted_upper
+    )
+  ) |>
+  mutate(
+    MAE = round(MAE, 2),
+    RMSE = round(RMSE, 2),
+    coverage_90 = round(coverage_90, 2)
+  )
+
+validation_metrics |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Métrica",
+    values_to = "Resultado"
+  ) |>
+  mutate(
+    Métrica = recode(
+      Métrica,
+      MAE = "Error absoluto medio (MAE)",
+      RMSE = "Raíz del error cuadrático medio (RMSE)",
+      coverage_90 = "Cobertura observada del intervalo del 90 %"
+    )
+  ) |>
+  knitr::kable(
+    col.names = c("Métrica", "Resultado"),
+    caption = "Resumen de la validación temporal"
+  )
+```
+
+El MAE resume la distancia absoluta promedio entre la mediana predictiva y las ventas reales. El RMSE penaliza con más fuerza los errores grandes. La cobertura indica qué proporción de las observaciones de prueba quedó dentro del intervalo predictivo del 90 %.
+
+En la entrada anterior, con la ejecución documentada allí, el MAE fue de aproximadamente **14.320 dólares**, el RMSE de **17.895 dólares** y la cobertura observada fue **0,50**: tres de las seis observaciones quedaron dentro del intervalo del 90 %. Es una muestra de prueba muy pequeña, por lo que estos números son sensibles a cada mes y no deben interpretarse como una medida definitiva del rendimiento futuro.
+
+Esta validación introduce una cautela central para la decisión: un modelo puede producir escenarios detallados y, aun así, equivocarse de manera relevante. La incertidumbre que presenta el modelo no sustituye la evaluación de su desempeño.
+
+# 5. Convertir miles de predicciones en escenarios útiles
+
+Después de la validación, la entrada anterior ajustó el modelo final con los 48 meses disponibles y generó distribuciones predictivas para los seis meses siguientes, de enero a junio de 2018. Para comunicar esas distribuciones se utilizaron tres referencias:
+
+- **Conservador:** percentil 10.
+- **Central:** percentil 50 o mediana.
+- **Optimista:** percentil 90.
+
+No son tres futuros separados ni garantías. Son tres puntos de referencia de una misma distribución predictiva.
+
+```r
+#| echo: false
+modelo_final <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = monthly_sales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+future_data <- tibble(
+  period = seq.Date(
+    from = max(monthly_sales$period) %m+% months(1),
+    by = "month",
+    length.out = 6
+  )
+) |>
+  mutate(
+    time_index = max(monthly_sales$time_index) + row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+future_draws <- posterior_predict(
+  modelo_final,
+  newdata = future_data,
+  draws = 1000
+)
+
+future_scenarios <- tibble(
+  period = future_data$period,
+  conservative = apply(future_draws, 2, quantile, probs = 0.10),
+  central = apply(future_draws, 2, quantile, probs = 0.50),
+  optimistic = apply(future_draws, 2, quantile, probs = 0.90)
+)
+
+future_scenarios_long <- future_scenarios |>
+  pivot_longer(
+    cols = -period,
+    names_to = "scenario",
+    values_to = "sales"
+  ) |>
+  mutate(
+    scenario = recode(
+      scenario,
+      conservative = "Conservador (P10)",
+      central = "Central (P50)",
+      optimistic = "Optimista (P90)"
+    )
+  )
+
+ggplot(
+  future_scenarios_long,
+  aes(x = period, y = sales, color = scenario, group = scenario)
+) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  labs(
+    title = "Tres escenarios para las ventas mensuales",
+    subtitle = "Pronóstico de enero a junio de 2018",
+    x = NULL,
+    y = "Ventas mensuales",
+    color = "Referencia"
+  ) +
+  theme_minimal()
+```
+
+En los resultados documentados en la entrada anterior, marzo presenta el nivel central más alto y febrero el más bajo. Los tres escenarios conservan, en términos generales, esa estructura mensual. Esto puede ayudar a anticipar que la planificación no necesariamente necesita el mismo nivel de recursos todos los meses.
+
+Sin embargo, la forma de las curvas depende del modelo. La validación de seis meses mostró errores relevantes y una cobertura observada limitada. Por eso, estos escenarios deben utilizarse como referencias para conversar y comparar planes, no como compromisos firmes de ventas.
+
+## La perspectiva acumulada
+
+Para algunas decisiones, como la planificación global de recursos o la preparación de un presupuesto, puede ser más útil observar las ventas acumuladas del horizonte que cada mes por separado. Sumamos los seis meses dentro de cada realización predictiva y calculamos los percentiles de esa distribución total.
+
+```r
+#| echo: false
+future_total_draws <- rowSums(future_draws)
+
+total_scenarios <- tibble(
+  Escenario = c("Conservador (P10)", "Central (P50)", "Optimista (P90)"),
+  Ventas_acumuladas = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+) |>
+  mutate(Ventas_acumuladas = round(Ventas_acumuladas, 0))
+
+knitr::kable(
+  total_scenarios,
+  col.names = c("Escenario", "Ventas acumuladas"),
+  caption = "Referencias predictivas para el horizonte de seis meses"
+)
+
+ggplot(
+  tibble(total_sales = future_total_draws),
+  aes(x = total_sales)
+) +
+  geom_density() +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.10),
+    linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.50)
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.90),
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Distribución predictiva de las ventas acumuladas",
+    subtitle = "Horizonte de seis meses; líneas en los percentiles 10, 50 y 90",
+    x = "Ventas acumuladas",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+En la ejecución documentada anteriormente, el escenario conservador acumulado fue de aproximadamente **266.200 dólares**, el central de **313.700 dólares** y el optimista de **354.600 dólares**. La diferencia entre las referencias conservadora y optimista ronda los **88.400 dólares**.
+
+Esa distancia es relevante para planificar, pero no representa una garantía de que las ventas estarán dentro de esos límites. Los escenarios dependen de los datos y de la especificación del modelo; la validación disponible aconseja mantener una actitud prudente.
+
+# 6. Del escenario a la decisión
+
+El paso final no consiste en elegir automáticamente el escenario central. Consiste en preguntar qué consecuencias tendría cada escenario para la operación del negocio.
+
+| Decisión | Pregunta que debería plantearse el equipo |
+|---|---|
+| Inventario | ¿Qué costo tendría comprar demasiado frente a quedarse sin producto? |
+| Personal y capacidad | ¿Qué recursos serían necesarios si la demanda se acerca al escenario optimista? |
+| Liquidez y presupuesto | ¿Podría la empresa sostener sus operaciones si las ventas se acercan al escenario conservador? |
+| Seguimiento | ¿Con qué frecuencia se compararán las ventas reales con el pronóstico y se revisarán los supuestos? |
+
+Esta tabla no determina una política óptima: no disponemos aquí de costos de inventario, márgenes, restricciones de capacidad ni penalizaciones por incumplimiento. Sin esa información no sería responsable afirmar que uno de los escenarios es el mejor para todas las decisiones.
+
+Un analista podría organizar una conversación de planificación en tres pasos:
+
+1. **Definir la decisión concreta.** Por ejemplo, cuánto inventario comprar o qué capacidad operativa preparar.
+2. **Identificar el costo de equivocarse.** Quedarse corto y quedarse con exceso de inventario no tienen necesariamente las mismas consecuencias.
+3. **Usar el pronóstico como referencia y acordar seguimiento.** Comparar las ventas reales con los escenarios y revisar el análisis cuando aparezca nueva información.
+
+Si quedarse sin inventario resulta muy costoso, la empresa podría prestar más atención a escenarios de demanda alta. Si mantener inventario inmoviliza mucho capital, podría dar más peso a escenarios prudentes. La elección depende de las consecuencias empresariales, no únicamente de la forma de la distribución.
+
+Además, el seguimiento debe formar parte del plan. Un pronóstico elaborado una vez no debería tratarse como válido indefinidamente. Cuando se conozcan las ventas reales, el analista podrá evaluar los errores, identificar patrones de desviación y determinar si hace falta revisar el modelo.
+
+# 7. Reflexión bayesiana: decidir sin fingir certeza
+
+La colección nos ha llevado desde una serie mensual hasta un conjunto de escenarios predictivos y una evaluación de sus errores. Cada pieza responde a una pregunta distinta:
+
+- Los datos históricos ayudan a comprender el comportamiento de las ventas.
+- El modelo representa escenarios compatibles con los datos y sus supuestos.
+- La validación ofrece evidencia sobre cómo funcionó el pronóstico en un período no utilizado para ajustarlo.
+- La decisión conecta esa información con los costos, los recursos y los objetivos del negocio.
+
+La principal lección no es que podamos conocer con exactitud las ventas futuras. Es que podemos hacer explícita una parte de la incertidumbre y utilizarla para preparar decisiones más conscientes.
+
+Los escenarios conservador, central y optimista son útiles porque simplifican una distribución extensa. Pero simplificar no significa borrar las limitaciones. En este caso, la validación se basó en solo seis meses y mostró una cobertura del intervalo del 90 % de 0,50 en la ejecución documentada. Esa evidencia no respalda tratar el pronóstico como una garantía.
+
+**Un forecast no es una decisión ni una promesa. Es información imperfecta que, combinada con el contexto del negocio y una evaluación honesta del error, puede ayudar a decidir mejor.**
+
+# Conclusiones
+
+En esta colección hemos visto que anticipar el futuro empresarial no consiste en producir una cifra aislada. Consiste en construir una representación de escenarios plausibles, evaluar cómo se comporta el procedimiento de pronóstico y comunicar la incertidumbre de una manera útil para quienes deben actuar.
+
+Para el horizonte de seis meses documentado en las entradas anteriores, las ventas acumuladas se situaron alrededor de 313.700 dólares como escenario central, con referencias cercanas a 266.200 dólares en el percentil 10 y 354.600 dólares en el percentil 90. Al mismo tiempo, la validación temporal mostró errores relevantes y solo tres de seis observaciones dentro del intervalo predictivo del 90 %.
+
+Ambas piezas de información deben leerse juntas. Los escenarios pueden ayudar a organizar la planificación, mientras que la validación recuerda que el modelo tiene limitaciones y necesita seguimiento.
+
+La pregunta más útil para un negocio no es únicamente «¿cuánto venderemos?», sino:
+
+**¿Qué decisiones podemos preparar hoy, sabiendo que las ventas reales podrían apartarse de nuestro escenario central?**
+
+Ese es el aporte del Business Analytics Bayesiano: no eliminar la incertidumbre, sino convertirla en una parte explícita de la conversación sobre decisiones.
+
+# Apéndice — Código completo
+
+El siguiente código reúne, en orden cronológico, los bloques utilizados en el artículo. Se mantiene sin ejecución durante el renderizado para evitar volver a ajustar los modelos y generar las predicciones por segunda vez. La ruta del archivo debe corresponder a la ubicación real de `superstore_sales.csv` en el proyecto.
+
+```r
+#| eval: false
+# Cargar las librerías necesarias
+library(tidyverse)
+library(lubridate)
+library(DBI)
+library(RSQLite)
+library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+# Evitar notación científica
+options(scipen = 999)
+
+# Cargar datos; ajustar la ruta solo si la ubicación real difiere
+path <- "../../data/superstore_sales.csv"
+superstore <- read_csv(
+  path,
+  guess_max = 10000,
+  show_col_types = FALSE
+)
+
+# Inspeccionar la estructura real
+glimpse(superstore)
+
+# Comprobar el patrón y convertir Order Date
+fecha_patron_valido <- grepl(
+  "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$",
+  superstore$`Order Date`
+)
+order_date <- as.Date(
+  superstore$`Order Date`,
+  format = "%m/%d/%Y"
+)
+
+if (any(!fecha_patron_valido) || anyNA(order_date)) {
+  stop(
+    "Order Date no se convirtió correctamente. ",
+    "Revisar los valores y su formato antes de continuar."
+  )
+}
+
+superstore <- superstore |>
+  mutate(
+    order_date = order_date,
+    period = as.Date(format(order_date, "%Y-%m-01"))
+  )
+
+validacion_fechas <- tibble(
+  fecha_minima = min(superstore$order_date),
+  fecha_maxima = max(superstore$order_date),
+  periodos_mensuales = n_distinct(superstore$period),
+  fechas_faltantes = sum(is.na(superstore$order_date))
+)
+validacion_fechas
+
+# Agregar las transacciones por mes en SQLite
+con <- dbConnect(SQLite(), ":memory:")
+dbWriteTable(con, "superstore", superstore, overwrite = TRUE)
+
+monthly_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    SUM(Sales) AS monthly_sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  GROUP BY period
+  ORDER BY period
+  "
+) |>
+  mutate(period = as.Date(period)) |>
+  arrange(period) |>
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+# Visualizar la historia de ventas
+ggplot(monthly_sales, aes(x = period, y = monthly_sales)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  labs(
+    title = "Ventas mensuales observadas",
+    subtitle = "Superstore Sales, enero de 2014 a diciembre de 2017",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+
+# Separar los seis últimos meses para validación temporal
+n_test <- 6
+n_total <- nrow(monthly_sales)
+if (n_total <= n_test) {
+  stop("No hay suficientes observaciones para separar entrenamiento y prueba.")
+}
+
+train_data <- monthly_sales |>
+  slice(1:(n_total - n_test))
+test_data <- monthly_sales |>
+  slice((n_total - n_test + 1):n_total)
+
+# Ajustar el modelo de validación solo con los datos de entrenamiento
+modelo_validacion <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = train_data,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+# Generar predicciones para el período de prueba
+pred_test_draws <- posterior_predict(
+  modelo_validacion,
+  newdata = test_data,
+  draws = 1000
+)
+
+pred_test_summary <- tibble(
+  period = test_data$period,
+  actual = test_data$monthly_sales,
+  predicted_median = apply(pred_test_draws, 2, median),
+  predicted_lower = apply(
+    pred_test_draws, 2, quantile, probs = 0.05
+  ),
+  predicted_upper = apply(
+    pred_test_draws, 2, quantile, probs = 0.95
+  )
+)
+
+# Comparar predicciones con observaciones reales
+ggplot(pred_test_summary, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = predicted_lower, ymax = predicted_upper),
+    alpha = 0.20
+  ) +
+  geom_line(aes(y = predicted_median), linewidth = 0.8) +
+  geom_point(aes(y = actual), size = 2) +
+  labs(
+    title = "Pronósticos frente a ventas observadas",
+    subtitle = "Seis meses reservados para validación; banda predictiva del 90%",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+
+# Calcular métricas de validación
+validation_metrics <- pred_test_summary |>
+  summarise(
+    MAE = mean(abs(actual - predicted_median)),
+    RMSE = sqrt(mean((actual - predicted_median)^2)),
+    coverage_90 = mean(
+      actual >= predicted_lower & actual <= predicted_upper
+    )
+  ) |>
+  mutate(
+    MAE = round(MAE, 2),
+    RMSE = round(RMSE, 2),
+    coverage_90 = round(coverage_90, 2)
+  )
+
+validation_metrics |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Métrica",
+    values_to = "Resultado"
+  ) |>
+  mutate(
+    Métrica = recode(
+      Métrica,
+      MAE = "Error absoluto medio (MAE)",
+      RMSE = "Raíz del error cuadrático medio (RMSE)",
+      coverage_90 = "Cobertura observada del intervalo del 90 %"
+    )
+  ) |>
+  knitr::kable(
+    col.names = c("Métrica", "Resultado"),
+    caption = "Resumen de la validación temporal"
+  )
+
+# Ajustar el modelo final con los 48 meses
+modelo_final <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = monthly_sales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+
+# Preparar los seis meses futuros
+future_data <- tibble(
+  period = seq.Date(
+    from = max(monthly_sales$period) %m+% months(1),
+    by = "month",
+    length.out = 6
+  )
+) |>
+  mutate(
+    time_index = max(monthly_sales$time_index) + row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+
+# Generar distribuciones predictivas posteriores
+future_draws <- posterior_predict(
+  modelo_final,
+  newdata = future_data,
+  draws = 1000
+)
+
+# Calcular escenarios mensuales: percentiles 10, 50 y 90
+future_scenarios <- tibble(
+  period = future_data$period,
+  conservative = apply(future_draws, 2, quantile, probs = 0.10),
+  central = apply(future_draws, 2, quantile, probs = 0.50),
+  optimistic = apply(future_draws, 2, quantile, probs = 0.90)
+)
+
+future_scenarios_long <- future_scenarios |>
+  pivot_longer(
+    cols = -period,
+    names_to = "scenario",
+    values_to = "sales"
+  ) |>
+  mutate(
+    scenario = recode(
+      scenario,
+      conservative = "Conservador (P10)",
+      central = "Central (P50)",
+      optimistic = "Optimista (P90)"
+    )
+  )
+
+# Visualizar los tres escenarios mensuales
+ggplot(
+  future_scenarios_long,
+  aes(x = period, y = sales, color = scenario, group = scenario)
+) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  labs(
+    title = "Tres escenarios para las ventas mensuales",
+    subtitle = "Pronóstico de enero a junio de 2018",
+    x = NULL,
+    y = "Ventas mensuales",
+    color = "Referencia"
+  ) +
+  theme_minimal()
+
+# Sumar cada realización predictiva para obtener ventas acumuladas
+future_total_draws <- rowSums(future_draws)
+
+total_scenarios <- tibble(
+  Escenario = c("Conservador (P10)", "Central (P50)", "Optimista (P90)"),
+  Ventas_acumuladas = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+) |>
+  mutate(Ventas_acumuladas = round(Ventas_acumuladas, 0))
+
+knitr::kable(
+  total_scenarios,
+  col.names = c("Escenario", "Ventas acumuladas"),
+  caption = "Referencias predictivas para el horizonte de seis meses"
+)
+
+# Visualizar la distribución de ventas acumuladas
+ggplot(
+  tibble(total_sales = future_total_draws),
+  aes(x = total_sales)
+) +
+  geom_density() +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.10),
+    linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.50)
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.90),
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Distribución predictiva de las ventas acumuladas",
+    subtitle = "Horizonte de seis meses; líneas en los percentiles 10, 50 y 90",
+    x = "Ventas acumuladas",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+
+# Cerrar la conexión temporal
+dbDisconnect(con)
+```

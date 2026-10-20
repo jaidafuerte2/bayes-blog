@@ -1,0 +1,429 @@
+---
+title: "code"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(DBI)
+library(RSQLite)
+#library(rstanarm)
+library(posterior)
+library(bayesplot)
+library(ggplot2)
+
+options(scipen = 999)
+```
+
+```{r}
+# Cargar los modelos
+pred_test_draws <- 
+  readRDS("../../R/col3-6/pred_test_draws.rds")
+future_draws <- 
+  readRDS("../../R/col3-6/future_draws.rds")
+```
+
+
+```{r}
+# Ajustar únicamente si la ubicación real del archivo en el proyecto es distinta.
+
+superstore <- read_csv(
+  "../../data/superstore_sales.csv",
+  guess_max = 10000,
+  show_col_types = FALSE
+)
+
+# Inspeccionar la estructura real antes de transformar la fecha.
+glimpse(superstore)
+```
+
+```{r}
+fecha_patron_valido <- grepl(
+  "^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$",
+  superstore$`Order Date`
+)
+
+order_date <- as.Date(
+  superstore$`Order Date`,
+  format = "%m/%d/%Y"
+)
+
+if (any(!fecha_patron_valido) || anyNA(order_date)) {
+  stop(
+    "Order Date no se convirtió correctamente. ",
+    "Revisar los valores y su formato antes de continuar."
+  )
+}
+
+superstore <- superstore |>
+  mutate(
+    order_date = order_date,
+    period = as.Date(format(order_date, "%Y-%m-01"))
+  )
+
+validacion_fechas <- tibble(
+  fecha_minima = min(superstore$order_date),
+  fecha_maxima = max(superstore$order_date),
+  periodos_mensuales = n_distinct(superstore$period),
+  fechas_faltantes = sum(is.na(superstore$order_date))
+)
+
+validacion_fechas
+```
+
+```{r}
+con <- dbConnect(SQLite(), ":memory:")
+
+dbWriteTable(
+  con,
+  "superstore",
+  superstore,
+  overwrite = TRUE
+)
+
+monthly_sales <- dbGetQuery(
+  con,
+  "
+  SELECT
+    period,
+    SUM(Sales) AS monthly_sales,
+    AVG(Sales) AS average_sale,
+    COUNT(*) AS transactions
+  FROM superstore
+  GROUP BY period
+  ORDER BY period
+  "
+)
+monthly_sales
+```
+
+```{r}
+monthly_sales <- monthly_sales |>
+mutate(period = as.Date(period)) |>
+  arrange(period) |>
+  mutate(
+    time_index = row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+monthly_sales
+```
+
+```{r}
+ggplot(monthly_sales, aes(x = period, y = monthly_sales)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  labs(
+    title = "Ventas mensuales observadas",
+    subtitle = "Superstore Sales, enero de 2014 a diciembre de 2017",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+n_test <- 6
+n_total <- nrow(monthly_sales)
+
+if (n_total <= n_test) {
+  stop("No hay suficientes observaciones para separar entrenamiento y prueba.")
+}
+
+train_data <- monthly_sales |>
+  slice(1:(n_total - n_test))
+
+test_data <- monthly_sales |>
+  slice((n_total - n_test + 1):n_total)
+```
+
+
+
+```r
+modelo_validacion <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = train_data,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+modelo_validacion
+```
+
+```r
+pred_test_draws <- posterior_predict(
+  modelo_validacion,
+  newdata = test_data,
+  draws = 1000
+)
+```
+
+```r
+pred_test_draws
+```
+
+```{r}
+pred_test_summary <- tibble(
+  period = test_data$period,
+  actual = test_data$monthly_sales,
+  predicted_median = apply(pred_test_draws, 2, median),
+  predicted_lower = apply(
+    pred_test_draws, 2, quantile, probs = 0.05
+  ),
+  predicted_upper = apply(
+    pred_test_draws, 2, quantile, probs = 0.95
+  )
+)
+pred_test_summary
+```
+
+```{r}
+ggplot(pred_test_summary, aes(x = period)) +
+  geom_ribbon(
+    aes(ymin = predicted_lower, ymax = predicted_upper),
+    alpha = 0.20
+  ) +
+  geom_line(aes(y = predicted_median), linewidth = 0.8) +
+  geom_point(aes(y = actual), size = 2) +
+  labs(
+    title = "Pronósticos frente a ventas observadas",
+    subtitle = "Seis meses reservados para validación; banda predictiva del 90%",
+    x = NULL,
+    y = "Ventas mensuales"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+validation_metrics <- pred_test_summary |>
+  summarise(
+    MAE = mean(abs(actual - predicted_median)),
+    RMSE = sqrt(mean((actual - predicted_median)^2)),
+    coverage_90 = mean(
+      actual >= predicted_lower & actual <= predicted_upper
+    )
+  ) |>
+  mutate(
+    MAE = round(MAE, 2),
+    RMSE = round(RMSE, 2),
+    coverage_90 = round(coverage_90, 2)
+  )
+validation_metrics
+```
+
+```{r}
+validation_metrics |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Métrica",
+    values_to = "Resultado"
+  ) 
+```
+
+```{r}
+validation_metrics |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Métrica",
+    values_to = "Resultado"
+  ) |>
+  mutate(
+    Métrica = recode(
+      Métrica,
+      MAE = "Error absoluto medio (MAE)",
+      RMSE = "Raíz del error cuadrático medio (RMSE)",
+      coverage_90 = "Cobertura observada del intervalo del 90 %"
+    )
+  )
+```
+
+```{r}
+validation_metrics |>
+  pivot_longer(
+    cols = everything(),
+    names_to = "Métrica",
+    values_to = "Resultado"
+  ) |>
+  mutate(
+    Métrica = recode(
+      Métrica,
+      MAE = "Error absoluto medio (MAE)",
+      RMSE = "Raíz del error cuadrático medio (RMSE)",
+      coverage_90 = "Cobertura observada del intervalo del 90 %"
+    )
+  ) |>
+  knitr::kable(
+    col.names = c("Métrica", "Resultado"),
+    caption = "Resumen de la validación temporal"
+  )
+```
+```r
+modelo_final <- stan_glm(
+  monthly_sales ~ time_index + month,
+  data = monthly_sales,
+  family = gaussian(),
+  chains = 2,
+  iter = 1000,
+  seed = 1234,
+  refresh = 0
+)
+modelo_final
+```
+```{r}
+future_data <- tibble(
+  period = seq.Date(
+    from = max(monthly_sales$period) %m+% months(1),
+    by = "month",
+    length.out = 6
+  )
+)
+future_data
+```
+
+```{r}
+future_data <- future_data |>
+mutate(
+    time_index = max(monthly_sales$time_index) + row_number(),
+    month = factor(
+      format(period, "%m"),
+      levels = sprintf("%02d", 1:12)
+    )
+  )
+future_data
+```
+
+
+
+```r
+future_draws <- posterior_predict(
+  modelo_final,
+  newdata = future_data,
+  draws = 1000
+)
+```
+
+```{r}
+future_scenarios <- tibble(
+  period = future_data$period,
+  conservative = apply(future_draws, 2, quantile, probs = 0.10),
+  central = apply(future_draws, 2, quantile, probs = 0.50),
+  optimistic = apply(future_draws, 2, quantile, probs = 0.90)
+)
+future_scenarios
+```
+
+```{r}
+future_scenarios_long <- future_scenarios |>
+  pivot_longer(
+    cols = -period, # por qué sigue apareciendo period ?
+    names_to = "scenario",
+    values_to = "sales"
+  )
+future_scenarios_long
+```
+
+```{r}
+future_scenarios_long <- future_scenarios |>
+  pivot_longer(
+    cols = -period, # por qué sigue apareciendo period ?
+    names_to = "scenario",
+    values_to = "sales"
+  ) |>
+  mutate(
+    scenario = recode(
+      scenario,
+      conservative = "Conservador (P10)",
+      central = "Central (P50)",
+      optimistic = "Optimista (P90)"
+    )
+  )
+future_scenarios_long
+```
+
+```{r}
+ggplot(
+  future_scenarios_long,
+  aes(x = period, y = sales, color = scenario, group = scenario)
+) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  labs(
+    title = "Tres escenarios para las ventas mensuales",
+    subtitle = "Pronóstico de enero a junio de 2018",
+    x = NULL,
+    y = "Ventas mensuales",
+    color = "Referencia"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+future_total_draws <- rowSums(future_draws)
+```
+
+```{r}
+total_scenarios <- tibble(
+  Escenario = c("Conservador (P10)", "Central (P50)", "Optimista (P90)"),
+  Ventas_acumuladas = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+) 
+total_scenarios
+```
+
+```{r}
+total_scenarios <- tibble(
+  Escenario = c("Conservador (P10)", "Central (P50)", "Optimista (P90)"),
+  Ventas_acumuladas = c(
+    quantile(future_total_draws, 0.10),
+    quantile(future_total_draws, 0.50),
+    quantile(future_total_draws, 0.90)
+  )
+) |>
+  mutate(Ventas_acumuladas = round(Ventas_acumuladas, 0))
+total_scenarios
+```
+
+
+```{r}
+ggplot(
+  tibble(total_sales = future_total_draws),
+  aes(x = total_sales)
+) +
+  geom_density() +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.10),
+    linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.50)
+  ) +
+  geom_vline(
+    xintercept = quantile(future_total_draws, 0.90),
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Distribución predictiva de las ventas acumuladas",
+    subtitle = "Horizonte de seis meses; líneas en los percentiles 10, 50 y 90",
+    x = "Ventas acumuladas",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+
+
+
+
+
+
+
+
+

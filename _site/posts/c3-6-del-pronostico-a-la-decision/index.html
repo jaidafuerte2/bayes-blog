@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villafuerte">
+<meta name="dcterms.date" content="2026-10-19">
+<meta name="description" content="Un pronóstico de ventas no es una cifra segura. Con R y un modelo bayesiano, construimos escenarios para planificar y reconocemos sus límites.">
+
+<title>Del pronóstico a la decisión: cómo planificar bajo incertidumbre – Business Analytics Bayesiano</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e4b63f58dceb859deda4f50e930cd0fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Business Analytics Bayesiano</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects.html"> 
+<span class="menu-text">Proyectos</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Sobre el Autor</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/jaimedavidvillafuerte/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jaidafuerte2"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/jvillafuertemd"> <i class="bi bi-twitter-x" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#un-pronóstico-no-es-un-compromiso-con-una-cifra" id="toc-un-pronóstico-no-es-un-compromiso-con-una-cifra" class="nav-link active" data-scroll-target="#un-pronóstico-no-es-un-compromiso-con-una-cifra">Un pronóstico no es un compromiso con una cifra</a></li>
+  <li><a href="#qué-muestran-los-datos" id="toc-qué-muestran-los-datos" class="nav-link" data-scroll-target="#qué-muestran-los-datos">Qué muestran los datos</a></li>
+  <li><a href="#antes-de-pronosticar-ponemos-a-prueba-el-modelo" id="toc-antes-de-pronosticar-ponemos-a-prueba-el-modelo" class="nav-link" data-scroll-target="#antes-de-pronosticar-ponemos-a-prueba-el-modelo">Antes de pronosticar, ponemos a prueba el modelo</a></li>
+  <li><a href="#tres-escenarios-para-enero-junio-de-2018" id="toc-tres-escenarios-para-enero-junio-de-2018" class="nav-link" data-scroll-target="#tres-escenarios-para-enero-junio-de-2018">Tres escenarios para enero-junio de 2018</a></li>
+  <li><a href="#del-escenario-mensual-a-una-referencia-para-el-semestre" id="toc-del-escenario-mensual-a-una-referencia-para-el-semestre" class="nav-link" data-scroll-target="#del-escenario-mensual-a-una-referencia-para-el-semestre">Del escenario mensual a una referencia para el semestre</a></li>
+  <li><a href="#qué-podemos-concluir-y-qué-no" id="toc-qué-podemos-concluir-y-qué-no" class="nav-link" data-scroll-target="#qué-podemos-concluir-y-qué-no">Qué podemos concluir —y qué no—</a></li>
+  <li><a href="#apéndice-código-completo-del-análisis" id="toc-apéndice-código-completo-del-análisis" class="nav-link" data-scroll-target="#apéndice-código-completo-del-análisis">Apéndice: código completo del análisis</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Del pronóstico a la decisión: cómo planificar bajo incertidumbre</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Retail</div>
+    <div class="quarto-category">Forecasting</div>
+    <div class="quarto-category">Comunicación</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Un pronóstico de ventas no es una cifra segura. Con R y un modelo bayesiano, construimos escenarios para planificar y reconocemos sus límites.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villafuerte </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 19, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="un-pronóstico-no-es-un-compromiso-con-una-cifra" class="level2">
+<h2 class="anchored" data-anchor-id="un-pronóstico-no-es-un-compromiso-con-una-cifra">Un pronóstico no es un compromiso con una cifra</h2>
+<p>Cuando una empresa planifica sus compras, inventario, personal o flujo de caja, necesita anticipar cuánto podría vender. Sin embargo, una proyección única puede dar una falsa sensación de certeza: las ventas futuras no se conocen y el error de pronóstico puede ser importante.</p>
+<p>En esta entrada damos el siguiente paso después de construir y evaluar un modelo: convertimos sus predicciones en referencias que ayuden a planificar. Trabajaremos con <strong>Superstore Sales</strong>, con registros de enero de 2014 a diciembre de 2017. El pronóstico de enero-junio de 2018 es un ejercicio retrospectivo: no es una previsión vigente, sino una forma de estudiar cómo se construyen y se interpretan escenarios con la información disponible al cierre de 2017. El objetivo no es adivinar exactamente las ventas de cada mes, sino estimar un rango plausible y explorar qué implicaría para la planificación.</p>
+<p>La idea central es sencilla: <strong>un escenario no es una promesa; es una referencia condicionada por los datos y el modelo</strong>.</p>
+</section>
+<section id="qué-muestran-los-datos" class="level2">
+<h2 class="anchored" data-anchor-id="qué-muestran-los-datos">Qué muestran los datos</h2>
+<p>Agrupamos las ventas por mes y calculamos la suma de <code>Sales</code>, el promedio por registro y el número de filas de la base. En SQL, <code>COUNT(*)</code> cuenta filas; no equivale necesariamente al número de pedidos únicos (<code>Order ID</code>). El archivo contiene 9.994 filas y 21 columnas. Las fechas de pedido van del 3 de enero de 2014 al 30 de diciembre de 2017; después de agrupar, tenemos 48 observaciones mensuales.</p>
+<p>La serie muestra una tendencia general ascendente, aunque con variaciones marcadas. Noviembre y diciembre suelen estar entre los meses de mayores ventas, mientras que enero y febrero tienden a ser más bajos. Esta regularidad aparente sugiere que el tiempo y el mes del año pueden aportar información útil para el pronóstico.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La tendencia no es perfectamente regular. Por eso, una línea que simplemente prolongue el crecimiento histórico sería insuficiente para representar los cambios entre meses. En este ejercicio combinamos dos componentes: el paso del tiempo y la diferencia promedio asociada a cada mes del año.</p>
+</section>
+<section id="antes-de-pronosticar-ponemos-a-prueba-el-modelo" class="level2">
+<h2 class="anchored" data-anchor-id="antes-de-pronosticar-ponemos-a-prueba-el-modelo">Antes de pronosticar, ponemos a prueba el modelo</h2>
+<p>Usamos un modelo bayesiano de regresión normal con la fórmula:</p>
+<p><code>monthly_sales ~ time_index + month</code></p>
+<p>El índice temporal aumenta en una unidad por cada mes observado. La variable <code>month</code> es categórica y enero queda como categoría de referencia. Así, el coeficiente de febrero representa la diferencia estimada entre febrero y enero, manteniendo constante el índice temporal. Los coeficientes de los meses no deben interpretarse como ventas mensuales completas: son diferencias respecto a enero.</p>
+<p>Antes de ajustar el modelo final, reservamos los últimos seis meses de 2017 para una validación temporal. El modelo se ajusta con los primeros 42 meses y genera predicciones para julio-diciembre de 2017. Esta separación es más realista que evaluar el modelo con los mismos datos que utilizó para aprender.</p>
+<p>En la ejecución registrada, el efecto temporal mediano fue de aproximadamente <strong>USD 472 adicionales por mes</strong> en el modelo de validación. La estimación no significa que las ventas necesariamente aumenten esa cantidad todos los meses; resume la tendencia estimada por el modelo, con incertidumbre y después de considerar el mes del año.</p>
+<p>La tabla resume los valores observados y la mediana de las predicciones. El intervalo predictivo del 90% va del percentil 5 al percentil 95: contiene la incertidumbre sobre los parámetros y la variabilidad de nuevas observaciones que incorpora el modelo.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Validación temporal: julio-diciembre de 2017 (USD)</caption>
+<colgroup>
+<col style="width: 9%">
+<col style="width: 21%">
+<col style="width: 20%">
+<col style="width: 24%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Mes</th>
+<th style="text-align: right;">Ventas observadas</th>
+<th style="text-align: right;">Mediana predicha</th>
+<th style="text-align: right;">Límite inferior 90%</th>
+<th style="text-align: right;">Límite superior 90%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2017-07</td>
+<td style="text-align: right;">45264</td>
+<td style="text-align: right;">45621</td>
+<td style="text-align: right;">28845</td>
+<td style="text-align: right;">60622</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-08</td>
+<td style="text-align: right;">63121</td>
+<td style="text-align: right;">43955</td>
+<td style="text-align: right;">27790</td>
+<td style="text-align: right;">60853</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-09</td>
+<td style="text-align: right;">87867</td>
+<td style="text-align: right;">84538</td>
+<td style="text-align: right;">67999</td>
+<td style="text-align: right;">102029</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-10</td>
+<td style="text-align: right;">77777</td>
+<td style="text-align: right;">51950</td>
+<td style="text-align: right;">35194</td>
+<td style="text-align: right;">69544</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2017-11</td>
+<td style="text-align: right;">118448</td>
+<td style="text-align: right;">89935</td>
+<td style="text-align: right;">73291</td>
+<td style="text-align: right;">105547</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2017-12</td>
+<td style="text-align: right;">83829</td>
+<td style="text-align: right;">92010</td>
+<td style="text-align: right;">74709</td>
+<td style="text-align: right;">107897</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La validación deja una advertencia importante: el modelo no captura todos los cambios. En agosto, octubre y noviembre, las ventas observadas quedaron por encima del límite superior del intervalo predictivo del 90%. En julio, septiembre y diciembre, los valores observados quedaron dentro del intervalo.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 42%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Métrica</th>
+<th style="text-align: right;">Resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Error absoluto medio (MAE)</td>
+<td style="text-align: right;">USD 14.368,67</td>
+</tr>
+<tr class="even">
+<td>Raíz del error cuadrático medio (RMSE)</td>
+<td style="text-align: right;">USD 18.286,55</td>
+</tr>
+<tr class="odd">
+<td>Cobertura observada del intervalo predictivo del 90%</td>
+<td style="text-align: right;">3 de 6 meses (50%)</td>
+</tr>
+</tbody>
+</table>
+<p>El MAE resume el tamaño medio del error absoluto; el RMSE penaliza más los errores grandes. La cobertura indica en qué proporción de los meses evaluados el valor real cayó dentro del intervalo predictivo. <strong>Una cobertura del 50% no significa que el modelo tenga un 50% de exactitud</strong>. Significa que solo tres de las seis observaciones reservadas quedaron dentro de ese intervalo.</p>
+<p>Seis meses son una muestra de validación pequeña, por lo que no conviene sacar conclusiones definitivas a partir de esta única prueba. Aun así, el resultado es una señal para actuar con prudencia: los escenarios que siguen sirven para explorar posibilidades, no para asumir que el pronóstico está perfectamente calibrado.</p>
+</section>
+<section id="tres-escenarios-para-enero-junio-de-2018" class="level2">
+<h2 class="anchored" data-anchor-id="tres-escenarios-para-enero-junio-de-2018">Tres escenarios para enero-junio de 2018</h2>
+<p>Con la validación revisada, ajustamos el mismo modelo usando los 48 meses disponibles. En esta ejecución, la mediana del efecto temporal fue de aproximadamente <strong>USD 619 por mes</strong>. El modelo también mantuvo diferencias estacionales: por ejemplo, las ventas de marzo, septiembre, noviembre y diciembre se estimaron por encima de enero, mientras que febrero quedó por debajo.</p>
+<p>El intercepto tiene una interpretación concreta pero condicionada: corresponde a enero cuando <code>time_index = 0</code>, un punto de referencia al inicio de la escala temporal. No es el promedio histórico de todos los eneros. Para los meses futuros, las predicciones combinan ese punto de referencia, la tendencia estimada y el efecto correspondiente al mes.</p>
+<p>Generamos 1.000 predicciones posteriores para cada uno de los seis meses siguientes. Para resumirlas usamos tres cuantiles:</p>
+<ul>
+<li><strong>Conservador (P10):</strong> un valor que deja aproximadamente al 10% de las predicciones por debajo.</li>
+<li><strong>Central (P50):</strong> la mediana predictiva.</li>
+<li><strong>Optimista (P90):</strong> un valor que deja aproximadamente al 90% de las predicciones por debajo.</li>
+</ul>
+<p>P10, P50 y P90 son referencias de una distribución predictiva, no tres futuros que el modelo pueda identificar con certeza. El escenario optimista no es una meta y el conservador no es un mínimo garantizado.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Escenarios predictivos de ventas mensuales (USD)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Mes</th>
+<th style="text-align: right;">Conservador (P10)</th>
+<th style="text-align: right;">Central (P50)</th>
+<th style="text-align: right;">Optimista (P90)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2018-01</td>
+<td style="text-align: right;">27394</td>
+<td style="text-align: right;">41950</td>
+<td style="text-align: right;">57612</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018-02</td>
+<td style="text-align: right;">18926</td>
+<td style="text-align: right;">33469</td>
+<td style="text-align: right;">47486</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2018-03</td>
+<td style="text-align: right;">55819</td>
+<td style="text-align: right;">69540</td>
+<td style="text-align: right;">84815</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018-04</td>
+<td style="text-align: right;">37656</td>
+<td style="text-align: right;">53353</td>
+<td style="text-align: right;">68263</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2018-05</td>
+<td style="text-align: right;">41422</td>
+<td style="text-align: right;">56099</td>
+<td style="text-align: right;">70888</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2018-06</td>
+<td style="text-align: right;">42796</td>
+<td style="text-align: right;">56935</td>
+<td style="text-align: right;">72458</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>En los resultados de esta ejecución, marzo presenta la mediana más alta del semestre, alrededor de <strong>USD 70.000</strong>, mientras que febrero tiene la más baja, cerca de <strong>USD 33.000</strong>. La secuencia mensual de escenarios conserva un patrón parecido: el modelo proyecta un nivel más bajo en febrero, un aumento en marzo y cifras intermedias entre abril y junio.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="del-escenario-mensual-a-una-referencia-para-el-semestre" class="level2">
+<h2 class="anchored" data-anchor-id="del-escenario-mensual-a-una-referencia-para-el-semestre">Del escenario mensual a una referencia para el semestre</h2>
+<p>Para una decisión de planificación, el total acumulado de seis meses puede ser más útil que revisar seis valores aislados. Sumamos los seis meses dentro de cada una de las 1.000 simulaciones predictivas. De esta manera, cada simulación produce un posible total para el semestre y la distribución de esos totales permite obtener nuevos cuantiles.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Escenario acumulado</th>
+<th style="text-align: right;">Ventas estimadas</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Conservador (P10)</td>
+<td style="text-align: right;">USD 268.435</td>
+</tr>
+<tr class="even">
+<td>Central (P50)</td>
+<td style="text-align: right;">USD 310.987</td>
+</tr>
+<tr class="odd">
+<td>Optimista (P90)</td>
+<td style="text-align: right;">USD 354.404</td>
+</tr>
+</tbody>
+</table>
+<p>La mediana de las ventas acumuladas es cercana a <strong>USD 311.000</strong>. En esta ejecución, el percentil 10 se sitúa alrededor de USD 268.000 y el percentil 90 cerca de USD 354.000. La distancia entre estos dos últimos valores —unos USD 86.000— ilustra que la incertidumbre acumulada puede ser relevante para una decisión operativa.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Esta distribución ayuda a cambiar la pregunta de planificación. En vez de preguntar «¿cuánto vamos a vender exactamente?», podemos preguntar «¿qué nivel de ventas conviene usar como referencia y cuánto margen de seguridad necesitamos si el resultado queda por debajo?».</p>
+<p>Por ejemplo, una empresa podría usar el escenario central como referencia inicial de presupuesto y revisar si su liquidez soportaría un resultado cercano al escenario conservador. Una decisión sobre inventario podría necesitar además información sobre márgenes, tiempos de reposición, costos de almacenamiento y consecuencias de quedarse sin producto. El pronóstico de ventas por sí solo no responde esas preguntas, pero puede ser una pieza de la conversación.</p>
+</section>
+<section id="qué-podemos-concluir-y-qué-no" class="level2">
+<h2 class="anchored" data-anchor-id="qué-podemos-concluir-y-qué-no">Qué podemos concluir —y qué no—</h2>
+<p>Este ejercicio convierte una serie histórica en escenarios mensuales y acumulados, pero la calidad de las decisiones depende de reconocer sus límites.</p>
+<ol type="1">
+<li><strong>La estacionalidad parece importante.</strong> En los datos, algunos meses suelen presentar ventas mayores y otros menores. El modelo recoge esas diferencias, además de una tendencia temporal.</li>
+<li><strong>La incertidumbre importa.</strong> Para el semestre, la distribución predictiva abarca desde aproximadamente USD 268.000 en P10 hasta USD 354.000 en P90.</li>
+<li><strong>La validación invita a la cautela.</strong> Solo tres de los seis meses de prueba quedaron dentro del intervalo predictivo del 90%. El desempeño observado en esta muestra es una advertencia sobre la confiabilidad de los escenarios.</li>
+<li><strong>Los escenarios no son decisiones automáticas.</strong> Para decidir compras, personal o caja, hay que combinar el pronóstico con costos, restricciones, márgenes y tolerancia al riesgo.</li>
+<li><strong>El modelo es una simplificación.</strong> Usa una tendencia lineal, categorías mensuales y errores normales. No incorpora promociones, cambios de precios, disponibilidad de inventario, eventos extraordinarios ni otras variables que podrían explicar picos de ventas. Además, una distribución normal puede generar predicciones negativas en sus colas, aunque los cuantiles resumidos aquí sean positivos.</li>
+</ol>
+<p>La conclusión no es que el modelo sepa lo que ocurrirá en 2018. La conclusión es que puede ofrecer una estructura explícita para hablar de futuros posibles, siempre que sus resultados se acompañen de validación y criterio empresarial. <strong>El valor del pronóstico no está en eliminar la incertidumbre, sino en hacerla visible para planificar mejor.</strong></p>
+</section>
+<section id="apéndice-código-completo-del-análisis" class="level2">
+<h2 class="anchored" data-anchor-id="apéndice-código-completo-del-análisis">Apéndice: código completo del análisis</h2>
+<p>El código se presenta en orden cronológico. La ruta del CSV corresponde a la ejecución en Kaggle; para ejecutar el documento en otro entorno, debe cambiarse por la ubicación del archivo. Los fragmentos del apéndice no se ejecutan durante la renderización.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar las librerías necesarias</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Conocer la ubicación del dataset en Kaggle</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">"/kaggle/input"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Asignar la ruta del dataset y cargarlo</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">"/kaggle/input/datasets/jaimevillafuerte/store36/superstore_sales.csv"</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(path, <span class="at">guess_max =</span> <span class="dv">10000</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(superstore)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Validar y convertir las fechas</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>fecha_patron_valido <span class="ot">&lt;-</span> <span class="fu">grepl</span>(</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}$"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>order_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(superstore<span class="sc">$</span><span class="st">`</span><span class="at">Order Date</span><span class="st">`</span>, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span>fecha_patron_valido) <span class="sc">||</span> <span class="fu">anyNA</span>(order_date)) {</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Order Date no se convirtió correctamente. "</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Revisar los valores y su formato antes de continuar."</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>superstore <span class="ot">&lt;-</span> superstore <span class="sc">|&gt;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">order_date =</span> order_date,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">period =</span> <span class="fu">as.Date</span>(<span class="fu">format</span>(order_date, <span class="st">"%Y-%m-01"</span>))</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>validacion_fechas <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">fecha_minima =</span> <span class="fu">min</span>(superstore<span class="sc">$</span>order_date),</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">fecha_maxima =</span> <span class="fu">max</span>(superstore<span class="sc">$</span>order_date),</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">periodos_mensuales =</span> <span class="fu">n_distinct</span>(superstore<span class="sc">$</span>period),</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">fechas_faltantes =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(superstore<span class="sc">$</span>order_date))</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>validacion_fechas</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear una conexión SQLite en memoria y cargar la tabla</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(<span class="fu">SQLite</span>(), <span class="st">":memory:"</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(con, <span class="st">"superstore"</span>, superstore, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Agregar las ventas por mes</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>monthly_sales <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  con,</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="st">"</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="st">    period,</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="st">    SUM(Sales) AS monthly_sales,</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="st">    AVG(Sales) AS average_sale,</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="st">    COUNT(*) AS transactions</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM superstore</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY period</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY period</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="st">  "</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparar el índice temporal y la categoría mensual</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>monthly_sales <span class="ot">&lt;-</span> monthly_sales <span class="sc">|&gt;</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">period =</span> <span class="fu">as.Date</span>(period)) <span class="sc">|&gt;</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(period) <span class="sc">|&gt;</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_index =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> <span class="fu">factor</span>(</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>      <span class="fu">format</span>(period, <span class="st">"%m"</span>),</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Gráfico de las ventas mensuales observadas</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(monthly_sales, <span class="fu">aes</span>(<span class="at">x =</span> period, <span class="at">y =</span> monthly_sales)) <span class="sc">+</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.8</span>) <span class="sc">+</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Ventas mensuales observadas"</span>,</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Superstore Sales, enero de 2014 a diciembre de 2017"</span>,</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas mensuales"</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Separar los últimos seis meses para validación temporal</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>n_test <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>n_total <span class="ot">&lt;-</span> <span class="fu">nrow</span>(monthly_sales)</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (n_total <span class="sc">&lt;=</span> n_test) {</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"No hay suficientes observaciones para separar entrenamiento y prueba."</span>)</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> monthly_sales <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span>(n_total <span class="sc">-</span> n_test))</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> monthly_sales <span class="sc">|&gt;</span> <span class="fu">slice</span>((n_total <span class="sc">-</span> n_test <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>n_total)</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar el modelo de validación</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>modelo_validacion <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>  monthly_sales <span class="sc">~</span> time_index <span class="sc">+</span> month,</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train_data,</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>modelo_validacion</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar predicciones para los seis meses reservados</span></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>pred_test_draws <span class="ot">&lt;-</span> <span class="fu">posterior_predict</span>(</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>  modelo_validacion,</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> test_data,</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>  <span class="at">draws =</span> <span class="dv">1000</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a><span class="co"># Resumir mediana e intervalo predictivo del 90%</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>pred_test_summary <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>  <span class="at">period =</span> test_data<span class="sc">$</span>period,</span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>  <span class="at">actual =</span> test_data<span class="sc">$</span>monthly_sales,</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_median =</span> <span class="fu">apply</span>(pred_test_draws, <span class="dv">2</span>, median),</span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_lower =</span> <span class="fu">apply</span>(pred_test_draws, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.05</span>),</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">predicted_upper =</span> <span class="fu">apply</span>(pred_test_draws, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.95</span>)</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>pred_test_summary</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="co"># Graficar las predicciones y los valores observados</span></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(pred_test_summary, <span class="fu">aes</span>(<span class="at">x =</span> period)) <span class="sc">+</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> predicted_lower, <span class="at">ymax =</span> predicted_upper),</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.20</span>) <span class="sc">+</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> predicted_median), <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> actual), <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Pronósticos frente a ventas observadas"</span>,</span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Validación temporal, julio-diciembre de 2017"</span>,</span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas mensuales"</span></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular las métricas de validación</span></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>validation_metrics <span class="ot">&lt;-</span> pred_test_summary <span class="sc">|&gt;</span></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">MAE =</span> <span class="fu">mean</span>(<span class="fu">abs</span>(actual <span class="sc">-</span> predicted_median)),</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">RMSE =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((actual <span class="sc">-</span> predicted_median)<span class="sc">^</span><span class="dv">2</span>)),</span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">coverage_90 =</span> <span class="fu">mean</span>(</span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a>      actual <span class="sc">&gt;=</span> predicted_lower <span class="sc">&amp;</span> actual <span class="sc">&lt;=</span> predicted_upper</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>    <span class="at">MAE =</span> <span class="fu">round</span>(MAE, <span class="dv">2</span>),</span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>    <span class="at">RMSE =</span> <span class="fu">round</span>(RMSE, <span class="dv">2</span>),</span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">coverage_90 =</span> <span class="fu">round</span>(coverage_90, <span class="dv">2</span>)</span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>validation_metrics</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>validation_metrics <span class="sc">|&gt;</span></span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Métrica"</span>,</span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Resultado"</span></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>    Métrica <span class="ot">=</span> <span class="fu">recode</span>(</span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>      Métrica,</span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>      <span class="at">MAE =</span> <span class="st">"Error absoluto medio (MAE)"</span>,</span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>      <span class="at">RMSE =</span> <span class="st">"Raíz del error cuadrático medio (RMSE)"</span>,</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>      <span class="at">coverage_90 =</span> <span class="st">"Cobertura observada del intervalo del 90 %"</span></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Métrica"</span>, <span class="st">"Resultado"</span>),</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Resumen de la validación temporal"</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar el modelo final con los 48 meses</span></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>modelo_final <span class="ot">&lt;-</span> <span class="fu">stan_glm</span>(</span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>  monthly_sales <span class="sc">~</span> time_index <span class="sc">+</span> month,</span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> monthly_sales,</span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">gaussian</span>(),</span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">2</span>,</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>  <span class="at">refresh =</span> <span class="dv">0</span></span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>modelo_final</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a><span class="co"># Crear los seis meses futuros</span></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>future_data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>  <span class="at">period =</span> <span class="fu">seq.Date</span>(</span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>    <span class="at">from =</span> <span class="fu">max</span>(monthly_sales<span class="sc">$</span>period) <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">1</span>),</span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"month"</span>,</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">6</span></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>future_data <span class="ot">&lt;-</span> future_data <span class="sc">|&gt;</span></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_index =</span> <span class="fu">max</span>(monthly_sales<span class="sc">$</span>time_index) <span class="sc">+</span> <span class="fu">row_number</span>(),</span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> <span class="fu">factor</span>(</span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>      <span class="fu">format</span>(period, <span class="st">"%m"</span>),</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">sprintf</span>(<span class="st">"%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>future_data</span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar predicciones posteriores para los seis meses futuros</span></span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>future_draws <span class="ot">&lt;-</span> <span class="fu">posterior_predict</span>(</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>  modelo_final,</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> future_data,</span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>  <span class="at">draws =</span> <span class="dv">1000</span></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener escenarios mensuales P10, P50 y P90</span></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>future_scenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>  <span class="at">period =</span> future_data<span class="sc">$</span>period,</span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>  <span class="at">conservative =</span> <span class="fu">apply</span>(future_draws, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.10</span>),</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>  <span class="at">central =</span> <span class="fu">apply</span>(future_draws, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.50</span>),</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimistic =</span> <span class="fu">apply</span>(future_draws, <span class="dv">2</span>, quantile, <span class="at">probs =</span> <span class="fl">0.90</span>)</span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>future_scenarios</span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertir los escenarios a formato largo</span></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>future_scenarios_long <span class="ot">&lt;-</span> future_scenarios <span class="sc">|&gt;</span></span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>period,</span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"scenario"</span>,</span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"sales"</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a>    <span class="at">scenario =</span> <span class="fu">recode</span>(</span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a>      scenario,</span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a>      <span class="at">conservative =</span> <span class="st">"Conservador (P10)"</span>,</span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a>      <span class="at">central =</span> <span class="st">"Central (P50)"</span>,</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a>      <span class="at">optimistic =</span> <span class="st">"Optimista (P90)"</span></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a><span class="co"># Graficar los tres escenarios mensuales</span></span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>  future_scenarios_long,</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> period, <span class="at">y =</span> sales, <span class="at">color =</span> scenario, <span class="at">group =</span> scenario)</span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Tres escenarios para las ventas mensuales"</span>,</span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Pronóstico de enero a junio de 2018"</span>,</span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Ventas mensuales"</span>,</span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Escenario"</span></span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a><span class="co"># Sumar los seis meses dentro de cada simulación</span></span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a>future_total_draws <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(future_draws)</span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a><span class="co"># Resumir escenarios de ventas acumuladas</span></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a>total_scenarios <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a>  <span class="at">Escenario =</span> <span class="fu">c</span>(<span class="st">"Conservador (P10)"</span>, <span class="st">"Central (P50)"</span>, <span class="st">"Optimista (P90)"</span>),</span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ventas_acumuladas =</span> <span class="fu">c</span>(</span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a>    <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.10</span>),</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a>    <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.50</span>),</span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a>    <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.90</span>)</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Ventas_acumuladas =</span> <span class="fu">round</span>(Ventas_acumuladas, <span class="dv">0</span>))</span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a>total_scenarios</span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a>  total_scenarios,</span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Escenario"</span>, <span class="st">"Ventas acumuladas"</span>),</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Referencias predictivas para el horizonte de seis meses"</span></span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a><span class="co"># Graficar la distribución predictiva de ventas acumuladas</span></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">total_sales =</span> future_total_draws),</span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> total_sales)</span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.10</span>),</span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.50</span>)) <span class="sc">+</span></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> <span class="fu">quantile</span>(future_total_draws, <span class="fl">0.90</span>),</span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribución predictiva de las ventas acumuladas"</span>,</span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Total de enero a junio de 2018"</span>,</span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ventas acumuladas"</span>,</span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Densidad"</span></span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a><span class="co"># Guardar matrices de predicciones si se necesitan reutilizar</span></span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(pred_test_draws, <span class="st">"pred_test_draws.rds"</span>)</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(future_draws, <span class="st">"future_draws.rds"</span>)</span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a><span class="co"># Cerrar la conexión SQLite</span></span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(con)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
